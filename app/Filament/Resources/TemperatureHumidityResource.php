@@ -110,13 +110,12 @@ class TemperatureHumidityResource extends Resource
                             ->label('Room')
                             ->relationship('room', 'room_name')
                             ->options(function (callable $get) {
-                                $locationId = $get('location_id');
+                                $locationId = Auth::user()->location_id;
                                 if (!$locationId) {
                                     return [];
                                 }
                                 $usedRoomIds = TemperatureHumidity::whereDate('date', now()->toDateString())->pluck('room_id');
                                 return Room::where('location_id', $locationId)
-                                    ->whereNotIn('id', $usedRoomIds)
                                     ->pluck('room_name', 'id');
                             })
                             ->searchable()
