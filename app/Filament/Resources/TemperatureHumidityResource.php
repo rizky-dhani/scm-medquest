@@ -235,7 +235,7 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
                                     )
-                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    ->helperText('Leave it empty, it will autimatically added.'),
                                     
                                 ]),
                             // ->disabled(fn (string $operation) => 
@@ -291,7 +291,7 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
                                     )
-                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    ->helperText('Leave it empty, it will autimatically added.'),
                                     
                                 ]),
                             // ->disabled(fn (string $operation) => 
@@ -348,7 +348,7 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
                                     )
-                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    ->helperText('Leave it empty, it will autimatically added.'),
                                     
                             ]),
                             // ->disabled(fn (string $operation) => 
@@ -404,7 +404,7 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
                                     )
-                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    ->helperText('Leave it empty, it will autimatically added.'),
                                     
                             ]),
                             // ->disabled(fn (string $operation) => 
@@ -460,7 +460,7 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
                                     )
-                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    ->helperText('Leave it empty, it will autimatically added.'),
                                     
                             ]),
                             // ->disabled(fn (string $operation) => 
@@ -516,7 +516,7 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
                                     )
-                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    ->helperText('Leave it empty, it will autimatically added.'),
                                     
                                 ]),
                             // ->disabled(fn (string $operation) => 
@@ -572,7 +572,7 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
                                     )
-                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    ->helperText('Leave it empty, it will autimatically added.'),
                                     
                                 ]),
                             // ->disabled(fn (string $operation) => 
@@ -628,7 +628,7 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
                                     )
-                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    ->helperText('Leave it empty, it will autimatically added.'),
                                     
                             ])
                             // ->disabled(fn (string $operation) => 
