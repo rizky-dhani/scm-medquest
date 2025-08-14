@@ -27,52 +27,10 @@ class CreateTemperatureHumidity extends CreateRecord
         foreach ($tempFields as $temp) {
             $data[$temp] = $data[$temp] ?? null;
         }
-        // Store observed temperature range
-        $roomTemp = RoomTemperature::find($data['room_temperature_id']);
-        $minTemp = $roomTemp->temperature_start;
-        $maxTemp = $roomTemp->temperature_end;
-
-        $deviationDetected = false;
-
-        // Validate temperature fields
-        foreach ($tempFields as $field) {
-            if (!is_null($data[$field]) && ($data[$field] < $minTemp || $data[$field] > $maxTemp)) {
-                $deviationDetected = true;
-                break; // Stop checking once a deviation is found
-            }
-        }
-
-        if ($deviationDetected) {
-            session()->put('deviation_triggered', true);
-        }
-
-
-        // ✅ Automatically insert user ID into the right PIC field
-        // $now = Carbon::now('Asia/Jakarta');
-        // $signature = auth()->user()->hasRole('Security')
-        //     ? auth()->user()->name
-        //     : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-
-        // $timeWindows = [
-        //     'pic_0200' => ['start' => '02:00:00', 'end' => '02:30:59'],
-        //     'pic_0500' => ['start' => '05:00:00', 'end' => '05:30:59'],
-        //     'pic_0800' => ['start' => '08:00:00', 'end' => '08:30:59'],
-        //     'pic_1100' => ['start' => '11:00:00', 'end' => '11:30:59'],
-        //     'pic_1400' => ['start' => '14:00:00', 'end' => '14:30:59'],
-        //     'pic_1700' => ['start' => '17:00:00', 'end' => '17:30:59'],
-        //     'pic_2000' => ['start' => '20:00:00', 'end' => '20:30:59'],
-        //     'pic_2300' => ['start' => '23:00:00', 'end' => '23:30:59'],
-        // ];
-
-        // foreach ($timeWindows as $picField => $window) {
-        //     $start = Carbon::createFromTimeString($window['start'], 'Asia/Jakarta');
-        //     $end = Carbon::createFromTimeString($window['end'], 'Asia/Jakarta');
-
-        //     if ($now->between($start, $end)) {
-        //         $data[$picField] = $signature;
-        //         break; // Only apply to current window
-        //     }
-        // }
+        
+        // Clear any existing deviation flag to ensure we only check the current time slot
+        session()->forget('deviation_triggered');
+        session()->forget('deviation_data');
 
         return $data;
     }
@@ -86,38 +44,48 @@ class CreateTemperatureHumidity extends CreateRecord
         $roomTemp = $temperatureHumidity->roomTemperature;
         $minTemp = $roomTemp->temperature_start;
         $maxTemp = $roomTemp->temperature_end;
-        // Define temperature fields linked to their respective time fields
+        
+        // Get current time to determine the current time slot
+        $now = Carbon::now('Asia/Jakarta');
+        
+        // Define temperature fields linked to their respective time fields with time windows
         $timeSlots = [
-            'temp_0200' => 'time_0200',
-            'temp_0500' => 'time_0500',
-            'temp_0800' => 'time_0800',
-            'temp_1100' => 'time_1100',
-            'temp_1400' => 'time_1400',
-            'temp_1700' => 'time_1700',
-            'temp_2000' => 'time_2000',
-            'temp_2300' => 'time_2300',
+            'temp_0200' => ['time_field' => 'time_0200', 'start' => '02:00:00', 'end' => '02:30:59'],
+            'temp_0500' => ['time_field' => 'time_0500', 'start' => '05:00:00', 'end' => '05:30:59'],
+            'temp_0800' => ['time_field' => 'time_0800', 'start' => '08:00:00', 'end' => '08:30:59'],
+            'temp_1100' => ['time_field' => 'time_1100', 'start' => '11:00:00', 'end' => '11:30:59'],
+            'temp_1400' => ['time_field' => 'time_1400', 'start' => '14:00:00', 'end' => '14:30:59'],
+            'temp_1700' => ['time_field' => 'time_1700', 'start' => '17:00:00', 'end' => '17:30:59'],
+            'temp_2000' => ['time_field' => 'time_2000', 'start' => '20:00:00', 'end' => '20:30:59'],
+            'temp_2300' => ['time_field' => 'time_2300', 'start' => '23:00:00', 'end' => '23:30:59'],
         ];
 
-        // Check all temperature fields and store deviations
-        foreach ($timeSlots as $tempField => $timeField) {
-            $tempValue = $temperatureHumidity->$tempField; // Get temperature value
-            $inputtedTime = $temperatureHumidity->$timeField ?? 'Unknown Time'; // Get user-inputted time
-            
-            if (!is_null($tempValue) && ($tempValue < $minTemp || $tempValue > $maxTemp)) {
-                $deviationData[] = [
-                    'temperature_id' => $temperatureHumidity->id,
-                    'location_id' => $temperatureHumidity->location_id,
-                    'room_id' => $temperatureHumidity->room_id,
-                    'room_temperature_id' => $temperatureHumidity->room_temperature_id,
-                    'serial_number_id' => $temperatureHumidity->serial_number_id,
-                    'time' => $inputtedTime,
-                    'temperature_deviation' => $tempValue,
-                ];
+        // Check only the current time slot temperature
+        foreach ($timeSlots as $tempField => $slotInfo) {
+            $start = Carbon::createFromTimeString($slotInfo['start'], 'Asia/Jakarta');
+            $end = Carbon::createFromTimeString($slotInfo['end'], 'Asia/Jakarta');
+
+            if ($now->between($start, $end)) {
+                $tempValue = $temperatureHumidity->$tempField; // Get temperature value
+                $inputtedTime = $temperatureHumidity->{$slotInfo['time_field']} ?? 'Unknown Time'; // Get user-inputted time
+                
+                if (!is_null($tempValue) && ($tempValue < $minTemp || $tempValue > $maxTemp)) {
+                    // Only store deviation data for the current time slot
+                    $deviationData = [[
+                        'temperature_id' => $temperatureHumidity->id,
+                        'location_id' => $temperatureHumidity->location_id,
+                        'room_id' => $temperatureHumidity->room_id,
+                        'room_temperature_id' => $temperatureHumidity->room_temperature_id,
+                        'serial_number_id' => $temperatureHumidity->serial_number_id,
+                        'time' => $inputtedTime,
+                        'temperature_deviation' => $tempValue,
+                    ]];
+                    
+                    session()->put('deviation_triggered', true);
+                    session()->put('deviation_data', $deviationData);
+                }
+                break; // Only check the current time slot
             }
-        }
-        if (!empty($deviationData)) {
-        session()->put('deviation_triggered', true);
-        session()->put('deviation_data', $deviationData);
         }
 
         $recipient = auth()->user();
