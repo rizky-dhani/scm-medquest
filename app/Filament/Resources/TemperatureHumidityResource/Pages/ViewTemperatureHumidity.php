@@ -25,7 +25,7 @@ class ViewTemperatureHumidity extends ViewRecord
         return [
             
             EditAction::make()
-                ->visible(fn () => Auth::user()->hasRole('Supply Chain Officer')),
+                ->visible(fn () => Auth::user()->hasRole(['Supply Chain Officer', 'Security'])),
             Action::make('view_deviations')
                 ->label('View Deviations')
                 ->icon('heroicon-o-exclamation-triangle')

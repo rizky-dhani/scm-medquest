@@ -114,7 +114,6 @@ class TemperatureHumidityResource extends Resource
                                 if (!$locationId) {
                                     return [];
                                 }
-                                $usedRoomIds = TemperatureHumidity::whereDate('date', now()->toDateString())->pluck('room_id');
                                 return Room::where('location_id', $locationId)
                                     ->pluck('room_name', 'id');
                             })
@@ -190,7 +189,7 @@ class TemperatureHumidityResource extends Resource
                     ->columns(3)
                     ->schema([
                         Section::make('0200')
-                            ->columns(3)
+                            ->columns(4)
                             ->schema([
                                 TimePicker::make('time_0200')
                                     ->label('Time')
@@ -220,6 +219,15 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
                                     ),
+                                TextInput::make('pic_0200')
+                                    ->default(fn() => (string) auth()->user()->hasRole('Security')
+                                        ? auth()->user()->name : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')))
+                                    ->readOnly(fn () => 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
+                                    )
+                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    
                                 ]),
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
@@ -228,7 +236,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('0500')
-                            ->columns(3)
+                            ->columns(4)
                             ->schema([
                                 TimePicker::make('time_0500')
                                     ->label('Time')
@@ -258,6 +266,15 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
                                     ),
+                                TextInput::make('pic_0500')
+                                    ->default(fn() => (string) auth()->user()->hasRole('Security')
+                                        ? auth()->user()->name : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')))
+                                    ->readOnly(fn () => 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
+                                    )
+                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    
                                 ]),
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
@@ -266,7 +283,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('0800')
-                            ->columns(3)
+                            ->columns(4)
                             ->schema([
                                 TimePicker::make('time_0800')
                                     ->label('Time')
@@ -297,6 +314,15 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
                                     ),
+                                TextInput::make('pic_0800')
+                                    ->default(fn() => (string) auth()->user()->hasRole('Security')
+                                        ? auth()->user()->name : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')))
+                                    ->readOnly(fn () => 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
+                                    )
+                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    
                             ]),
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
@@ -305,7 +331,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('1100')
-                            ->columns(3)
+                            ->columns(4)
                             ->schema([
                                 TimePicker::make('time_1100')
                                     ->label('Time')
@@ -335,6 +361,15 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
                                     ),
+                                TextInput::make('pic_1100')
+                                    ->default(fn() => (string) auth()->user()->hasRole('Security')
+                                        ? auth()->user()->name : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')))
+                                    ->readOnly(fn () => 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
+                                    )
+                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    
                             ]),
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
@@ -343,7 +378,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('1400')
-                            ->columns(3)
+                            ->columns(4)
                             ->schema([
                                 TimePicker::make('time_1400')
                                     ->label('Time')
@@ -373,6 +408,15 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
                                     ),
+                                TextInput::make('pic_1400')
+                                    ->default(fn() => (string) auth()->user()->hasRole('Security')
+                                        ? auth()->user()->name : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')))
+                                    ->readOnly(fn () => 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
+                                    )
+                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    
                             ]),
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
@@ -381,7 +425,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('1700')
-                            ->columns(3)
+                            ->columns(4)
                             ->schema([
                                 TimePicker::make('time_1700')
                                     ->label('Time')
@@ -411,6 +455,15 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
                                     ),
+                                TextInput::make('pic_1700')
+                                    ->default(fn() => (string) auth()->user()->hasRole('Security')
+                                        ? auth()->user()->name : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')))
+                                    ->readOnly(fn () => 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
+                                    )
+                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    
                                 ]),
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
@@ -419,7 +472,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('2000')
-                            ->columns(3)
+                            ->columns(4)
                             ->schema([
                                 TimePicker::make('time_2000')
                                     ->label('Time')
@@ -449,6 +502,15 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
                                     ),
+                                TextInput::make('pic_2000')
+                                    ->default(fn() => (string) auth()->user()->hasRole('Security')
+                                        ? auth()->user()->name : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')))
+                                    ->readOnly(fn () => 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
+                                    )
+                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    
                                 ]),
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
@@ -457,7 +519,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('2300')
-                            ->columns(3)
+                            ->columns(4)
                             ->schema([
                                 TimePicker::make('time_2300')
                                     ->label('Time')
@@ -487,6 +549,15 @@ class TemperatureHumidityResource extends Resource
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
                                     ),
+                                TextInput::make('pic_2300')
+                                    ->default(fn() => (string) auth()->user()->hasRole('Security')
+                                        ? auth()->user()->name : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')))
+                                    ->readOnly(fn () => 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
+                                    )
+                                    ->helperText('Biarkan kosong, akan terisi otomatis.'),
+                                    
                             ])
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
