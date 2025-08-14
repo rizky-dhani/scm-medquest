@@ -38,50 +38,10 @@ class EditTemperatureHumidity extends EditRecord
         foreach ($tempFields as $temp) {
             $data[$temp] = $data[$temp] ?? null;
         }
-        // 🔄 Get temperature range from the selected location
-        $location = RoomTemperature::find($data['room_temperature_id']);
-        $minTemp = $location->temperature_start;
-        $maxTemp = $location->temperature_end;
-        // ✅ Auto-fill signature into current time window's PIC field
-        // $now = Carbon::now('Asia/Jakarta');      
-        // $signature = auth()->user()->hasRole('Security') 
-        //     ? auth()->user()->name 
-        //     : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-
-
-        // $timeWindows = [
-        //     'pic_0200' => ['start' => '02:00:00', 'end' => '02:30:59'],
-        //     'pic_0500' => ['start' => '05:00:00', 'end' => '05:30:59'],
-        //     'pic_0800' => ['start' => '08:00:00', 'end' => '08:30:59'],
-        //     'pic_1100' => ['start' => '11:00:00', 'end' => '11:30:59'],
-        //     'pic_1400' => ['start' => '14:00:00', 'end' => '14:30:59'],
-        //     'pic_1700' => ['start' => '17:00:00', 'end' => '17:30:59'],
-        //     'pic_2000' => ['start' => '20:00:00', 'end' => '20:30:59'],
-        //     'pic_2300' => ['start' => '23:00:00', 'end' => '23:30:59'],
-        // ];
-
-        // foreach ($timeWindows as $picField => $window) {
-        //     $start = Carbon::createFromTimeString($window['start'], 'Asia/Jakarta');
-        //     $end = Carbon::createFromTimeString($window['end'], 'Asia/Jakarta');
-
-        //     if ($now->between($start, $end)) {
-        //         $data[$picField] = $signature;
-        //         break;
-        //     }
-        // }
             
-        // Trigger deviation if value out of range
-        $deviationDetected = false;
-        foreach ($tempFields as $field) {
-            if (!is_null($data[$field]) && ($data[$field] < $minTemp || $data[$field] > $maxTemp)) {
-                $deviationDetected = true;
-                break;
-            }
-        }
-
-        if ($deviationDetected) {
-            session()->put('deviation_triggered', true);
-        }
+        // Clear any existing deviation flag to ensure we only check the current time slot
+        session()->forget('deviation_triggered');
+        session()->forget('deviation_data');
 
         return $data;
     }
