@@ -129,7 +129,7 @@ class UserResource extends Resource
                     ->requiresConfirmation()
                     ->color('success')
                     ->icon('heroicon-o-user-circle')
-                    ->visible(fn (User $record) => empty($record->username)),
+                    ->visible(fn (User $record) => empty($record->username) || auth()->user()->hasRole('Super Admin')),
                 Action::make('forcePasswordChange')
                     ->label('Force Password Change')
                     ->action(fn (User $record) => $record->update(['password_change_required' => true]))
