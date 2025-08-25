@@ -45,11 +45,22 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
             'password_change_required' => 'boolean',
             'password_changed_at' => 'datetime',
+            'is_active' => 'boolean',
         ];
     }
     public function canAccessPanel(Panel $panel): bool
     {
-        return str_ends_with($this->email, '@medquest.co.id');
+        return $this->isActive() && str_ends_with($this->email, '@medquest.co.id');
+    }
+
+    /**
+     * Check if the user account is active.
+     *
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return $this->is_active;
     }
 
     public function requiresPasswordChange(): bool

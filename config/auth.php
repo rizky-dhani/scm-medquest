@@ -38,7 +38,7 @@ return [
     'guards' => [
         'web' => [
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'active-users',
         ],
     ],
 
@@ -65,10 +65,16 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
+        'active-users' => [
+            'driver' => 'custom',
+            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'provider' => App\Auth\ActiveUserProvider::class,
+        ],
+
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
-        // ],
+        //     // ],
     ],
 
     /*

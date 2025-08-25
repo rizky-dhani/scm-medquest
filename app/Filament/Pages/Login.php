@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Filament\Pages;
+
+use App\Models\User;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Auth\Login as BaseLogin;
@@ -60,5 +62,34 @@ class Login extends BaseLogin
         throw ValidationException::withMessages([
             'data.login' => __('filament-panels::pages/auth/login.messages.failed'),
         ]);
+    }
+
+    public function authenticate(): ?\Filament\Http\Responses\Auth\Contracts\LoginResponse
+    {
+        try {
+            return parent::authenticate();
+        } catch (\Exception $e) {
+            // Check if user exists but is inactive
+            $data = $this->form->getState();
+            $credentials = $this->getCredentialsFromFormData($data);
+            
+            // Remove password from credentials to search for user
+            $searchCredentials = $credentials;
+            unset($searchCredentials['password']);
+            
+            // Make sure we have valid search credentials
+            if (!empty($searchCredentials)) {
+                $user = User::where($searchCredentials)->first();
+                
+                if ($user && !$user->isActive()) {
+                    throw ValidationException::withMessages([
+                        'data.login' => __('Your account is deactivated. Please contact administrator.'),
+                    ]);
+                }
+            }
+            
+            // Re-throw the original exception
+            throw $e;
+        }
     }
 }

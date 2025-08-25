@@ -92,6 +92,13 @@ class UserResource extends Resource
                     ->placeholder('All Locations'),
                 TextColumn::make('roles.name')
                     ->searchable(),
+                IconColumn::make('is_active')
+                    ->label('Active')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger'),
                 IconColumn::make('password_change_required')
                     ->label('First Pass Change?')
                     ->boolean()
@@ -103,6 +110,11 @@ class UserResource extends Resource
             ->filters([
                 SelectFilter::make('roles')
                     ->relationship('roles', 'name', fn (Builder $query) => $query->where('id', '!=', 1)),
+                Tables\Filters\TernaryFilter::make('is_active')
+                    ->label('User Status')
+                    ->placeholder('All users')
+                    ->trueLabel('Active')
+                    ->falseLabel('Inactive'),
                 Tables\Filters\TernaryFilter::make('password_change_required')
                     ->label('First Time Password Change')
                     ->placeholder('All users')
@@ -137,12 +149,34 @@ class UserResource extends Resource
                     ->color('warning')
                     ->icon('heroicon-o-exclamation-triangle')
                     ->visible(fn (User $record) => !$record->password_change_required),
+                Action::make('toggleActive')
+                    ->label(fn (User $record): string => $record->is_active ? 'Deactivate' : 'Activate')
+                    ->action(fn (User $record) => $record->update(['is_active' => !$record->is_active]))
+                    ->requiresConfirmation()
+                    ->color(fn (User $record): string => $record->is_active ? 'danger' : 'success')
+                    ->icon(fn (User $record): string => $record->is_active ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle'),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('activate')
+                        ->label('Activate Users')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->action(function ($records) {
+                            $records->each(fn ($record) => $record->update(['is_active' => true]));
+                        })
+                        ->requiresConfirmation(),
+                    Tables\Actions\BulkAction::make('deactivate')
+                        ->label('Deactivate Users')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->action(function ($records) {
+                            $records->each(fn ($record) => $record->update(['is_active' => false]));
+                        })
+                        ->requiresConfirmation(),
                     Tables\Actions\BulkAction::make('force_password_change')
                         ->label('Force Password Change')
                         ->icon('heroicon-o-exclamation-triangle')
