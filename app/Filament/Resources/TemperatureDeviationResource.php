@@ -222,8 +222,14 @@ class TemperatureDeviationResource extends Resource
             ->columns([
                 TextColumn::make('location.location_name')
                     ->label('Location')
+                    ->getStateUsing(function ($record) {
+                        return $record->location->location_name . '<br>' .
+                        $record->room->room_name . '<br>' .
+                        $record->serialNumber->serial_number;
+                    })
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->html(),
                 TextColumn::make('date')
                     ->label('Date (Tanggal)')
                     ->sortable()
