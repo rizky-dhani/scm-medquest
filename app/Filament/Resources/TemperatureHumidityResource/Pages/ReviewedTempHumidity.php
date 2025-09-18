@@ -320,11 +320,7 @@ class ReviewedTempHumidity extends ListRecords
                 ViewAction::make(),
                 Action::make('is_reviewed')
                     ->label('Mark as Reviewed')
-                    ->visible(function (TemperatureHumidity $record) {
-                        $isAcknowledged = $record->is_acknowledged == false && $record->time_0800 != null && $record->time_1100 != null && $record->time_1400 != null && $record->time_1700 != null && $record->temp_0800 != null && $record->temp_1100 != null && $record->temp_1400 != null && $record->temp_1700 != null;    
-                        $admin = Auth::user()->hasRole('Supply Chain Manager');
-                        return $isAcknowledged && $admin;
-                    })
+                    ->visible(fn() => auth()->user()->hasRole('Supply Chain Manager'))
                     ->action(function (TemperatureHumidity $record) {
                         $record->update([
                             'is_reviewed' => true,
@@ -349,9 +345,7 @@ class ReviewedTempHumidity extends ListRecords
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(function (TemperatureHumidity $record) {
-                        $isAcknowledged = $record->is_acknowledged == false && $record->time_0800 != null && $record->time_1100 != null && $record->time_1400 != null && $record->time_1700 != null && $record->temp_0800 != null && $record->temp_1100 != null && $record->temp_1400 != null && $record->temp_1700 != null;    
-                        $admin = Auth::user()->hasRole('Supply Chain Manager');
-                        return $isAcknowledged && $admin;
+                        return Auth::user()->hasRole('Supply Chain Manager');
                     })
                     ->action(function (Collection $records) {
                         $alreadyReviewed = $records->every(fn ($record) => $record->is_reviewed);
