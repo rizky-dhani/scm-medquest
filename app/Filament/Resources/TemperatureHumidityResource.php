@@ -1147,7 +1147,7 @@ class TemperatureHumidityResource extends Resource
                     ->visible(function () {
                         $user = Auth::user();
                         return $user->location_id === null && 
-                               $user->hasRole(['Supply Chain Manager', 'QA Manager']);
+                            $user->hasRole(['Supply Chain Manager', 'QA Manager']);
                     })
                     ->form([
                         Select::make('month_type_all')
