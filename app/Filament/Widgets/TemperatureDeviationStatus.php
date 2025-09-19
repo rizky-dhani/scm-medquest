@@ -43,7 +43,10 @@ class TemperatureDeviationStatus extends BaseWidget
             Stat::make('Total Data (this month)', $getBaseQuery()->whereMonth('date', Carbon::now()->month)->count())
                 ->color('dark')
                 ->url(route('filament.dashboard.resources.temperature-deviations.index')),
-            Stat::make('Pending Review', $getBaseQuery()->where('is_reviewed', false)->whereNotNull('length_temperature_deviation')->whereNotNull('risk_analysis')->count())
+            Stat::make('Pending Review', $getBaseQuery()->where('is_reviewed', false)
+                ->whereNotNull('length_temperature_deviation')
+                ->whereNotNull('risk_analysis')
+                ->count())
                 ->color('warning')
                 ->url(route('filament.dashboard.resources.temperature-deviations.reviewed')),
             Stat::make('Pending Acknowledged', $getBaseQuery()->where('is_acknowledged', false)->whereNotNull('length_temperature_deviation')->whereNotNull('risk_analysis')->count())
