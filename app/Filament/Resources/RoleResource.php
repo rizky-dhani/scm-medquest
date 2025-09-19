@@ -37,6 +37,9 @@ class RoleResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->header(view('filament.tables.top-bottom-pagination-tables', [
+                'table' => $table,
+            ]))
             ->columns([
                 TextColumn::make('name')
                     ->label('Role Name')

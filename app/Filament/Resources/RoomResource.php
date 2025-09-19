@@ -40,6 +40,9 @@ class RoomResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->header(view('filament.tables.top-bottom-pagination-tables', [
+                'table' => $table,
+            ]))
             ->columns([
                 TextColumn::make('room_name')
                     ->label('Room Name')

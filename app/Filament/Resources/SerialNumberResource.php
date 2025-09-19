@@ -45,6 +45,9 @@ class SerialNumberResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->header(view('filament.tables.top-bottom-pagination-tables', [
+                'table' => $table,
+            ]))
             ->modifyQueryUsing(fn ($query) => $query->orderByDesc('created_at'))
             ->columns([
                 TextColumn::make('room.room_name')

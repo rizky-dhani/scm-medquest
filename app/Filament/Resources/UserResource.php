@@ -72,6 +72,9 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->header(view('filament.tables.top-bottom-pagination-tables', [
+                'table' => $table,
+            ]))
             ->modifyQueryUsing(function ($query) {
                 $query->where('id', '!=', 1)->orderByDesc('id');
             })

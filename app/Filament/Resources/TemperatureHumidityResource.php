@@ -52,6 +52,11 @@ class TemperatureHumidityResource extends Resource
     protected static ?string $navigationGroup = 'Temperature & Humidity';
     protected static bool $shouldRegisterNavigation = false;
     
+    public static function getHeading(): string
+    {
+        return '*** Untuk update data: cari nama ruangan lalu scroll ke kanan, setelah itu klik tombol edit. Jangan membuat data baru untuk menghindari duplikasi data! ***';
+    }
+    
     public static function getEloquentQuery(): Builder
     {
         return static::applyLocationFilter(parent::getEloquentQuery());
@@ -643,9 +648,11 @@ class TemperatureHumidityResource extends Resource
 
     public static function table(Table $table): Table
     {
-        // Helper text for users
-        $table->heading('*** Untuk update data: cari nama ruangan lalu scroll ke kanan, setelah itu klik tombol edit. Jangan membuat data baru untuk menghindari duplikasi data! ***');
         return $table
+            ->header(view('filament.tables.top-bottom-pagination-tables', [
+                'table' => $table,
+                'heading' => static::getHeading()
+            ]))
             ->modifyQueryUsing(function ($query) {
                 return $query->orderByDesc('date')->orderByDesc('created_at');
             })

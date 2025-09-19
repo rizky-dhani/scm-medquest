@@ -216,6 +216,9 @@ class TemperatureDeviationResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->header(view('filament.tables.top-bottom-pagination-tables', [
+                'table' => $table,
+            ]))
             ->modifyQueryUsing(function ($query) {
                 return $query->orderByDesc('created_at');
             })

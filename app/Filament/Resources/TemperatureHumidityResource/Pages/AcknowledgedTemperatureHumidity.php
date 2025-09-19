@@ -30,6 +30,9 @@ class AcknowledgedTemperatureHumidity extends listRecords
     public function table(Table $table): Table
     {
         return $table
+            ->header(view('filament.tables.top-bottom-pagination-tables', [
+                'table' => $table,
+            ]))
             ->modifyQueryUsing(fn (Builder $query) => $query->orderByDesc('date')->where('is_acknowledged', false)
             ->whereNotNull('time_0800')->whereNotNull('time_1100')->whereNotNull('time_1400')->whereNotNull('time_1700')
             ->whereNotNull('time_2000')->whereNotNull('time_2300')->whereNotNull('time_0200')->whereNotNull('time_0500')
