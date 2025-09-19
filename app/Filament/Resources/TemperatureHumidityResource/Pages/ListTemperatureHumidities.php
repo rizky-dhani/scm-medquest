@@ -11,6 +11,7 @@ use Filament\Actions\Action;
 use App\Models\RoomTemperature;
 use Filament\Actions\CreateAction;
 use App\Models\TemperatureHumidity;
+use Filament\Forms\Components\Grid;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Filament\Forms\Components\Select;
@@ -39,65 +40,48 @@ class ListTemperatureHumidities extends ListRecords
                 ->label('Export')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->form([
-                    Select::make('room_id')
-                        ->label('Room')
-                        ->relationship('room', 'room_name')
-                        ->options(function (callable $get) {
-                            $locationId = auth()->user()->location_id;
+                    Select::make('location_id')
+                        ->label('Location')
+                        ->relationship('location', 'location_name')
+                        ->options(function () {
+                            $user = auth()->user();
                         
-                        if (!$locationId) {
-                            return [];
-                        }
-
-                        return Room::where('location_id', $locationId)
-                            ->pluck('room_name', 'id');
-                    })
-                    ->searchable()
-                    ->reactive()
-                    ->preload()
-                    ->required()
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        $set('serial_number_id', null);
-                    }),
-
-                    Select::make('serial_number_id')
-                        ->label('Serial Number')
-                        ->options(function (callable $get) {
-                            $roomId = $get('room_id');
-
-                            if (!$roomId) {
-                                return [];
+                            // If user has a specific location, only show that location
+                            if ($user->location_id) {
+                                return Location::where('id', $user->location_id)
+                                    ->pluck('location_name', 'id');
                             }
 
-                            return SerialNumber::where('room_id', $roomId)
-                                ->pluck('serial_number', 'id');
-                        })
-                        ->searchable()
-                        ->required()
-                        ->disabled(fn (callable $get) => ! $get('room_id'))
-                        ->preload()
-                        ->required(),
-                    Select::make('room_temperature_id')
-                        ->label('Room Temperature Standards')
-                        ->relationship('roomTemperature', 'temperature_start')
-                        ->options(function (callable $get) {
-                            $roomId = $get('room_id');
-                            if (!$roomId) {
-                                return [];
-                            }
-                            return RoomTemperature::where('room_id', $roomId)
-                                ->get()
-                                ->mapWithKeys(function ($item) {
-                                    $label = "{$item->temperature_start}°C to {$item->temperature_end}°C";
-                                    return [$item->id => $label];
-                        })
-                                ->toArray();
+                            // If user has no specific location (admin), show all locations
+                            return Location::pluck('location_name', 'id');
                         })
                         ->searchable()
                         ->reactive()
                         ->preload()
                         ->required()
-                        ->disabled(fn (callable $get) => ! $get('room_id')),
+                        ->afterStateUpdated(function ($state, callable $set) {
+                            $set('room_id', null);
+                        }),
+
+                    Select::make('room_id')
+                        ->label('Rooms')
+                        ->multiple()
+                        ->options(function (callable $get) {
+                            $locationId = $get('location_id');
+                        
+                            if (!$locationId) {
+                                return [];
+                            }
+
+                            return Room::where('location_id', $locationId)
+                                ->pluck('room_name', 'id');
+                        })
+                        ->searchable()
+                        ->reactive()
+                        ->preload()
+                        ->required()
+                        ->disabled(fn (callable $get) => ! $get('location_id')),
+
                     Select::make('month_type')
                         ->label('Month Type')
                         ->options([
@@ -114,13 +98,8 @@ class ListTemperatureHumidities extends ListRecords
                         ->required(fn ($get) => $get('month_type') === 'choose'),
                 ])
                 ->action(function (array $data) {
-                    $user = Auth::user();
-                    $location_id = $user->location_id;
-                    $room_id = $data['room_id'] ?? null;
-                    $serial_number_id = $data['serial_number_id'] ?? null;
-                    $room_temperature_id = $data['room_temperature_id'] ?? null;
-                    $room = Room::find($room_id);
-                    $serialNumber = SerialNumber::find($serial_number_id);
+                    $location_id = $data['location_id'] ?? null;
+                    $room_ids = $data['room_id'] ?? [];
 
                     if ($data['month_type'] === 'this_month') {
                         $month = now()->month;
@@ -130,23 +109,25 @@ class ListTemperatureHumidities extends ListRecords
                         $month = $chosenMonth->month;
                         $year = $chosenMonth->year;
                     }
-                    $records = TemperatureHumidity::query()
-                        ->where([
-                            ['location_id', '=', $location_id],
-                            ['room_id', '=', $room_id],
-                            ['serial_number_id', '=', $serial_number_id],
-                            ['room_temperature_id', '=', $room_temperature_id],
-                        ])
+
+                    // Build query with multiple room support
+                    $query = TemperatureHumidity::query()
+                        ->where('location_id', $location_id)
                         ->whereMonth('period', $month)
                         ->whereYear('period', $year)
-                        ->with(['location', 'room', 'serialNumber', 'roomTemperature'])
-                        ->get();
+                        ->with(['location', 'room', 'serialNumber', 'roomTemperature']);
+
+                    if (!empty($room_ids)) {
+                        $query->whereIn('room_id', $room_ids);
+                    }
+
+                    $records = $query->get();
 
                     $monthName = strtoupper(Carbon::createFromDate($year, $month)->format('M'));
-                    $sluggedLocation = strtoupper($room->room_name.'_'.$serialNumber->serial_number);
-                    $filename = "TemperatureHumidity_{$monthName}{$year}_{$sluggedLocation}.xlsx";
+                    $location = Location::find($location_id);
+                    $filename = "TemperatureHumidity_{$monthName}{$year}_{$location->location_name}.xlsx";
 
-                    return Excel::download(new TemperatureHumidityExport($records, $room->room_name), $filename);
+                    return Excel::download(new TemperatureHumidityExport($records, $location->location_name), $filename);
                 }),
             Action::make('export_all_locations')
                 ->label('Export All Locations')
