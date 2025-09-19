@@ -28,7 +28,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
-use App\Filament\Resources\TemperatureHumidityResource\Pages\ReviewedTempHumidity;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -72,12 +71,14 @@ class DashboardPanelProvider extends PanelProvider
                     ->url(fn() => TemperatureHumidityResource::getUrl('reviewed'))
                     ->group('Temperature & Humidity')
                     ->isActiveWhen(fn () => request()->routeIs('filament.dashboard.resources.temperature-humidities.reviewed'))
+                    ->visible(fn() => auth()->user()->hasRole(['Super Admin', 'Supply Chain Manager', 'QA Manager']))
                     ->sort(1),
                 NavigationItem::make('Pending Acknowledgement')
                     ->label('Pending Acknowledgement')
                     ->url(fn() => TemperatureHumidityResource::getUrl('acknowledged'))                    
                     ->group('Temperature & Humidity')
                     ->isActiveWhen(fn () => request()->routeIs('filament.dashboard.resources.temperature-humidities.acknowledged'))
+                    ->visible(fn() => auth()->user()->hasRole(['Super Admin', 'Supply Chain Manager', 'QA Manager']))
                     ->sort(2),
 
                 // Temperature Deviation
@@ -92,12 +93,14 @@ class DashboardPanelProvider extends PanelProvider
                     ->url(fn() => TemperatureDeviationResource::getUrl('reviewed'))
                     ->group('Temperature Deviation')
                     ->isActiveWhen(fn () => request()->routeIs('filament.dashboard.resources.temperature-deviations.reviewed'))
+                    ->visible(fn() => auth()->user()->hasRole(['Super Admin', 'Supply Chain Manager', 'QA Manager']))
                     ->sort(1),
                 NavigationItem::make('Pending Acknowledgement')
                     ->label('Pending Acknowledgement')
                     ->url(fn() => TemperatureDeviationResource::getUrl('acknowledged'))                    
                     ->group('Temperature Deviation')
                     ->isActiveWhen(fn () => request()->routeIs('filament.dashboard.resources.temperature-deviations.acknowledged'))
+                    ->visible(fn() => auth()->user()->hasRole(['Super Admin', 'Supply Chain Manager', 'QA Manager']))
                     ->sort(2),
             ])
             ->navigationGroups([

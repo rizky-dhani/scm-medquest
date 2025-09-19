@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\TemperatureHumidityResource;
 
-class ReviewedTempHumidity extends ListRecords
+class ReviewedTemperatureHumidity extends ListRecords
 {
     protected static string $resource = TemperatureHumidityResource::class;
     protected static ?string $title = 'Pending Review';
@@ -35,10 +35,22 @@ class ReviewedTempHumidity extends ListRecords
                 'table' => $table,
             ]))
             ->modifyQueryUsing(fn (Builder $query) => $query->orderByDesc('date')->where('is_reviewed', false)
-            ->whereNotNull('time_0800')->whereNotNull('time_1100')->whereNotNull('time_1400')->whereNotNull('time_1700')
-            ->whereNotNull('time_2000')->whereNotNull('time_2300')->whereNotNull('time_0200')->whereNotNull('time_0500')
-            ->whereNotNull('temp_0800')->whereNotNull('temp_1100')->whereNotNull('temp_1400')->whereNotNull('temp_1700')
-            ->whereNotNull('temp_2000')->whereNotNull('temp_2300')->whereNotNull('temp_0200')->whereNotNull('temp_0500'))
+            ->whereNotNull('time_0200')
+            ->whereNotNull('time_0500')
+            ->whereNotNull('time_0800')
+            ->whereNotNull('time_1100')
+            ->whereNotNull('time_1400')
+            ->whereNotNull('time_1700')
+            ->whereNotNull('time_2000')
+            ->whereNotNull('time_2300')
+            ->whereNotNull('temp_0200')
+            ->whereNotNull('temp_0500')
+            ->whereNotNull('temp_0800')
+            ->whereNotNull('temp_1100')
+            ->whereNotNull('temp_1400')
+            ->whereNotNull('temp_1700')
+            ->whereNotNull('temp_2000')
+            ->whereNotNull('temp_2300'))
             ->emptyStateHeading('No pending review data is found')
             ->columns([
                 TextColumn::make('date')
