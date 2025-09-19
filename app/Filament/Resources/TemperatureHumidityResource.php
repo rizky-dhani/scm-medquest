@@ -54,7 +54,10 @@ class TemperatureHumidityResource extends Resource
     
     public static function getHeading(): string
     {
-        return '*** Untuk update data: cari nama ruangan lalu scroll ke kanan, setelah itu klik tombol edit. Jangan membuat data baru untuk menghindari duplikasi data! ***';
+        if(auth()->user()->hasRole(['Supply Chain Officer', 'Security'])){
+            return '*** Untuk update data: cari nama ruangan lalu scroll ke kanan, setelah itu klik tombol edit. Jangan membuat data baru untuk menghindari duplikasi data! ***';
+        }
+        return '';
     }
     
     public static function getEloquentQuery(): Builder
