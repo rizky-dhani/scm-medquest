@@ -6,16 +6,17 @@ use Carbon\Carbon;
 use Filament\Tables\Table;
 use App\Models\TemperatureHumidity;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Columns\TextColumn;     
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Columns\TextColumn;     
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\TemperatureHumidityResource;
@@ -50,7 +51,15 @@ class ReviewedTemperatureHumidity extends ListRecords
             ->whereNotNull('temp_1400')
             ->whereNotNull('temp_1700')
             ->whereNotNull('temp_2000')
-            ->whereNotNull('temp_2300'))
+            ->whereNotNull('temp_2300')
+            ->whereNotNull('pic_0200')
+            ->whereNotNull('pic_0500')
+            ->whereNotNull('pic_0800')
+            ->whereNotNull('pic_1100')
+            ->whereNotNull('pic_1400')
+            ->whereNotNull('pic_1700')
+            ->whereNotNull('pic_2000')
+            ->whereNotNull('pic_2300'))
             ->emptyStateHeading('No pending review data is found')
             ->columns([
                 TextColumn::make('date')
