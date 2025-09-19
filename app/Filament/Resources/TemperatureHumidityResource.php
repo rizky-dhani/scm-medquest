@@ -1053,7 +1053,7 @@ class TemperatureHumidityResource extends Resource
                     ->icon('heroicon-o-arrow-down-tray')
                     ->action(function ($records) {
                         $records = $records->load(['location', 'room', 'serialNumber', 'roomTemperature']);
-                        $filename = 'TemperatureHumidity_BulkExport_' . strtoupper(now()->format('MY')) . '.xlsx';
+                        $filename = 'TemperatureHumidity_Bulk_' . strtoupper(now()->format('MY')) . '.xlsx';
                         return Excel::download(new TemperatureHumidityExport($records, 'Bulk Export'), $filename);
                     })
                     ->requiresConfirmation()
