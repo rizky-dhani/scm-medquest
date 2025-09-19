@@ -20,8 +20,9 @@ use Filament\Resources\Pages\ListRecords;
 use App\Exports\TemperatureHumidityExport;
 use App\Exports\AllLocationsTemperatureHumidityExport;
 use App\Filament\Resources\TemperatureHumidityResource;
+use Filament\Notifications\Notification;
 
-class ListTemperatureHumidities extends ListRecords
+class ListTemperatureHumidity extends ListRecords
 {
     protected static string $resource = TemperatureHumidityResource::class;
     protected static ?string $title = 'All Temperature & Humidity';
@@ -122,6 +123,16 @@ class ListTemperatureHumidities extends ListRecords
                     }
 
                     $records = $query->get();
+                    
+                    // Check if there are any records to export
+                    if ($records->isEmpty()) {
+                        // Show alert message
+                        Notification::make()
+                            ->warning()
+                            ->title('No data is found')
+                            ->send();
+                        return;
+                    }
 
                     $monthName = strtoupper(Carbon::createFromDate($year, $month)->format('M'));
                     $location = Location::find($location_id);
@@ -185,6 +196,16 @@ class ListTemperatureHumidities extends ListRecords
                         }
                     }
 
+                    // Check if there are any records to export
+                    if (empty($exportData)) {
+                        // Show alert message
+                        Notification::make()
+                            ->warning()
+                            ->title('No data is found')
+                            ->send();
+                        return;
+                    }
+                    
                     $monthName = strtoupper(Carbon::createFromDate($year, $month)->format('M'));
                     $filename = "TemperatureHumidity_ALL_{$monthName}{$year}.xlsx";
 

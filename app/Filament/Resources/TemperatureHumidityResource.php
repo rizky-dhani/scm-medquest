@@ -51,7 +51,7 @@ class TemperatureHumidityResource extends Resource
     protected static ?string $navigationLabel = 'All';
     protected static ?string $navigationGroup = 'Temperature & Humidity';
     protected static bool $shouldRegisterNavigation = false;
-    
+
     public static function getHeading(): string
     {
         if(auth()->user()->hasRole(['Supply Chain Officer', 'Security'])){
@@ -1071,7 +1071,7 @@ class TemperatureHumidityResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTemperatureHumidities::route('/all'),
+            'index' => Pages\ListTemperatureHumidity::route('/all'),
             'create' => Pages\CreateTemperatureHumidity::route('/create'),
             'edit' => Pages\EditTemperatureHumidity::route('/{record}/edit'),
             'view' => Pages\ViewTemperatureHumidity::route('/view/{record}'),
