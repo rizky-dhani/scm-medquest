@@ -19,7 +19,7 @@ class ViewTemperatureDeviation extends ViewRecord
     {
         return [
             EditAction::make()
-                ->visible(fn () => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff'])),
+                ->visible(fn () => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff', 'QA Supervisor'])),
             Action::make('is_reviewed')
                 ->label('Mark as Reviewed')
                 ->visible(function (TemperatureDeviation $record) {
