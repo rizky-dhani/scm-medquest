@@ -702,26 +702,37 @@ class TemperatureHumidityResource extends Resource
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
+                        $deviation = null;
 
-                        if ($temp0200 !== '-') {
-                            if ($temp0200 < $record->roomTemperature->temperature_start || $temp0200 > $record->roomTemperature->temperature_end) {
-                                $color = 'color: red; font-weight: bold;';
-
-                                // Check if there's a deviation record for this time slot (02:00 - 02:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '02:00:00')
-                                    ->whereTime('time', '<=', '02:30:59')
-                                    ->first();
-
-                                if ($deviation) {
-                                    $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
-                                    $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
-                                    $linkEnd = '</a>';
-                                }
-                            }
+                        // Check if there's a deviation record matching the specific time and temperature
+                        if ($temp0200 !== '-' && $record->time_0200) {
+                            $deviation = $record->temperatureDeviations()
+                                ->where('time', $record->time_0200)
+                                ->where('temperature_deviation', $temp0200)
+                                ->first();
                         }
 
-                        return "$linkStart <div style='$color'>Time: $time0200 <br> Temp: $temp0200 °C <br> Humidity: $rh0200% <br> PIC: $pic0200</div> $linkEnd";
+                        // Apply red styling only if temperature is out of range OR if there's a matching deviation record
+                        $isOutOfRange = $temp0200 !== '-' && 
+                            ($temp0200 < $record->roomTemperature->temperature_start || $temp0200 > $record->roomTemperature->temperature_end);
+                        
+                        if ($isOutOfRange || $deviation) {
+                            $color = 'color: red; font-weight: bold;';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
+                            $linkEnd = '</a>';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+                            return "$linkStart <div style='$color'>Time: $time0200 <br> Temp: $temp0200 °C <br> Humidity: $rh0200% <br> PIC: $pic0200 <br> $button</div> $linkEnd";
+                        } else {
+                            return "$linkStart <div style='$color'>Time: $time0200 <br> Temp: $temp0200 °C <br> Humidity: $rh0200% <br> PIC: $pic0200</div> $linkEnd";
+                        }
                     })->html(),
                 TextColumn::make('0500_data')
                     ->label('05:00')
@@ -734,26 +745,37 @@ class TemperatureHumidityResource extends Resource
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
+                        $deviation = null;
 
-                        if ($temp0500 !== '-') {
-                            if ($temp0500 < $record->roomTemperature->temperature_start || $temp0500 > $record->roomTemperature->temperature_end) {
-                                $color = 'color: red; font-weight: bold;';
-
-                                // Check if there's a deviation record for this time slot (05:00 - 05:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '05:00:00')
-                                    ->whereTime('time', '<=', '05:30:59')
-                                    ->first();
-
-                                if ($deviation) {
-                                    $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
-                                    $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
-                                    $linkEnd = '</a>';
-                                }
-                            }
+                        // Check if there's a deviation record matching the specific time and temperature
+                        if ($temp0500 !== '-' && $record->time_0500) {
+                            $deviation = $record->temperatureDeviations()
+                                ->where('time', $record->time_0500)
+                                ->where('temperature_deviation', $temp0500)
+                                ->first();
                         }
 
-                        return "$linkStart <div style='$color'>Time: $time0500 <br> Temp: $temp0500 °C <br> Humidity: $rh0500% <br> PIC: $pic0500</div> $linkEnd";
+                        // Apply red styling only if temperature is out of range OR if there's a matching deviation record
+                        $isOutOfRange = $temp0500 !== '-' && 
+                            ($temp0500 < $record->roomTemperature->temperature_start || $temp0500 > $record->roomTemperature->temperature_end);
+                        
+                        if ($isOutOfRange || $deviation) {
+                            $color = 'color: red; font-weight: bold;';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
+                            $linkEnd = '</a>';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+                            return "$linkStart <div style='$color'>Time: $time0500 <br> Temp: $temp0500 °C <br> Humidity: $rh0500% <br> PIC: $pic0500 <br> $button</div> $linkEnd";
+                        } else {
+                            return "$linkStart <div style='$color'>Time: $time0500 <br> Temp: $temp0500 °C <br> Humidity: $rh0500% <br> PIC: $pic0500</div> $linkEnd";
+                        }
                     })->html(),
                 TextColumn::make('0800_data')
                     ->label('08:00')
@@ -766,26 +788,37 @@ class TemperatureHumidityResource extends Resource
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
+                        $deviation = null;
 
-                        if ($temp0800 !== '-') {
-                            if ($temp0800 < $record->roomTemperature->temperature_start || $temp0800 > $record->roomTemperature->temperature_end) {
-                                $color = 'color: red; font-weight: bold;';
-
-                                // Check if there's a deviation record for this time slot (08:00 - 08:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '08:00:00')
-                                    ->whereTime('time', '<=', '08:30:59')
-                                    ->first();
-
-                                if ($deviation) {
-                                    $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
-                                    $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
-                                    $linkEnd = '</a>';
-                                }
-                            }
+                        // Check if there's a deviation record matching the specific time and temperature
+                        if ($temp0800 !== '-' && $record->time_0800) {
+                            $deviation = $record->temperatureDeviations()
+                                ->where('time', $record->time_0800)
+                                ->where('temperature_deviation', $temp0800)
+                                ->first();
                         }
 
-                        return "$linkStart <div style='$color'>Time: $time0800 <br> Temp: $temp0800 °C <br> Humidity: $rh0800% <br> PIC: $pic0800</div> $linkEnd";
+                        // Apply red styling only if temperature is out of range OR if there's a matching deviation record
+                        $isOutOfRange = $temp0800 !== '-' && 
+                            ($temp0800 < $record->roomTemperature->temperature_start || $temp0800 > $record->roomTemperature->temperature_end);
+                        
+                        if ($isOutOfRange || $deviation) {
+                            $color = 'color: red; font-weight: bold;';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
+                            $linkEnd = '</a>';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+                            return "$linkStart <div style='$color'>Time: $time0800 <br> Temp: $temp0800 °C <br> Humidity: $rh0800% <br> PIC: $pic0800 <br> $button</div> $linkEnd";
+                        } else {
+                            return "$linkStart <div style='$color'>Time: $time0800 <br> Temp: $temp0800 °C <br> Humidity: $rh0800% <br> PIC: $pic0800</div> $linkEnd";
+                        }
                     })->html(),
                 TextColumn::make('1100_data')
                     ->label('11:00')
@@ -798,26 +831,37 @@ class TemperatureHumidityResource extends Resource
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
+                        $deviation = null;
 
-                        if ($temp1100 !== '-') {
-                            if ($temp1100 < $record->roomTemperature->temperature_start || $temp1100 > $record->roomTemperature->temperature_end) {
-                                $color = 'color: red; font-weight: bold;';
-
-                                // Check if there's a deviation record for this time slot (11:00 - 11:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '11:00:00')
-                                    ->whereTime('time', '<=', '11:30:59')
-                                    ->first();
-
-                                if ($deviation) {
-                                    $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
-                                    $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
-                                    $linkEnd = '</a>';
-                                }
-                            }
+                        // Check if there's a deviation record matching the specific time and temperature
+                        if ($temp1100 !== '-' && $record->time_1100) {
+                            $deviation = $record->temperatureDeviations()
+                                ->where('time', $record->time_1100)
+                                ->where('temperature_deviation', $temp1100)
+                                ->first();
                         }
 
-                        return "$linkStart <div style='$color'>Time: $time1100 <br> Temp: $temp1100 °C <br> Humidity: $rh1100% <br> PIC: $pic1100</div> $linkEnd";
+                        // Apply red styling only if temperature is out of range OR if there's a matching deviation record
+                        $isOutOfRange = $temp1100 !== '-' && 
+                            ($temp1100 < $record->roomTemperature->temperature_start || $temp1100 > $record->roomTemperature->temperature_end);
+                        
+                        if ($isOutOfRange || $deviation) {
+                            $color = 'color: red; font-weight: bold;';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
+                            $linkEnd = '</a>';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+                            return "$linkStart <div style='$color'>Time: $time1100 <br> Temp: $temp1100 °C <br> Humidity: $rh1100% <br> PIC: $pic1100 <br> $button</div> $linkEnd";
+                        } else {
+                            return "$linkStart <div style='$color'>Time: $time1100 <br> Temp: $temp1100 °C <br> Humidity: $rh1100% <br> PIC: $pic1100</div> $linkEnd";
+                        }
                     })->html(),
                 TextColumn::make('1400_data')
                     ->label('14:00')
@@ -830,26 +874,37 @@ class TemperatureHumidityResource extends Resource
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
+                        $deviation = null;
 
-                        if ($temp1400 !== '-') {
-                            if ($temp1400 < $record->roomTemperature->temperature_start || $temp1400 > $record->roomTemperature->temperature_end) {
-                                $color = 'color: red; font-weight: bold;';
-
-                                // Check if there's a deviation record for this time slot (14:00 - 14:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '14:00:00')
-                                    ->whereTime('time', '<=', '14:30:59')
-                                    ->first();
-
-                                if ($deviation) {
-                                    $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
-                                    $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
-                                    $linkEnd = '</a>';
-                                }
-                            }
+                        // Check if there's a deviation record matching the specific time and temperature
+                        if ($temp1400 !== '-' && $record->time_1400) {
+                            $deviation = $record->temperatureDeviations()
+                                ->where('time', $record->time_1400)
+                                ->where('temperature_deviation', $temp1400)
+                                ->first();
                         }
 
-                        return "$linkStart <div style='$color'>Time: $time1400 <br> Temp: $temp1400 °C <br> Humidity: $rh1400% <br> PIC: $pic1400</div> $linkEnd";
+                        // Apply red styling only if temperature is out of range OR if there's a matching deviation record
+                        $isOutOfRange = $temp1400 !== '-' && 
+                            ($temp1400 < $record->roomTemperature->temperature_start || $temp1400 > $record->roomTemperature->temperature_end);
+                        
+                        if ($isOutOfRange || $deviation) {
+                            $color = 'color: red; font-weight: bold;';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
+                            $linkEnd = '</a>';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+                            return "$linkStart <div style='$color'>Time: $time1400 <br> Temp: $temp1400 °C <br> Humidity: $rh1400% <br> PIC: $pic1400 <br> $button</div> $linkEnd";
+                        } else {
+                            return "$linkStart <div style='$color'>Time: $time1400 <br> Temp: $temp1400 °C <br> Humidity: $rh1400% <br> PIC: $pic1400</div> $linkEnd";
+                        }
                     })->html(),
                 TextColumn::make('1700_data')
                     ->label('17:00')
@@ -862,26 +917,37 @@ class TemperatureHumidityResource extends Resource
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
+                        $deviation = null;
 
-                        if ($temp1700 !== '-') {
-                            if ($temp1700 < $record->roomTemperature->temperature_start || $temp1700 > $record->roomTemperature->temperature_end) {
-                                $color = 'color: red; font-weight: bold;';
-
-                                // Check if there's a deviation record for this time slot (17:00 - 17:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '17:00:00')
-                                    ->whereTime('time', '<=', '17:30:59')
-                                    ->first();
-
-                                if ($deviation) {
-                                    $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
-                                    $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
-                                    $linkEnd = '</a>';
-                                }
-                            }
+                        // Check if there's a deviation record matching the specific time and temperature
+                        if ($temp1700 !== '-' && $record->time_1700) {
+                            $deviation = $record->temperatureDeviations()
+                                ->where('time', $record->time_1700)
+                                ->where('temperature_deviation', $temp1700)
+                                ->first();
                         }
 
-                        return "$linkStart <div style='$color'>Time: $time1700 <br> Temp: $temp1700 °C <br> Humidity: $rh1700% <br> PIC: $pic1700</div> $linkEnd";
+                        // Apply red styling only if temperature is out of range OR if there's a matching deviation record
+                        $isOutOfRange = $temp1700 !== '-' && 
+                            ($temp1700 < $record->roomTemperature->temperature_start || $temp1700 > $record->roomTemperature->temperature_end);
+                        
+                        if ($isOutOfRange || $deviation) {
+                            $color = 'color: red; font-weight: bold;';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
+                            $linkEnd = '</a>';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+                            return "$linkStart <div style='$color'>Time: $time1700 <br> Temp: $temp1700 °C <br> Humidity: $rh1700% <br> PIC: $pic1700 <br> $button</div> $linkEnd";
+                        } else {
+                            return "$linkStart <div style='$color'>Time: $time1700 <br> Temp: $temp1700 °C <br> Humidity: $rh1700% <br> PIC: $pic1700</div> $linkEnd";
+                        }
                     })->html(),
                 TextColumn::make('2000_data')
                     ->label('20:00')
@@ -894,26 +960,37 @@ class TemperatureHumidityResource extends Resource
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
+                        $deviation = null;
 
-                        if ($temp2000 !== '-') {
-                            if ($temp2000 < $record->roomTemperature->temperature_start || $temp2000 > $record->roomTemperature->temperature_end) {
-                                $color = 'color: red; font-weight: bold;';
-
-                                // Check if there's a deviation record for this time slot (20:00 - 20:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '20:00:00')
-                                    ->whereTime('time', '<=', '20:30:59')
-                                    ->first();
-
-                                if ($deviation) {
-                                    $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
-                                    $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
-                                    $linkEnd = '</a>';
-                                }
-                            }
+                        // Check if there's a deviation record matching the specific time and temperature
+                        if ($temp2000 !== '-' && $record->time_2000) {
+                            $deviation = $record->temperatureDeviations()
+                                ->where('time', $record->time_2000)
+                                ->where('temperature_deviation', $temp2000)
+                                ->first();
                         }
 
-                        return "$linkStart <div style='$color'>Time: $time2000 <br> Temp: $temp2000 °C <br> Humidity: $rh2000% <br> PIC: $pic2000</div> $linkEnd";
+                        // Apply red styling only if temperature is out of range OR if there's a matching deviation record
+                        $isOutOfRange = $temp2000 !== '-' && 
+                            ($temp2000 < $record->roomTemperature->temperature_start || $temp2000 > $record->roomTemperature->temperature_end);
+                        
+                        if ($isOutOfRange || $deviation) {
+                            $color = 'color: red; font-weight: bold;';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
+                            $linkEnd = '</a>';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+                            return "$linkStart <div style='$color'>Time: $time2000 <br> Temp: $temp2000 °C <br> Humidity: $rh2000% <br> PIC: $pic2000 <br> $button</div> $linkEnd";
+                        } else {
+                            return "$linkStart <div style='$color'>Time: $time2000 <br> Temp: $temp2000 °C <br> Humidity: $rh2000% <br> PIC: $pic2000</div> $linkEnd";
+                        }
                     })->html(),
                 TextColumn::make('2300_data')
                     ->label('23:00')
@@ -926,26 +1003,37 @@ class TemperatureHumidityResource extends Resource
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
+                        $deviation = null;
 
-                        if ($temp2300 !== '-') {
-                            if ($temp2300 < $record->roomTemperature->temperature_start || $temp2300 > $record->roomTemperature->temperature_end) {
-                                $color = 'color: red; font-weight: bold;';
-
-                                // Check if there's a deviation record for this time slot (23:00 - 23:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '23:00:00')
-                                    ->whereTime('time', '<=', '23:30:59')
-                                    ->first();
-
-                                if ($deviation) {
-                                    $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
-                                    $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
-                                    $linkEnd = '</a>';
-                                }
-                            }
+                        // Check if there's a deviation record matching the specific time and temperature
+                        if ($temp2300 !== '-' && $record->time_2300) {
+                            $deviation = $record->temperatureDeviations()
+                                ->where('time', $record->time_2300)
+                                ->where('temperature_deviation', $temp2300)
+                                ->first();
                         }
 
-                        return "$linkStart <div style='$color'>Time: $time2300 <br> Temp: $temp2300 °C <br> Humidity: $rh2300% <br> PIC: $pic2300</div> $linkEnd";
+                        // Apply red styling only if temperature is out of range OR if there's a matching deviation record
+                        $isOutOfRange = $temp2300 !== '-' && 
+                            ($temp2300 < $record->roomTemperature->temperature_start || $temp2300 > $record->roomTemperature->temperature_end);
+                        
+                        if ($isOutOfRange || $deviation) {
+                            $color = 'color: red; font-weight: bold;';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
+                            $linkEnd = '</a>';
+                        }
+
+                        if ($deviation) {
+                            $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
+                            $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+                            return "$linkStart <div style='$color'>Time: $time2300 <br> Temp: $temp2300 °C <br> Humidity: $rh2300% <br> PIC: $pic2300 <br> $button</div> $linkEnd";
+                        } else {
+                            return "$linkStart <div style='$color'>Time: $time2300 <br> Temp: $temp2300 °C <br> Humidity: $rh2300% <br> PIC: $pic2300</div> $linkEnd";
+                        }
                     })->html(),
                 TextColumn::make('reviewed_by')
                     ->label('Reviewed By')
