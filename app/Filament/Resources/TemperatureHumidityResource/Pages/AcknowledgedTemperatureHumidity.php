@@ -363,10 +363,9 @@ class AcknowledgedTemperatureHumidity extends listRecords
                     ->icon('heroicon-o-check-badge')
                     ->color('info')
                     ->requiresConfirmation()
-                    ->visible(function (TemperatureHumidity $record) {
-                        $isAcknowledged = $record->is_acknowledged == false && $record->time_0800 != null && $record->time_1100 != null && $record->time_1400 != null && $record->time_1700 != null && $record->temp_0800 != null && $record->temp_1100 != null && $record->temp_1400 != null && $record->temp_1700 != null;    
+                    ->visible(function (TemperatureHumidity $record) {  
                         $admin = Auth::user()->hasRole('QA Manager');
-                        return $isAcknowledged && $admin;
+                        return $admin;
                     })
                     ->action(function (Collection $records) {
                         $alreadyAcknowledged = $records->every(fn ($record) => $record->is_acknowledged);
