@@ -75,11 +75,6 @@ class EditTemperatureDeviation extends EditRecord
                 ->icon('heroicon-o-check'),
         ];
     }
-    protected function getRedirectUrl(): string
-    {
-        // Default fallback
-        return $this->getResource()::getUrl('index');
-    }
     protected function getSavedNotification(): ?Notification
     {
         return Notification::make()
