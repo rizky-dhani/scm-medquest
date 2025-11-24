@@ -83,8 +83,8 @@ class User extends Authenticatable implements FilamentUser
 
     public function hasAccessToLocation(int $locationId): bool
     {
-        // Super Admin, Admin, Supply Chain Manager, and QA Manager can access all locations
-        if ($this->hasRole(['Super Admin', 'Admin', 'Supply Chain Manager', 'QA Manager'])) {
+        // Super Admin, Admin, Supply Chain Manager, QA Manager, QA Supervisor and QA Staff can access all locations
+        if ($this->hasRole(['Super Admin', 'Admin', 'Supply Chain Manager', 'QA Manager', 'QA Supervisor', 'QA Staff'])) {
             return true;
         }
 
@@ -94,8 +94,8 @@ class User extends Authenticatable implements FilamentUser
 
     public function getAccessibleLocationIds(): array
     {
-        // Super Admin, Admin, Supply Chain Manager, and QA Manager can access all locations
-        if ($this->hasRole(['Super Admin', 'Admin', 'Supply Chain Manager', 'QA Manager'])) {
+        // Super Admin, Admin, Supply Chain Manager, QA Manager, and QA Staff can access all locations
+        if ($this->hasRole(['Super Admin', 'Admin', 'Supply Chain Manager', 'QA Manager', 'QA Supervisor', 'QA Staff'])) {
             return Location::pluck('id')->toArray();
         }
 

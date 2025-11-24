@@ -12,22 +12,22 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 class TemperatureDeviationStatus extends BaseWidget
 {
     use HasLocationBasedAccess;
-    
+
     protected static ?string $pollingInterval = null;
     protected static bool $isLazy = false;
     protected ?string $heading = 'Temperature Deviation';
     protected static ?int $sort = 1;
-    
+
     protected function getStats(): array
     {
         $user = Auth::user();
-        
+
         // Build base query with location filtering
         $getBaseQuery = function() use ($user) {
             $query = TemperatureDeviation::query();
-            
+
             // Apply location-based filtering
-            if ($user->hasRole(['Super Admin', 'Admin', 'Supply Chain Manager', 'QA Manager'])) {
+            if ($user->hasRole(['Super Admin', 'Admin', 'Supply Chain Manager', 'QA Manager', 'QA Supervisor', 'QA Staff'])) {
                 // Can see all locations
                 return $query;
             } elseif ($user->location_id) {
@@ -38,7 +38,7 @@ class TemperatureDeviationStatus extends BaseWidget
                 return $query->whereRaw('1 = 0');
             }
         };
-        
+
         return [
             Stat::make('Total Data (this month)', $getBaseQuery()->whereMonth('date', Carbon::now()->month)->count())
                 ->color('dark')
@@ -51,7 +51,7 @@ class TemperatureDeviationStatus extends BaseWidget
                 ->url(route('filament.dashboard.resources.temperature-deviations.reviewed')),
             Stat::make('Pending Acknowledged', $getBaseQuery()->where('is_acknowledged', false)->whereNotNull('length_temperature_deviation')->whereNotNull('risk_analysis')->count())
                 ->color('info')
-                ->url(route('filament.dashboard.resources.temperature-deviations.acknowledged')),        
+                ->url(route('filament.dashboard.resources.temperature-deviations.acknowledged')),
             ];
     }
 }

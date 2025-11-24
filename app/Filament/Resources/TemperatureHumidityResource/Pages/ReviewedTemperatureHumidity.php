@@ -360,7 +360,8 @@ class ReviewedTemperatureHumidity extends ListRecords
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(function (TemperatureHumidity $record) {
-                        return Auth::user()->hasRole('Supply Chain Manager');
+                        $admin = Auth::user()->hasRole('Supply Chain Manager');
+                        return $admin;
                     })
                     ->action(function (Collection $records) {
                         $alreadyReviewed = $records->every(fn ($record) => $record->is_reviewed);
