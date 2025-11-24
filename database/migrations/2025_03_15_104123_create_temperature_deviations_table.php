@@ -23,7 +23,7 @@ return new class extends Migration
             $table->date('date');
             $table->time('time');
             $table->decimal('temperature_deviation', 5, 2);
-            $table->integer('length_temperature_deviation')->nullable();
+            $table->string('length_temperature_deviation', 50)->nullable();
             $table->string('deviation_reason')->nullable();
             $table->string('pic');
             $table->string('risk_analysis')->nullable();
