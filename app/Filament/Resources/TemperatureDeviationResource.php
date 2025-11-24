@@ -254,8 +254,8 @@ class TemperatureDeviationResource extends Resource
             ])
             ->actions([
                 ViewAction::make(), 
-                EditAction::make()->visible(fn($record) => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff'])), 
-                DeleteAction::make()->visible(fn($record) => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff']))])
+                EditAction::make()->visible(fn($record) => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff', 'QA Supervisor'])), 
+                DeleteAction::make()->visible(fn($record) => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff', 'QA Supervisor']))])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
