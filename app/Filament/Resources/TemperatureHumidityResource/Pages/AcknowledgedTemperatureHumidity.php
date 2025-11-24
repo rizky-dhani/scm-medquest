@@ -348,7 +348,7 @@ class AcknowledgedTemperatureHumidity extends listRecords
                         ]);
                     Notification::make()
                         ->title('Success!')
-                        ->body('Marked as acknowledged successfully by QA Manager.')
+                        ->body('Marked as acknowledged successfully by QA Manager')
                         ->success()
                         ->send();
                     })
@@ -372,7 +372,7 @@ class AcknowledgedTemperatureHumidity extends listRecords
 
                         if ($alreadyAcknowledged) {
                             Notification::make()
-                                ->title('All selected records are already acknowledged.')
+                                ->title('All selected records are already acknowledged')
                                 ->warning()
                                 ->send();
 

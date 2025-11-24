@@ -80,7 +80,7 @@ class ReviewedTemperatureDeviation extends ListRecords
                         ]);
                     Notification::make()
                         ->title('Success!')
-                        ->body('Marked as reviewed successfully by Supply Chain Manager.')
+                        ->body('Marked as reviewed successfully by Supply Chain Manager')
                         ->success()
                         ->send();
                     })

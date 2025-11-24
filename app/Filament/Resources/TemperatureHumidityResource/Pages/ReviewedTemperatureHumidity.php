@@ -353,7 +353,7 @@ class ReviewedTemperatureHumidity extends ListRecords
                         ]);
                     Notification::make()
                         ->title('Success!')
-                        ->body('Marked as reviewed successfully by Supply Chain Manager.')
+                        ->body('Marked as reviewed successfully by Supply Chain Manager')
                         ->success()
                         ->send();
                     })
@@ -377,7 +377,7 @@ class ReviewedTemperatureHumidity extends ListRecords
 
                         if ($alreadyReviewed) {
                             Notification::make()
-                                ->title('All selected records are already reviewed.')
+                                ->title('All selected records are already reviewed')
                                 ->warning()
                                 ->send();
 
