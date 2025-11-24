@@ -252,8 +252,15 @@ class TemperatureDeviationResource extends Resource
                         return $query->whereMonth('date', $date->month)->whereYear('date', $date->year);
                     }),
             ])
-            ->actions([ViewAction::make(), EditAction::make()->visible(fn($record) => $record->date == now()->toDateString() && Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff'])), DeleteAction::make()->visible(fn($record) => $record->date == now()->toDateString() && Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff']))])
-            ->bulkActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+            ->actions([
+                ViewAction::make(), 
+                EditAction::make()->visible(fn($record) => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff'])), 
+                DeleteAction::make()->visible(fn($record) => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff']))])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                ])
+            ]);
     }
 
     public static function infolist(Infolist $infolist): Infolist
