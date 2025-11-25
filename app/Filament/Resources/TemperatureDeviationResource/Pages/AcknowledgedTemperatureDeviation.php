@@ -68,9 +68,8 @@ class AcknowledgedTemperatureDeviation extends listRecords
                 Action::make('is_acknowledged')
                     ->label('Mark as Acknowledged')
                     ->visible(function (TemperatureDeviation $record) {
-                        $isAcknowledged = $record->is_acknowledged == false && $record->length_temperature_deviation != null && $record->risk_analysis != null;
                         $admin = Auth::user()->hasRole('QA Manager');
-                        return $isAcknowledged && $admin;
+                        return $admin;
                     })
                     ->action(function (Model $record) {
                         $record->update([
@@ -80,7 +79,7 @@ class AcknowledgedTemperatureDeviation extends listRecords
                         ]);
                     Notification::make()
                         ->title('Success!')
-                        ->body('Marked as acknowledged successfully by QA Manager')
+                        ->body('Marked as acknowledged successfully')
                         ->success()
                         ->send();
                     })
@@ -96,7 +95,7 @@ class AcknowledgedTemperatureDeviation extends listRecords
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(function (TemperatureDeviation $record) {
-                        return !is_null($record->analyzer_pic) && Auth::user()->hasRole('QA Manager');
+                        return Auth::user()->hasRole('QA Manager');
                     })
                     ->action(function (Collection $records) {
                         foreach ($records as $record) {

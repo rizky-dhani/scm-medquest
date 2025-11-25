@@ -68,9 +68,8 @@ class ReviewedTemperatureDeviation extends ListRecords
                 Action::make('is_reviewed')
                     ->label('Mark as Reviewed')
                     ->visible(function (TemperatureDeviation $record) {
-                        $isAcknowledged = $record->is_acknowledged == false && $record->length_temperature_deviation != null && $record->risk_analysis != null;
                         $admin = Auth::user()->hasRole('Supply Chain Manager');
-                        return $isAcknowledged && $admin;
+                        return $admin;
                     })
                     ->action(function (Model $record) {
                         $record->update([
@@ -80,7 +79,7 @@ class ReviewedTemperatureDeviation extends ListRecords
                         ]);
                     Notification::make()
                         ->title('Success!')
-                        ->body('Marked as reviewed successfully by Supply Chain Manager')
+                        ->body('Marked as reviewed successfully')
                         ->success()
                         ->send();
                     })
@@ -96,9 +95,8 @@ class ReviewedTemperatureDeviation extends ListRecords
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(function (TemperatureDeviation $record) {
-                        $isAcknowledged = $record->is_acknowledged == false && $record->length_temperature_deviation != null && $record->risk_analysis != null;
                         $admin = Auth::user()->hasRole('Supply Chain Manager');
-                        return $isAcknowledged && $admin;
+                        return $admin;
                     })
                     ->action(function (Collection $records) {
                         foreach ($records as $record) {
