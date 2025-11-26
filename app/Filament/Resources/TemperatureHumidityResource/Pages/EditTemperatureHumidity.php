@@ -38,7 +38,7 @@ class EditTemperatureHumidity extends EditRecord
         foreach ($tempFields as $temp) {
             $data[$temp] = $data[$temp] ?? null;
         }
-            
+        
         // Clear any existing deviation flag to ensure we only check the current time slot
         session()->forget('deviation_triggered');
         session()->forget('deviation_data');

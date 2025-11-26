@@ -197,7 +197,7 @@ class TemperatureHumidityResource extends Resource
                     ->columns(3)
                     ->schema([
                         Section::make('0200')
-                            ->columns(4)
+                            ->columns(3)
                             ->schema([
                                 TimePicker::make('time_0200')
                                     ->label('Time')
@@ -223,29 +223,12 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
+                                    ->readOnly(fn () =>
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' ||
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
                                     ),
-                                TextInput::make('pic_0200')
-                                    ->afterStateHydrated(function (callable $set, $state, callable $get) {
-                                        // Only set the default value if it's not already set and we're in the correct time window
-                                        if (empty($state) && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:00:00' && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:30:59') {
-                                            $value = auth()->user()->hasRole('Security')
-                                                ? auth()->user()->name 
-                                                : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                                            $set('pic_0200', (string) $value);
-                                        }
-                                    })
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
-                                    )
-                                    ->helperText('Leave it empty, it will autimatically added.'),
-                                    
                                 ]),
+
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
                             //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
@@ -253,7 +236,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('0500')
-                            ->columns(4)
+                            ->columns(3)
                             ->schema([
                                 TimePicker::make('time_0500')
                                     ->label('Time')
@@ -279,29 +262,12 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
+                                    ->readOnly(fn () =>
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' ||
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
                                     ),
-                                TextInput::make('pic_0500')
-                                    ->afterStateHydrated(function (callable $set, $state, callable $get) {
-                                        // Only set the default value if it's not already set and we're in the correct time window
-                                        if (empty($state) && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:00:00' && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:30:59') {
-                                            $value = auth()->user()->hasRole('Security')
-                                                ? auth()->user()->name 
-                                                : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                                            $set('pic_0500', (string) $value);
-                                        }
-                                    })
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
-                                    )
-                                    ->helperText('Leave it empty, it will autimatically added.'),
-                                    
                                 ]),
+
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
                             //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
@@ -309,7 +275,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('0800')
-                            ->columns(4)
+                            ->columns(3)
                             ->schema([
                                 TimePicker::make('time_0800')
                                     ->label('Time')
@@ -336,29 +302,12 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
+                                    ->readOnly(fn () =>
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' ||
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
                                     ),
-                                TextInput::make('pic_0800')
-                                    ->afterStateHydrated(function (callable $set, $state, callable $get) {
-                                        // Only set the default value if it's not already set and we're in the correct time window
-                                        if (empty($state) && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:00:00' && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:30:59') {
-                                            $value = auth()->user()->hasRole('Security')
-                                                ? auth()->user()->name 
-                                                : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                                            $set('pic_0800', (string) $value);
-                                        }
-                                    })
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
-                                    )
-                                    ->helperText('Leave it empty, it will autimatically added.'),
-                                    
                             ]),
+
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
                             //             Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
@@ -366,7 +315,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('1100')
-                            ->columns(4)
+                            ->columns(3)
                             ->schema([
                                 TimePicker::make('time_1100')
                                     ->label('Time')
@@ -392,29 +341,12 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
+                                    ->readOnly(fn () =>
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' ||
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
                                     ),
-                                TextInput::make('pic_1100')
-                                    ->afterStateHydrated(function (callable $set, $state, callable $get) {
-                                        // Only set the default value if it's not already set and we're in the correct time window
-                                        if (empty($state) && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:00:00' && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:30:59') {
-                                            $value = auth()->user()->hasRole('Security')
-                                                ? auth()->user()->name 
-                                                : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                                            $set('pic_1100', (string) $value);
-                                        }
-                                    })
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
-                                    )
-                                    ->helperText('Leave it empty, it will autimatically added.'),
-                                    
                             ]),
+
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
                             //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
@@ -422,7 +354,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('1400')
-                            ->columns(4)
+                            ->columns(3)
                             ->schema([
                                 TimePicker::make('time_1400')
                                     ->label('Time')
@@ -448,29 +380,12 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
+                                    ->readOnly(fn () =>
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' ||
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
                                     ),
-                                TextInput::make('pic_1400')
-                                    ->afterStateHydrated(function (callable $set, $state, callable $get) {
-                                        // Only set the default value if it's not already set and we're in the correct time window
-                                        if (empty($state) && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:00:00' && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:30:59') {
-                                            $value = auth()->user()->hasRole('Security')
-                                                ? auth()->user()->name 
-                                                : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                                            $set('pic_1400', (string) $value);
-                                        }
-                                    })
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
-                                    )
-                                    ->helperText('Leave it empty, it will autimatically added.'),
-                                    
                             ]),
+
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
                             //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
@@ -478,7 +393,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('1700')
-                            ->columns(4)
+                            ->columns(3)
                             ->schema([
                                 TimePicker::make('time_1700')
                                     ->label('Time')
@@ -504,29 +419,12 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
+                                    ->readOnly(fn () =>
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' ||
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
                                     ),
-                                TextInput::make('pic_1700')
-                                    ->afterStateHydrated(function (callable $set, $state, callable $get) {
-                                        // Only set the default value if it's not already set and we're in the correct time window
-                                        if (empty($state) && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:00:00' && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:30:59') {
-                                            $value = auth()->user()->hasRole('Security')
-                                                ? auth()->user()->name 
-                                                : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                                            $set('pic_1700', (string) $value);
-                                        }
-                                    })
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
-                                    )
-                                    ->helperText('Leave it empty, it will autimatically added.'),
-                                    
                                 ]),
+
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
                             //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
@@ -534,7 +432,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('2000')
-                            ->columns(4)
+                            ->columns(3)
                             ->schema([
                                 TimePicker::make('time_2000')
                                     ->label('Time')
@@ -560,29 +458,12 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
+                                    ->readOnly(fn () =>
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' ||
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
                                     ),
-                                TextInput::make('pic_2000')
-                                    ->afterStateHydrated(function (callable $set, $state, callable $get) {
-                                        // Only set the default value if it's not already set and we're in the correct time window
-                                        if (empty($state) && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:00:00' && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:30:59') {
-                                            $value = auth()->user()->hasRole('Security')
-                                                ? auth()->user()->name 
-                                                : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                                            $set('pic_2000', (string) $value);
-                                        }
-                                    })
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
-                                    )
-                                    ->helperText('Leave it empty, it will autimatically added.'),
-                                    
                                 ]),
+
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (
                             //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
@@ -590,7 +471,7 @@ class TemperatureHumidityResource extends Resource
                             //         )
                             // ),
                         Section::make('2300')
-                            ->columns(4)
+                            ->columns(3)
                             ->schema([
                                 TimePicker::make('time_2300')
                                     ->label('Time')
@@ -616,28 +497,10 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
+                                    ->readOnly(fn () =>
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' ||
                                         Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
                                     ),
-                                TextInput::make('pic_2300')
-                                    ->afterStateHydrated(function (callable $set, $state, callable $get) {
-                                        // Only set the default value if it's not already set and we're in the correct time window
-                                        if (empty($state) && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:00:00' && 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:30:59') {
-                                            $value = auth()->user()->hasRole('Security')
-                                                ? auth()->user()->name 
-                                                : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                                            $set('pic_2300', (string) $value);
-                                        }
-                                    })
-                                    ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
-                                    )
-                                    ->helperText('Leave it empty, it will autimatically added.'),
-                                    
                             ])
                             // ->disabled(fn (string $operation) => 
                             //         $operation === 'create' && (

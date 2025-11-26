@@ -45,6 +45,7 @@ class DashboardPanelProvider extends PanelProvider
             ->defaultThemeMode(ThemeMode::Light)
             ->favicon(asset('assets/images/Medquest-Favicon.png'))
             ->databaseNotifications()
+            ->databaseTransactions()
             ->maxContentWidth(MaxWidth::Full)
             ->plugins([
                 FilamentSpatieRolesPermissionsPlugin::make()
