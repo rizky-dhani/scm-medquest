@@ -14,72 +14,88 @@ class TemperatureHumidity extends Model
     protected static function booted(): void
     {
         static::saving(function ($temperatureHumidity) {
-            // Auto-populate PIC fields based on current time window only when creating or when fields are empty during update
+            // Auto-populate PIC fields based on current time window AND if the corresponding time field is being updated
             $currentTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
 
-            // Only populate PIC if the field is empty and we're in the correct time window
-            if (empty($temperatureHumidity->pic_0200) && $currentTime >= '02:00:00' && $currentTime < '02:30:59') {
+            // Only populate PIC if the corresponding time field is being updated AND we're in the correct time window
+            if (!empty($temperatureHumidity->time_0200) && empty($temperatureHumidity->pic_0200) && $currentTime >= '02:00:00' && $currentTime < '02:30:59') {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
                     : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
                 $temperatureHumidity->pic_0200 = $value;
+                // Also store the user ID for tracking purposes
+                $temperatureHumidity->pic_0200_id = $user->id;
             }
 
-            if (empty($temperatureHumidity->pic_0500) && $currentTime >= '05:00:00' && $currentTime < '05:30:59') {
+            if (!empty($temperatureHumidity->time_0500) && empty($temperatureHumidity->pic_0500) && $currentTime >= '05:00:00' && $currentTime < '05:30:59') {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
                     : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
                 $temperatureHumidity->pic_0500 = $value;
+                // Also store the user ID for tracking purposes
+                $temperatureHumidity->pic_0500_id = $user->id;
             }
 
-            if (empty($temperatureHumidity->pic_0800) && $currentTime >= '08:00:00' && $currentTime < '08:30:59') {
+            if (!empty($temperatureHumidity->time_0800) && empty($temperatureHumidity->pic_0800) && $currentTime >= '08:00:00' && $currentTime < '08:30:59') {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
                     : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
                 $temperatureHumidity->pic_0800 = $value;
+                // Also store the user ID for tracking purposes
+                $temperatureHumidity->pic_0800_id = $user->id;
             }
 
-            if (empty($temperatureHumidity->pic_1100) && $currentTime >= '11:00:00' && $currentTime < '11:30:59') {
+            if (!empty($temperatureHumidity->time_1100) && empty($temperatureHumidity->pic_1100) && $currentTime >= '11:00:00' && $currentTime < '11:30:59') {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
                     : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
                 $temperatureHumidity->pic_1100 = $value;
+                // Also store the user ID for tracking purposes
+                $temperatureHumidity->pic_1100_id = $user->id;
             }
 
-            if (empty($temperatureHumidity->pic_1400) && $currentTime >= '14:00:00' && $currentTime < '14:30:59') {
+            if (!empty($temperatureHumidity->time_1400) && empty($temperatureHumidity->pic_1400) && $currentTime >= '14:00:00' && $currentTime < '14:30:59') {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
                     : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
                 $temperatureHumidity->pic_1400 = $value;
+                // Also store the user ID for tracking purposes
+                $temperatureHumidity->pic_1400_id = $user->id;
             }
 
-            if (empty($temperatureHumidity->pic_1700) && $currentTime >= '17:00:00' && $currentTime < '17:30:59') {
+            if (!empty($temperatureHumidity->time_1700) && empty($temperatureHumidity->pic_1700) && $currentTime >= '17:00:00' && $currentTime < '17:30:59') {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
                     : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
                 $temperatureHumidity->pic_1700 = $value;
+                // Also store the user ID for tracking purposes
+                $temperatureHumidity->pic_1700_id = $user->id;
             }
 
-            if (empty($temperatureHumidity->pic_2000) && $currentTime >= '20:00:00' && $currentTime < '20:30:59') {
+            if (!empty($temperatureHumidity->time_2000) && empty($temperatureHumidity->pic_2000) && $currentTime >= '20:00:00' && $currentTime < '20:30:59') {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
                     : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
                 $temperatureHumidity->pic_2000 = $value;
+                // Also store the user ID for tracking purposes
+                $temperatureHumidity->pic_2000_id = $user->id;
             }
 
-            if (empty($temperatureHumidity->pic_2300) && $currentTime >= '23:00:00' && $currentTime < '23:30:59') {
+            if (!empty($temperatureHumidity->time_2300) && empty($temperatureHumidity->pic_2300) && $currentTime >= '23:00:00' && $currentTime < '23:30:59') {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
                     : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
                 $temperatureHumidity->pic_2300 = $value;
+                // Also store the user ID for tracking purposes
+                $temperatureHumidity->pic_2300_id = $user->id;
             }
         });
 
