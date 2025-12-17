@@ -120,6 +120,10 @@ class DashboardPanelProvider extends PanelProvider
                 ->label('Admin Settings')
                 ->icon('heroicon-o-cog')
                 ->collapsed(true),
+                NavigationGroup::make()
+                    ->label('System Administration')
+                    ->icon('heroicon-o-cog')
+                    ->collapsed(true),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

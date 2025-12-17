@@ -2,29 +2,31 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\NotificationLogResource\Pages;
-use App\Models\NotificationLog;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables\Table;
+use App\Models\NotificationLog;
+use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Textarea;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\NotificationLogResource\Pages;
 
 class NotificationLogResource extends Resource
 {
     protected static ?string $model = NotificationLog::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-envelope';
-
     protected static ?string $navigationGroup = 'System Administration';
-
     protected static ?int $navigationSort = 2;
+    public static function canViewAny(): bool
+    {
+        return Auth::user()->hasRole(['Super Admin', 'Admin']);
+    }
 
     public static function form(Form $form): Form
     {
