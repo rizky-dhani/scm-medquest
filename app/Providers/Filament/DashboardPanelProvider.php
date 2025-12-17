@@ -44,7 +44,7 @@ class DashboardPanelProvider extends PanelProvider
             ->brandLogoHeight('2rem')
             ->defaultThemeMode(ThemeMode::Light)
             ->favicon(asset('assets/images/Medquest-Favicon.png'))
-            ->databaseNotifications()
+            // ->databaseNotifications()
             ->databaseTransactions()
             ->maxContentWidth(MaxWidth::Full)
             ->plugins([
