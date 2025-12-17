@@ -27,3 +27,4 @@ scm_logs
 /app/Providers/AppServiceProvider.php
 filament-custom-pagination-guide.txt
 table-top-pagination.blade.php
+.github
