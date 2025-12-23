@@ -67,7 +67,7 @@ class AcknowledgedTemperatureDeviation extends listRecords
             ->recordActions([
                 Action::make('is_acknowledged')
                     ->label('Mark as Acknowledged')
-                    ->visible(function (TemperatureDeviation $record) {
+                    ->visible(function () {
                         $admin = Auth::user()->hasRole('QA Manager');
                         return $admin;
                     })
@@ -94,7 +94,7 @@ class AcknowledgedTemperatureDeviation extends listRecords
                     ->icon('heroicon-o-check-badge')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(function (TemperatureDeviation $record) {
+                    ->visible(function () {
                         return Auth::user()->hasRole('QA Manager');
                     })
                     ->action(function (Collection $records) {
