@@ -13,7 +13,7 @@ class TemperatureDeviationStatus extends BaseWidget
 {
     use HasLocationBasedAccess;
 
-    protected static ?string $pollingInterval = null;
+    protected ?string $pollingInterval = null;
     protected static bool $isLazy = false;
     protected ?string $heading = 'Temperature Deviation';
     protected static ?int $sort = 1;

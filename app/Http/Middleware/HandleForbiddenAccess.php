@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Log;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,8 +14,8 @@ class HandleForbiddenAccess
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param Request $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -30,7 +31,7 @@ class HandleForbiddenAccess
             // Check if response is a 403 error
             if ($response->getStatusCode() === 403) {
                 // Log the forbidden access attempt
-                \Log::warning('Forbidden access attempt', [
+                Log::warning('Forbidden access attempt', [
                     'user_id' => Auth::check() ? Auth::id() : null,
                     'ip' => $request->ip(),
                     'url' => $request->fullUrl(),
@@ -44,7 +45,7 @@ class HandleForbiddenAccess
             return $response;
         } catch (AccessDeniedHttpException $e) {
             // Handle thrown 403 exceptions
-            \Log::warning('Access denied exception', [
+            Log::warning('Access denied exception', [
                 'user_id' => Auth::check() ? Auth::id() : null,
                 'ip' => $request->ip(),
                 'url' => $request->fullUrl(),

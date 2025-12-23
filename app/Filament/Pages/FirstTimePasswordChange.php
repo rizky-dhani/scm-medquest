@@ -2,8 +2,13 @@
 
 namespace App\Filament\Pages;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Exception;
+use Log;
+use Filament\Panel;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -15,8 +20,8 @@ use Illuminate\Validation\Rules\Password;
 
 class FirstTimePasswordChange extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-key';
-    protected static string $view = 'filament.pages.first-time-password-change';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-key';
+    protected string $view = 'filament.pages.first-time-password-change';
     protected static bool $shouldRegisterNavigation = false;
 
     public ?array $data = [];
@@ -39,29 +44,29 @@ class FirstTimePasswordChange extends Page
         return 'Welcome! You must change your password before continuing to use the system.';
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Welcome!')
+        return $schema
+            ->components([
+                Section::make('Welcome!')
                     ->description('For security reasons, you must change your password before accessing the system.')
                     ->schema([
-                        Forms\Components\TextInput::make('name')
+                        TextInput::make('name')
                             ->label('Name')
                             ->disabled()
                             ->dehydrated(false),
                         
-                        Forms\Components\TextInput::make('email')
+                        TextInput::make('email')
                             ->label('Email')
                             ->disabled()
                             ->dehydrated(false),
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Set New Password')
+                Section::make('Set New Password')
                     ->description('Please choose a strong password for your account.')
                     ->schema([
-                        Forms\Components\TextInput::make('password')
+                        TextInput::make('password')
                             ->label('New Password')
                             ->password()
                             ->required()
@@ -71,7 +76,7 @@ class FirstTimePasswordChange extends Page
                             ->helperText('Your password must be at least 8 characters long.')
                             ->validationAttribute('password'),
 
-                        Forms\Components\TextInput::make('password_confirmation')
+                        TextInput::make('password_confirmation')
                             ->label('Confirm New Password')
                             ->password()
                             ->revealable()
@@ -120,7 +125,7 @@ class FirstTimePasswordChange extends Page
             
         } catch (Halt $exception) {
             return;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Notification::make()
                 ->danger()
                 ->title('Error Changing Password')
@@ -128,16 +133,16 @@ class FirstTimePasswordChange extends Page
                 ->send();
                 
             // Log the error for debugging
-            \Log::error('Password change error: ' . $e->getMessage());
+            Log::error('Password change error: ' . $e->getMessage());
         }
     }
 
-    public static function getSlug(): string
+    public static function getSlug(?Panel $panel = null): string
     {
         return 'first-time-password-change';
     }
 
-    public static function getRouteName(?string $panel = null): string
+    public static function getRouteName(Panel $panel = null): string
     {
         return 'filament.dashboard.pages.first-time-password-change';
     }

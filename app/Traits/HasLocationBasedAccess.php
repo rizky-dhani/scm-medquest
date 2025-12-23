@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\Location;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,7 +38,7 @@ trait HasLocationBasedAccess
 
         // Super Admin, Admin, Supply Chain Manager, QA Manager, QA Supervisor, and QA Staff can access all locations
         if ($user->hasRole(['Super Admin', 'Admin', 'Supply Chain Manager', 'QA Manager', 'QA Supervisor', 'QA Staff'])) {
-            return \App\Models\Location::pluck('id')->toArray();
+            return Location::pluck('id')->toArray();
         }
 
         // Regular users can only access their assigned location

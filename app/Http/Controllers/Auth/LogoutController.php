@@ -13,8 +13,8 @@ class LogoutController extends Controller
      * Handle logout specifically for 403 Forbidden errors.
      * This method handles both GET and POST requests.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @param Request $request
+     * @return RedirectResponse
      */
     public function logoutFrom403(Request $request): RedirectResponse
     {

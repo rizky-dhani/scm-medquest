@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Exception;
 use App\Models\User;
 use App\Models\TemperatureHumidity;
 use App\Mail\TemperatureHumidityBulkNotification;
@@ -80,7 +81,7 @@ final class TemperatureHumidityNotificationService
                 'count' => $count,
                 'managers_notified' => $supplyChainManagers->count(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send bulk review notifications', [
                 'error' => $e->getMessage(),
                 'count' => $count,
@@ -110,7 +111,7 @@ final class TemperatureHumidityNotificationService
                 'count' => $count,
                 'managers_notified' => $qaManagers->count(),
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Failed to send bulk acknowledgment notifications', [
                 'error' => $e->getMessage(),
                 'count' => $count,

@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Support\Enums\Width;
+use App\Http\Middleware\CheckPasswordChangeRequired;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
@@ -11,7 +13,6 @@ use Filament\Enums\ThemeMode;
 use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
 use App\Filament\Pages\EditProfile;
-use Filament\Support\Enums\MaxWidth;
 use Illuminate\Support\Facades\Auth;
 use Filament\Navigation\NavigationItem;
 use Filament\Navigation\NavigationGroup;
@@ -21,8 +22,8 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Http\Middleware\AuthenticateSession;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\Resources\TemperatureHumidityResource;
-use App\Filament\Resources\TemperatureDeviationResource;
+use App\Filament\Resources\TemperatureHumidities\TemperatureHumidityResource;
+use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -46,9 +47,8 @@ class DashboardPanelProvider extends PanelProvider
             ->favicon(asset('assets/images/Medquest-Favicon.png'))
             // ->databaseNotifications()
             ->databaseTransactions()
-            ->maxContentWidth(MaxWidth::Full)
+            ->maxContentWidth(Width::Full)
             ->plugins([
-                FilamentSpatieRolesPermissionsPlugin::make()
             ])
             ->colors([
                 'primary' => Color::Blue,
@@ -142,7 +142,7 @@ class DashboardPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                \App\Http\Middleware\CheckPasswordChangeRequired::class,
+                CheckPasswordChangeRequired::class,
             ]);
     }
 }

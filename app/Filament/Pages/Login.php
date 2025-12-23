@@ -2,31 +2,29 @@
 
 namespace App\Filament\Pages;
 
+use Filament\Schemas\Components\Component;
+use Filament\Auth\Http\Responses\Contracts\LoginResponse;
+use Exception;
 use App\Models\User;
-use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
-use Filament\Pages\Auth\Login as BaseLogin;
 use Illuminate\Validation\ValidationException;
+use Filament\Schemas\Schema;
 
-class Login extends BaseLogin
+class Login extends \Filament\Auth\Pages\Login
 {
     public function getHeading(): string
     {
         return config('app.name');
     }
-    protected function getForms(): array
+
+    public function form(Schema $schema): Schema
     {
-        return [
-            'form' => $this->form(
-                $this->makeForm()
-                    ->schema([
-                        $this->getLoginFormComponent(),
-                        $this->getPasswordFormComponent(),
-                        $this->getRememberFormComponent(),
-                    ])
-                    ->statePath('data'),
-            ),
-        ];
+        return $schema
+            ->components([
+                $this->getLoginFormComponent(),
+                $this->getPasswordFormComponent(),
+                $this->getRememberFormComponent(),
+            ]);
     }
 
     protected function getLoginFormComponent(): Component
@@ -41,8 +39,20 @@ class Login extends BaseLogin
 
     protected function getCredentialsFromFormData(array $data): array
     {
-        $login = $data['login'];
-        $password = $data['password'];
+        $login = $data['login'] ?? $data['email'] ?? null;
+        $password = $data['password'] ?? null;
+
+        if (!$login) {
+            throw ValidationException::withMessages([
+                'data.login' => 'The login field is required.',
+            ]);
+        }
+
+        if (!$password) {
+            throw ValidationException::withMessages([
+                'data.password' => 'The password field is required.',
+            ]);
+        }
 
         $loginType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
@@ -64,30 +74,30 @@ class Login extends BaseLogin
         ]);
     }
 
-    public function authenticate(): ?\Filament\Http\Responses\Auth\Contracts\LoginResponse
+    public function authenticate(): ?LoginResponse
     {
         try {
             return parent::authenticate();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Check if user exists but is inactive
             $data = $this->form->getState();
             $credentials = $this->getCredentialsFromFormData($data);
-            
+
             // Remove password from credentials to search for user
             $searchCredentials = $credentials;
             unset($searchCredentials['password']);
-            
+
             // Make sure we have valid search credentials
             if (!empty($searchCredentials)) {
                 $user = User::where($searchCredentials)->first();
-                
+
                 if ($user && !$user->isActive()) {
                     throw ValidationException::withMessages([
                         'data.login' => __('Your account is deactivated. Please contact administrator.'),
                     ]);
                 }
             }
-            
+
             // Re-throw the original exception
             throw $e;
         }

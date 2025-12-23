@@ -176,42 +176,42 @@ class TemperatureHumidity extends Model
 
     public function pic0200User()
     {
-        return $this->belongsTo(\App\Models\User::class, 'pic_0200');
+        return $this->belongsTo(User::class, 'pic_0200');
     }
 
     public function pic0500User()
     {
-        return $this->belongsTo(\App\Models\User::class, 'pic_0500');
+        return $this->belongsTo(User::class, 'pic_0500');
     }
 
     public function pic0800User()
     {
-        return $this->belongsTo(\App\Models\User::class, 'pic_0800');
+        return $this->belongsTo(User::class, 'pic_0800');
     }
 
     public function pic1100User()
     {
-        return $this->belongsTo(\App\Models\User::class, 'pic_1100');
+        return $this->belongsTo(User::class, 'pic_1100');
     }
 
     public function pic1400User()
     {
-        return $this->belongsTo(\App\Models\User::class, 'pic_1400');
+        return $this->belongsTo(User::class, 'pic_1400');
     }
 
     public function pic1700User()
     {
-        return $this->belongsTo(\App\Models\User::class, 'pic_1700');
+        return $this->belongsTo(User::class, 'pic_1700');
     }
 
     public function pic2000User()
     {
-        return $this->belongsTo(\App\Models\User::class, 'pic_2000');
+        return $this->belongsTo(User::class, 'pic_2000');
     }
 
     public function pic2300User()
     {
-        return $this->belongsTo(\App\Models\User::class, 'pic_2300');
+        return $this->belongsTo(User::class, 'pic_2300');
     }
 
 
@@ -229,7 +229,7 @@ class TemperatureHumidity extends Model
         // Check if it's a numeric value (user ID) or string (old signature)
         if (is_numeric($picValue)) {
             // New format: user ID
-            $user = \App\Models\User::find($picValue);
+            $user = User::find($picValue);
             if (!$user) {
                 return '-';
             }

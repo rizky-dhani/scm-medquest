@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use Carbon\Carbon;
 use App\Models\Room;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -114,7 +116,7 @@ class TemperatureHumidityExport implements WithMultipleSheets
                                 ->setBold(true);
                             $sheet->getStyle('A1:AK1')
                                 ->getAlignment()
-                                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         },
                     ];
                 }
@@ -128,8 +130,8 @@ class TemperatureHumidityExport implements WithMultipleSheets
                     // Apply center alignment to all cells
                     $sheet->getStyle("A1:{$highestColumn}{$highestRow}")
                         ->getAlignment()
-                        ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)
-                        ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                        ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                        ->setVertical(Alignment::VERTICAL_CENTER);
 
                     // Apply word wrap to the Room column
                     $sheet->getStyle("B1:B{$highestRow}")
@@ -140,14 +142,14 @@ class TemperatureHumidityExport implements WithMultipleSheets
                     $sheet->getStyle("A1:{$highestColumn}{$highestRow}")
                         ->getBorders()
                         ->getAllBorders()
-                        ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                        ->setBorderStyle(Border::BORDER_THIN);
 
                     return [
                         // Header row (row 2)
                         2 => [
                             'alignment' => [
-                                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER,
                             ],
                         ],
                     ];

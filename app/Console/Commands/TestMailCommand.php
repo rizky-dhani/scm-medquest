@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
@@ -45,7 +46,7 @@ class TestMailCommand extends Command
             $this->info("✅ Test email sent successfully to: {$email}");
             $this->info('Please check your email inbox and spam folder.');
             
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('❌ Failed to send email!');
             $this->error('Error: ' . $e->getMessage());
             

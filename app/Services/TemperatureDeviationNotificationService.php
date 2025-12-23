@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use Exception;
 use App\Models\User;
 use App\Models\TemperatureDeviation;
 use App\Models\NotificationLog;
@@ -15,6 +16,9 @@ final class TemperatureDeviationNotificationService
 {
     public function sendDeviationNotification(TemperatureDeviation $temperatureDeviation): void
     {
+        // Eager load related models to avoid N+1 queries in the email template
+        $temperatureDeviation->load(['location', 'room', 'roomTemperature', 'serialNumber']);
+
         $recipients = User::role(['QA Manager', 'Supply Chain Manager'])->get();
 
         if ($recipients->isEmpty()) {
@@ -36,7 +40,7 @@ final class TemperatureDeviationNotificationService
                     // Log successful notification
                     $this->logNotification('temperature_deviation', $temperatureDeviation, $user, true);
                     $successfulNotifications++;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Log failed notification
                     $this->logNotification('temperature_deviation', $temperatureDeviation, $user, false, $e->getMessage());
                     $failedNotifications++;
@@ -55,6 +59,9 @@ final class TemperatureDeviationNotificationService
 
     public function sendHighPriorityDeviationNotification(TemperatureDeviation $temperatureDeviation): void
     {
+        // Eager load related models to avoid N+1 queries in the email template
+        $temperatureDeviation->load(['location', 'room', 'roomTemperature', 'serialNumber']);
+
         $highLevelManagers = User::role(['Admin', 'Super Admin'])->get();
 
         if ($highLevelManagers->isEmpty()) {
@@ -76,7 +83,7 @@ final class TemperatureDeviationNotificationService
                     // Log successful notification
                     $this->logNotification('high_priority_deviation', $temperatureDeviation, $user, true);
                     $successfulNotifications++;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // Log failed notification
                     $this->logNotification('high_priority_deviation', $temperatureDeviation, $user, false, $e->getMessage());
                     $failedNotifications++;

@@ -2,18 +2,18 @@
 
 namespace App\Filament\Pages;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Filament\Notifications\Notification;
-use Filament\Pages\Auth\EditProfile as BaseEditProfile;
 
-class EditProfile extends BaseEditProfile
+class EditProfile extends \Filament\Auth\Pages\EditProfile
 {
-    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
-    protected static string $view = 'filament.pages.edit-profile';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user-circle';
+    protected string $view = 'filament.pages.edit-profile';
 
     public function getTitle(): string
     {
@@ -53,16 +53,16 @@ class EditProfile extends BaseEditProfile
         return $record;
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Personal Information')
+        return $schema
+            ->components([
+                Section::make('Personal Information')
                     ->schema([
                         $this->getNameFormComponent(),
                         $this->getEmailFormComponent(),
                     ]),
-                Forms\Components\Section::make('Change Password')
+                Section::make('Change Password')
                     ->schema([
                         $this->getPasswordFormComponent()
                             ->helperText('Leave blank to keep current password.'),
