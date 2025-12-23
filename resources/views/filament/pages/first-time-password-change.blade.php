@@ -2,9 +2,9 @@
     @if (session('password_change_required'))
         <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-700">
             <div class="flex">
-                <div class="flex-shrink-0">
+                {{-- <div class="flex-shrink-0">
                     <x-heroicon-s-information-circle class="h-5 w-5 text-blue-400" />
-                </div>
+                </div> --}}
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
                         First Time Setup
@@ -18,13 +18,13 @@
     @else
         <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-700">
             <div class="flex">
-                <div class="flex-shrink-0">
+                {{-- <div class="flex-shrink-0">
                     <x-heroicon-s-information-circle class="h-5 w-5 text-blue-400" />
-                </div>
+                </div> --}}
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    <h2 class="text-lg font-medium text-blue-800 dark:text-blue-200">
                         First Time Setup
-                    </h3>
+                    </h2>
                     <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
                         <p>This is your first time logging in. Please change your password to continue using the system securely.</p>
                     </div>
@@ -33,11 +33,11 @@
         </div>
     @endif
 
-    <x-filament-panels::form wire:submit="changePassword">
+    <form wire:submit="changePassword">
         {{ $this->form }}
 
-        <x-filament-panels::form.actions
+        <x-filament::actions
             :actions="$this->getFormActions()"
         />
-    </x-filament-panels::form>
+    </form>
 </x-filament-panels::page>
