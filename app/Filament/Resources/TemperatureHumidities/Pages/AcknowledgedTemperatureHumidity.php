@@ -363,7 +363,7 @@ class AcknowledgedTemperatureHumidity extends listRecords
                     ->icon('heroicon-o-check-badge')
                     ->color('info')
                     ->requiresConfirmation()
-                    ->visible(function (TemperatureHumidity $record) {  
+                    ->visible(function () {  
                         $admin = Auth::user()->hasRole('QA Manager');
                         return $admin;
                     })
