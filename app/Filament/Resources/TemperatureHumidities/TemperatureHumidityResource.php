@@ -199,7 +199,7 @@ class TemperatureHumidityResource extends Resource
                         Hidden::make('temperature_end')
                     ]),
                 \Filament\Schemas\Components\Section::make('Time')
-                    ->columns(3)
+                    ->columns(1)
                     ->schema([
                         \Filament\Schemas\Components\Section::make('0200')
                             ->columns(3)
