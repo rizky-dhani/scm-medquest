@@ -67,7 +67,7 @@ class ReviewedTemperatureDeviation extends ListRecords
             ->recordActions([
                 Action::make('is_reviewed')
                     ->label('Mark as Reviewed')
-                    ->visible(function (TemperatureDeviation $record) {
+                    ->visible(function () {
                         $admin = Auth::user()->hasRole('Supply Chain Manager');
                         return $admin;
                     })
@@ -94,7 +94,7 @@ class ReviewedTemperatureDeviation extends ListRecords
                     ->icon('heroicon-o-check-badge')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(function (TemperatureDeviation $record) {
+                    ->visible(function () {
                         $admin = Auth::user()->hasRole('Supply Chain Manager');
                         return $admin;
                     })
