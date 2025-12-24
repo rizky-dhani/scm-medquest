@@ -2,36 +2,34 @@
 
 namespace App\Filament\Resources\TemperatureHumidities;
 
-use Filament\Schemas\Schema;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\BulkAction;
-use App\Filament\Resources\TemperatureHumidities\Pages\ListTemperatureHumidity;
-use App\Filament\Resources\TemperatureHumidities\Pages\CreateTemperatureHumidity;
-use App\Filament\Resources\TemperatureHumidities\Pages\EditTemperatureHumidity;
-use App\Filament\Resources\TemperatureHumidities\Pages\ViewTemperatureHumidity;
-use App\Filament\Resources\TemperatureHumidities\Pages\ReviewedTemperatureHumidity;
-use App\Filament\Resources\TemperatureHumidities\Pages\AcknowledgedTemperatureHumidity;
 use Carbon\Carbon;
 use App\Models\Room;
 use App\Models\Location;
-use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use App\Models\SerialNumber;
+use Filament\Schemas\Schema;
 use App\Models\RoomTemperature;
+use Filament\Actions\BulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Actions\DeleteAction;
+use Spatie\LaravelPdf\Facades\Pdf;
 use App\Models\TemperatureHumidity;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
+use Spatie\Browsershot\Browsershot;
+use Spatie\LaravelPdf\Enums\Format;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Filament\Actions\BulkActionGroup;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use App\Traits\HasLocationBasedAccess;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Tables\Filters\Indicator;
 use Filament\Navigation\NavigationItem;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
@@ -41,11 +39,16 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Exports\TemperatureHumidityExport;
-use App\Exports\AllLocationsTemperatureHumidityExport;
 use Filament\Infolists\Components\TextEntry;
+use App\Exports\AllLocationsTemperatureHumidityExport;
 use Filament\Infolists\Components\Section as InfoSection;
 use App\Filament\Resources\TemperatureHumidityResource\Pages;
-use App\Traits\HasLocationBasedAccess;
+use App\Filament\Resources\TemperatureHumidities\Pages\EditTemperatureHumidity;
+use App\Filament\Resources\TemperatureHumidities\Pages\ListTemperatureHumidity;
+use App\Filament\Resources\TemperatureHumidities\Pages\ViewTemperatureHumidity;
+use App\Filament\Resources\TemperatureHumidities\Pages\CreateTemperatureHumidity;
+use App\Filament\Resources\TemperatureHumidities\Pages\ReviewedTemperatureHumidity;
+use App\Filament\Resources\TemperatureHumidities\Pages\AcknowledgedTemperatureHumidity;
 
 class TemperatureHumidityResource extends Resource
 {
@@ -1007,12 +1010,23 @@ class TemperatureHumidityResource extends Resource
                     ->successNotificationTitle('Selected Temperature Humidity deleted successfully'),
                 ]),
                 BulkAction::make('bulk_export')
-                    ->label('Bulk Export')
+                    ->label('Export to Excel')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->action(function ($records) {
                         $records = $records->load(['location', 'room', 'serialNumber', 'roomTemperature']);
                         $filename = 'TemperatureHumidity_Bulk_' . strtoupper(now()->format('MY')) . '.xlsx';
                         return Excel::download(new TemperatureHumidityExport($records, 'Bulk Export'), $filename);
+                    })
+                    ->requiresConfirmation()
+                    ->deselectRecordsAfterCompletion(),
+                BulkAction::make('bulk_export_pdf')
+                    ->label('Export to PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->action(function ($records) {
+                        $ids = $records->pluck('id')->toArray();
+                        session(['export_ids' => $ids]);
+
+                        return redirect()->route('temperature-humidities.bulk-export');
                     })
                     ->requiresConfirmation()
                     ->deselectRecordsAfterCompletion(),
