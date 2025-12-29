@@ -21,6 +21,9 @@
             vertical-align: middle;
             border: 1px solid black !important;
         }
+        thead {
+            display: table-row-group;
+        }
         .date, .time, .temp, .rh, .pic {
             font-size: 10px;
         }
