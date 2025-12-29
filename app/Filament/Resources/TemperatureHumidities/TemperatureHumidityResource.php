@@ -1009,27 +1009,6 @@ class TemperatureHumidityResource extends Resource
                     DeleteBulkAction::make()
                     ->successNotificationTitle('Selected Temperature Humidity deleted successfully'),
                 ]),
-                BulkAction::make('bulk_export')
-                    ->label('Export to Excel')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->action(function ($records) {
-                        $records = $records->load(['location', 'room', 'serialNumber', 'roomTemperature']);
-                        $filename = 'TemperatureHumidity_Bulk_' . strtoupper(now()->format('MY')) . '.xlsx';
-                        return Excel::download(new TemperatureHumidityExport($records, 'Bulk Export'), $filename);
-                    })
-                    ->requiresConfirmation()
-                    ->deselectRecordsAfterCompletion(),
-                BulkAction::make('bulk_export_pdf')
-                    ->label('Export to PDF')
-                    ->icon('heroicon-o-document-arrow-down')
-                    ->action(function ($records) {
-                        $ids = $records->pluck('id')->toArray();
-                        session(['export_ids' => $ids]);
-
-                        return redirect()->route('temperature-humidities.bulk-export');
-                    })
-                    ->requiresConfirmation()
-                    ->deselectRecordsAfterCompletion(),
             ]);
     }
 
