@@ -247,8 +247,8 @@ class TemperatureDeviationResource extends Resource
                 TextColumn::make('acknowledged_by')->label('Acknowledged by'),
             ])
             ->filters([
-                SelectFilter::make('temperature_humidity_id')->label('Temperature Humidity')->relationship('temperatureHumidity', 'id')->searchable()->preload(),
                 SelectFilter::make('location_id')->label('Location')->relationship('location', 'location_name')->searchable()->preload(),
+                SelectFilter::make('room_id')->label('Room')->relationship('room', 'room_name')->searchable()->preload(),
                 Filter::make('period')
                     ->schema([DatePicker::make('period')->label('Period')->displayFormat('M Y')->native(false)->closeOnDateSelection()])
                     ->query(function (Builder $query, array $data): Builder {

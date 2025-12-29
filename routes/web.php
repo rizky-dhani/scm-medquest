@@ -26,14 +26,34 @@ Route::get('/email-preview/acknowledgment', function () {
 
 Route::get('/temperature-humidities/bulk-export', function () {
     $ids = session()->get('export_ids', []);
-    $tempHumidity = TemperatureHumidity::whereIn('id', $ids)->get();
+    $tempHumidity = TemperatureHumidity::whereIn('id', $ids)
+        ->with(['location', 'room', 'serialNumber', 'roomTemperature'])
+        ->get();
 
     if ($tempHumidity->isEmpty()) {
         return redirect()->back()->with('warning', 'No records selected for export.');
     }
-    $period = strtoupper(Carbon::parse($tempHumidity->first()->period)->format('MY'));
-    $filename = 'TemperatureHumidity_'.strtoupper(str_replace(' ', '_', $tempHumidity->first()->room->room_name)).'_'.$period.'.pdf';
-    $html = view('print.temperature-humidity', compact('tempHumidity'));
+
+    // Group records by room
+    $groupedTempHumidity = $tempHumidity->groupBy('room_id');
+
+    // Generate filename logic
+    $roomCount = $tempHumidity->pluck('room_id')->unique()->count();
+    $firstRecord = $tempHumidity->first();
+    $locationName = strtoupper(Str::slug($firstRecord->location->location_name, '_'));
+    $period = strtoupper(Carbon::parse($firstRecord->period)->format('MY'));
+
+    if ($roomCount === 1) {
+        $roomName = strtoupper(Str::slug($firstRecord->room->room_name, '_'));
+        $filename = "TemperatureHumidity_{$locationName}_{$roomName}_{$period}.pdf";
+    } else {
+        $filename = "TemperatureHumidity_{$locationName}_{$period}.pdf";
+    }
+
+    $html = view('print.temperature-humidity', [
+        'tempHumidity' => $tempHumidity,
+        'groupedTempHumidity' => $groupedTempHumidity
+    ]);
     $pdf = Browsershot::html($html)
         ->format('A4')
         ->margins(3, 3, 3, 3)
@@ -44,7 +64,6 @@ Route::get('/temperature-humidities/bulk-export', function () {
     return response($pdf, 200)
         ->header('Content-Type', 'application/pdf')
         ->header('Content-Disposition', 'inline; filename="'.$filename.'"');
-
 })->name('temperature-humidities.bulk-export');
 
 Route::get('/temperature-deviations/bulk-export', function () {

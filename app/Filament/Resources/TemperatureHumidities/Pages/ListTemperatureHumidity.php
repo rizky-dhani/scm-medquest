@@ -8,6 +8,7 @@ use Filament\Actions;
 use App\Models\Location;
 use App\Models\SerialNumber;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use App\Models\RoomTemperature;
 use Filament\Actions\CreateAction;
 use App\Models\TemperatureHumidity;
@@ -37,109 +38,214 @@ class ListTemperatureHumidity extends ListRecords
             ->label('New Temperature & Humidity')
             ->color('success')
             ->visible(fn() => auth()->user()->hasRole(['Supply Chain Officer', 'Security'])),
-            Action::make('custom_export')
-                ->label('Export')
-                ->icon('heroicon-o-arrow-down-tray')
-                ->schema([
-                    Select::make('location_id')
-                        ->label('Location')
-                        ->relationship('location', 'location_name')
-                        ->options(function () {
-                            $user = auth()->user();
+            ActionGroup::make([
+                Action::make('export_xlsx')
+                    ->label('Export to XLSX')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->modalHeading('Export Temperature & Humidity to XLSX')
+                    ->modalButton('Export to XLSX')
+                    ->schema([
+                        Select::make('location_id')
+                            ->label('Location')
+                            ->relationship('location', 'location_name')
+                            ->options(function () {
+                                $user = auth()->user();
+                                if ($user->location_id) {
+                                    return Location::where('id', $user->location_id)
+                                        ->pluck('location_name', 'id');
+                                }
+                                return Location::pluck('location_name', 'id');
+                            })
+                            ->searchable()
+                            ->reactive()
+                            ->preload()
+                            ->required()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('room_id', null);
+                            }),
+
+                        Select::make('room_id')
+                            ->label('Rooms')
+                            ->multiple()
+                            ->options(function (callable $get) {
+                                $locationId = $get('location_id');
+                                if (!$locationId) {
+                                    return [];
+                                }
+                                return Room::where('location_id', $locationId)
+                                    ->pluck('room_name', 'id');
+                            })
+                            ->searchable()
+                            ->reactive()
+                            ->preload()
+                            ->required()
+                            ->disabled(fn (callable $get) => ! $get('location_id')),
+
+                        Select::make('month_type')
+                            ->label('Month Type')
+                            ->options([
+                                'this_month' => 'This Month',
+                                'choose' => 'Choose Month',
+                            ])
+                            ->default('this_month')
+                            ->reactive(),
+
+                        DatePicker::make('chosen_month')
+                            ->label('Choose Month')
+                            ->displayFormat('F Y')
+                            ->visible(fn ($get) => $get('month_type') === 'choose')
+                            ->required(fn ($get) => $get('month_type') === 'choose'),
+                    ])
+                    ->action(function (array $data) {
+                        $location_id = $data['location_id'];
+                        $room_ids = $data['room_id'];
+
+                        if ($data['month_type'] === 'this_month') {
+                            $month = now()->month;
+                            $year = now()->year;
+                        } else {
+                            $chosenMonth = Carbon::parse($data['chosen_month']);
+                            $month = $chosenMonth->month;
+                            $year = $chosenMonth->year;
+                        }
+
+                        $query = TemperatureHumidity::query()
+                            ->where('location_id', $location_id)
+                            ->whereMonth('period', $month)
+                            ->whereYear('period', $year)
+                            ->with(['location', 'room', 'serialNumber', 'roomTemperature']);
+
+                        if (!empty($room_ids)) {
+                            $query->whereIn('room_id', $room_ids);
+                        }
+
+                        $records = $query->get();
                         
-                            // If user has a specific location, only show that location
-                            if ($user->location_id) {
-                                return Location::where('id', $user->location_id)
-                                    ->pluck('location_name', 'id');
-                            }
+                        if ($records->isEmpty()) {
+                            Notification::make()
+                                ->warning()
+                                ->title('No data is found')
+                                ->send();
+                            return;
+                        }
 
-                            // If user has no specific location (admin), show all locations
-                            return Location::pluck('location_name', 'id');
-                        })
-                        ->searchable()
-                        ->reactive()
-                        ->preload()
-                        ->required()
-                        ->afterStateUpdated(function ($state, callable $set) {
-                            $set('room_id', null);
-                        }),
+                        $monthName = strtoupper(Carbon::createFromDate($year, $month)->format('M'));
+                        $location = Location::find($location_id);
+                        $sluggedLocation = strtoupper(str_replace(' ', '_', $location->location_name));
 
-                    Select::make('room_id')
-                        ->label('Rooms')
-                        ->multiple()
-                        ->options(function (callable $get) {
-                            $locationId = $get('location_id');
+                        if ($room_ids && count($room_ids) === 1) {
+                            $room = Room::find($room_ids[0]);
+                            $roomName = strtoupper(str_replace(' ', '_', $room->room_name));
+                            $filename = "TemperatureHumidity_{$sluggedLocation}_{$roomName}_{$monthName}{$year}.xlsx";
+                        } else {
+                            $filename = "TemperatureHumidity_{$sluggedLocation}_{$monthName}{$year}.xlsx";
+                        }
+
+                        return Excel::download(new TemperatureHumidityExport($records, $location->location_name), $filename);
+                    }),
+                Action::make('export_pdf')
+                    ->label('Export to PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('warning')
+                    ->modalHeading('Export Temperature & Humidity to PDF')
+                    ->modalButton('Export to PDF')
+                    ->schema([
+                        Select::make('location_id')
+                            ->label('Location')
+                            ->relationship('location', 'location_name')
+                            ->options(function () {
+                                $user = auth()->user();
+                                if ($user->location_id) {
+                                    return Location::where('id', $user->location_id)
+                                        ->pluck('location_name', 'id');
+                                }
+                                return Location::pluck('location_name', 'id');
+                            })
+                            ->searchable()
+                            ->reactive()
+                            ->preload()
+                            ->required()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('room_id', null);
+                            }),
+
+                        Select::make('room_id')
+                            ->label('Rooms')
+                            ->multiple()
+                            ->options(function (callable $get) {
+                                $locationId = $get('location_id');
+                                if (!$locationId) {
+                                    return [];
+                                }
+                                return Room::where('location_id', $locationId)
+                                    ->pluck('room_name', 'id');
+                            })
+                            ->searchable()
+                            ->reactive()
+                            ->preload()
+                            ->required()
+                            ->disabled(fn (callable $get) => ! $get('location_id')),
+
+                        Select::make('month_type')
+                            ->label('Month Type')
+                            ->options([
+                                'this_month' => 'This Month',
+                                'choose' => 'Choose Month',
+                            ])
+                            ->default('this_month')
+                            ->reactive(),
+
+                        DatePicker::make('chosen_month')
+                            ->label('Choose Month')
+                            ->displayFormat('F Y')
+                            ->visible(fn ($get) => $get('month_type') === 'choose')
+                            ->required(fn ($get) => $get('month_type') === 'choose'),
+                    ])
+                    ->action(function (array $data) {
+                        $location_id = $data['location_id'];
+                        $room_ids = $data['room_id'];
+
+                        if ($data['month_type'] === 'this_month') {
+                            $month = now()->month;
+                            $year = now()->year;
+                        } else {
+                            $chosenMonth = Carbon::parse($data['chosen_month']);
+                            $month = $chosenMonth->month;
+                            $year = $chosenMonth->year;
+                        }
+
+                        $query = TemperatureHumidity::query()
+                            ->where('location_id', $location_id)
+                            ->whereMonth('period', $month)
+                            ->whereYear('period', $year)
+                            ->with(['location', 'room', 'serialNumber', 'roomTemperature']);
+
+                        if (!empty($room_ids)) {
+                            $query->whereIn('room_id', $room_ids);
+                        }
+
+                        $records = $query->get();
                         
-                            if (!$locationId) {
-                                return [];
-                            }
+                        if ($records->isEmpty()) {
+                            Notification::make()
+                                ->warning()
+                                ->title('No data is found')
+                                ->send();
+                            return;
+                        }
 
-                            return Room::where('location_id', $locationId)
-                                ->pluck('room_name', 'id');
-                        })
-                        ->searchable()
-                        ->reactive()
-                        ->preload()
-                        ->required()
-                        ->disabled(fn (callable $get) => ! $get('location_id')),
+                        // Store the records in session for PDF export
+                        $ids = $records->pluck('id')->toArray();
+                        session(['export_ids' => $ids]);
 
-                    Select::make('month_type')
-                        ->label('Month Type')
-                        ->options([
-                            'this_month' => 'This Month',
-                            'choose' => 'Choose Month',
-                        ])
-                        ->default('this_month')
-                        ->reactive(),
-
-                    DatePicker::make('chosen_month')
-                        ->label('Choose Month')
-                        ->displayFormat('F Y')
-                        ->visible(fn ($get) => $get('month_type') === 'choose')
-                        ->required(fn ($get) => $get('month_type') === 'choose'),
-                ])
-                ->action(function (array $data) {
-                    $location_id = $data['location_id'] ?? null;
-                    $room_ids = $data['room_id'] ?? [];
-
-                    if ($data['month_type'] === 'this_month') {
-                        $month = now()->month;
-                        $year = now()->year;
-                    } else {
-                        $chosenMonth = Carbon::parse($data['chosen_month']);
-                        $month = $chosenMonth->month;
-                        $year = $chosenMonth->year;
-                    }
-
-                    // Build query with multiple room support
-                    $query = TemperatureHumidity::query()
-                        ->where('location_id', $location_id)
-                        ->whereMonth('period', $month)
-                        ->whereYear('period', $year)
-                        ->with(['location', 'room', 'serialNumber', 'roomTemperature']);
-
-                    if (!empty($room_ids)) {
-                        $query->whereIn('room_id', $room_ids);
-                    }
-
-                    $records = $query->get();
-                    
-                    // Check if there are any records to export
-                    if ($records->isEmpty()) {
-                        // Show alert message
-                        Notification::make()
-                            ->warning()
-                            ->title('No data is found')
-                            ->send();
-                        return;
-                    }
-
-                    $monthName = strtoupper(Carbon::createFromDate($year, $month)->format('M'));
-                    $location = Location::find($location_id);
-                    $filename = "TemperatureHumidity_{$monthName}{$year}_{$location->location_name}.xlsx";
-
-                    return Excel::download(new TemperatureHumidityExport($records, $location->location_name), $filename);
-                }),
+                        return redirect()->route('temperature-humidities.bulk-export');
+                    }),
+            ])
+            ->label('Export')
+            ->icon('heroicon-o-arrow-down-tray')
+            ->color('primary')
+            ->button(),
             Action::make('export_all_locations')
                 ->label('Export All Locations')
                 ->icon('heroicon-o-arrow-down-tray')
