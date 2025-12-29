@@ -9,7 +9,7 @@
 <body>
     <div class="container-fluid">
         <div class="row mb-1 border border-black" id="header">
-            <div class="col-2 px-0">
+            <div class="col-2 d-flex justify-content-center align-items-center px-0" style="background-color: #0E0F97 !important;">
                 <img src="{{ asset('assets/images/LOGO-MEDQUEST-HD.png') }}" alt="" style="width: 100%;">
             </div>
             <div class="col-7 d-flex flex-column border-black">
@@ -29,10 +29,10 @@
                         <p class="mb-0" style="font-size: 13px; padding-left: 2%;">Page No.</p>
                     </div>
                     <div class="col-9">
-                        <p class="mb-0" style="font-size: 13px; padding-left: 2%;">:&emsp;</p>
-                        <p class="mb-0" style="font-size: 13px; padding-left: 2%;">:&emsp;</p>
-                        <p class="mb-0" style="font-size: 13px; padding-left: 2%;">:&emsp;</p>
-                        <p class="mb-0" style="font-size: 13px; padding-left: 2%;">:&emsp;</p>
+                        <p class="mb-0" style="font-size: 13px; padding-left: 2%;">:&ensp;MJG-FOR-SCM.02.002-01</p>
+                        <p class="mb-0" style="font-size: 13px; padding-left: 2%;">:&ensp;12 JUN 2023</p>
+                        <p class="mb-0" style="font-size: 13px; padding-left: 2%;">:&ensp;08</p>
+                        <p class="mb-0" style="font-size: 13px; padding-left: 2%;">:&ensp;@pageNumber of @totalPages</p>
                     </div>
                 </div>
             </div>
@@ -51,9 +51,9 @@
                         <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">Storage temperature standard <br> (<i>Standar suhu penyimpanan</i>)</p>
                     </div>
                     <div class="col-9">
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&emsp;</p>
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&emsp;</p>
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&emsp;</p>
+                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&ensp;</p>
+                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&ensp;</p>
+                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&ensp;</p>
                     </div>
                 </div>
             </div>
@@ -72,8 +72,8 @@
                         <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">Reason of the deviations **) <br> (<i>Alasan penyimpangan **</i>)</p>
                     </div>
                     <div class="col-10" style="width: 85.8%">
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&emsp; A.&nbsp;There were many people in the room, so that the room temperature rised (<i>Banyak orang didalam ruangan, sehingga suhu ruangan meningkat</i>)</p>
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">&ensp;&emsp;B.&nbsp;There were activities related to packaging / moving goods (<i>Sedang ada aktivitas terkait dengan pengemasan / pemindahan barang</i>)</p>
+                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&ensp; A.&nbsp;There were many people in the room, so that the room temperature rised (<i>Banyak orang didalam ruangan, sehingga suhu ruangan meningkat</i>)</p>
+                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">&ensp;&ensp;B.&nbsp;There were activities related to packaging / moving goods (<i>Sedang ada aktivitas terkait dengan pengemasan / pemindahan barang</i>)</p>
                     </div>
                 </div>
             </div>

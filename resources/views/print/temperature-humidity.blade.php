@@ -31,17 +31,15 @@
     {{-- Header --}}
     <div class="container-fluid mb-1">
         <div class="row mb-1 border border-black" id="header">
-            <div class="col-2 d-flex flex-column px-0" style="background-color: #0E0F97 !important;">
-                <div class="rowalign-items-center">
-                    <img src="{{ asset('assets/images/LOGO-MEDQUEST-HD.png') }}" alt="" style="width: 100%;">
-                </div>
+            <div class="col-2 d-flex justify-content-center align-items-center px-0" style="background-color: #0E0F97 !important;">
+                <img src="{{ asset('assets/images/LOGO-MEDQUEST-HD.png') }}" alt="" style="width: 100%;">
             </div>
             <div class="col-7 d-flex flex-column border-black">
                 <div class="row align-items-center h-50 border-bottom border-start border-end border-black">
                     <h5 class="fw-bolder text-uppercase text-center mb-0">Form</h5>
                 </div>
                 <div class="row align-items-center h-50 border-start border-end border-black">
-                    <h5 class="fw-bolder text-uppercase text-center mb-0">Temperature & Humidity</h5>
+                    <h5 class="fw-bolder text-uppercase text-center mb-0">Temperature And Humidity Monitoring</h5>
                 </div>
             </div>
             <div class="col-3 ps-1">
@@ -56,13 +54,13 @@
                         <p class="mb-0" style="font-size: 12px; padding-left: 2%;">:&ensp;MJG-FOR-SCM.02.002-01</p>
                         <p class="mb-0" style="font-size: 12px; padding-left: 2%;">:&ensp;12 JUN 2023</p>
                         <p class="mb-0" style="font-size: 12px; padding-left: 2%;">:&ensp;09</p>
-                        <p class="mb-0" style="font-size: 12px; padding-left: 2%;">:&ensp;@pageNumber of @totalPages</p>
+                        <p class="mb-0" style="font-size: 12px; padding-left: 2%;">:&ensp; @pageNumber of @totalPages</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="row mb-1" id="temperature-range">
-            <div class="col-7 pe-0 border border-black">
+            <div class="col-7 pe-0 border border-black border-end-0">
                 <p class="mb-0 fw-bold ps-1" style="font-size: 14px; padding-left: 2%;">Acceptable Temperature Range:</p>
                 <div class="row">
                     <div class="col-6">
@@ -97,7 +95,7 @@
             </div>
         </div>
         <div class="row" id="detail">
-            <div class="col-7 pe-0 border border-black">
+            <div class="col-7 pe-0 border border-black border-end-0">
                 <div class="row">
                     <div class="col-3">
                         <p class="mb-0" style="font-size: 14px; padding-left: 1% !important;">Period</p>

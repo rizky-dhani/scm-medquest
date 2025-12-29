@@ -43,6 +43,10 @@ use App\Exports\TemperatureDeviationExport;
 use Filament\Infolists\Components\TextEntry;
 use App\Filament\Resources\TemperatureDeviationResource\Pages;
 use App\Traits\HasLocationBasedAccess;
+use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\Browsershot\Browsershot;
+use Spatie\LaravelPdf\Enums\Format;
+use Filament\Actions\BulkAction;
 
 class TemperatureDeviationResource extends Resource
 {
@@ -267,8 +271,8 @@ class TemperatureDeviationResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                    ->successNotificationTitle('Selected Temperature Deviation(s) deleted successfully')
-                ])
+                    ->successNotificationTitle('Selected Temperature Deviation(s) deleted successfully'),
+                ]),
             ]);
     }
 
