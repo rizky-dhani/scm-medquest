@@ -80,6 +80,7 @@ class TemperatureDeviationExport implements WithMultipleSheets
             $sheets[$sheetName] = new class($records, $roomName) implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles, WithMapping, WithEvents, WithTitle {
                 protected Collection $records;
                 protected ?string $title = null;
+                protected int $rowIndex = 0;
 
                 public function __construct(Collection $records, ?string $title = null)
                 {
@@ -104,10 +105,10 @@ class TemperatureDeviationExport implements WithMultipleSheets
                             $sheet = $event->sheet->getDelegate();
                             
                             // Style the header row
-                            $sheet->getStyle('A1:K1')
+                            $sheet->getStyle('A1:I1')
                                 ->getFont()
                                 ->setBold(true);
-                            $sheet->getStyle('A1:K1')
+                            $sheet->getStyle('A1:I1')
                                 ->getAlignment()
                                 ->setHorizontal(Alignment::HORIZONTAL_CENTER);
                         },
@@ -126,7 +127,7 @@ class TemperatureDeviationExport implements WithMultipleSheets
                         ->setHorizontal(Alignment::HORIZONTAL_CENTER)
                         ->setVertical(Alignment::VERTICAL_CENTER);
 
-                    // Apply word wrap to appropriate columns
+                    // Apply word wrap to all cells to support line breaks in headings
                     $sheet->getStyle("A1:{$highestColumn}{$highestRow}")
                         ->getAlignment()
                         ->setWrapText(true);
@@ -151,36 +152,31 @@ class TemperatureDeviationExport implements WithMultipleSheets
                 public function headings(): array
                 {
                     return [
-                        'Location',
-                        'Room',
-                        'Serial Number',
-                        'Date',
-                        'Temperature Deviation (°C)',
-                        'Length of Temperature Deviation (Menit/Jam)',
-                        'Reason of Deviation',
-                        'P.I.C (SCM)',
-                        'Risk Analysis of impact deviation',
-                        'Analyzed by (QA)',
-                        'Reviewed By',
-                        'Acknowledged By',
+                        'Number',
+                        "Date\n(Tanggal)",
+                        "Time\n(Jam)",
+                        "Temperature Deviation\n(Penyimpangan Suhu)\n(°C)",
+                        "Length of temperature deviation\n(Lamanya penyimpangan suhu)\n(Menit)",
+                        "Reason of the deviations **\n(Alasan penyimpangan) **",
+                        "P.I.C ****\n(SCM)",
+                        "Risk analysis of impact deviation\n(Analisa risiko dari dampak penyimpangan)",
+                        "Analyzed by ****\n(QA)",
                     ];
                 }
                 
                 public function map($record): array
                 {
+                    $this->rowIndex++;
                     return [
-                        $record->location->location_name ?? '-',
-                        $record->room->room_name ?? '-',
-                        $record->serialNumber->serial_number ?? '-',
-                        Carbon::parse($record->date)->format('d'),
-                        $record->temperature_deviation. ' °C' ?? '-',
+                        $this->rowIndex,
+                        strtoupper(Carbon::parse($record->date)->format('d M Y')),
+                        Carbon::parse($record->time)->format('H:i'),
+                        $record->temperature_deviation ?? '-',
                         $record->length_temperature_deviation ?? '-',
                         $record->deviation_reason ?? '-',
                         $record->pic ?? '-',
                         $record->risk_analysis ?? '-',
                         $record->analyzer_pic ?? '-',
-                        $record->reviewed_by ?? '-',
-                        $record->acknowledged_by ?? '-',
                     ];
                 }
             };
