@@ -202,10 +202,10 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                             <tr>
                                 <td class="text-center">&nbsp;</td>
                                 @for($j = 0; $j < 8; $j++)
-                                    <td>&nbsp;</td>
-                                    <td>&nbsp;</td>
-                                    <td>&nbsp;</td>
-                                    <td>&nbsp;</td>
+                                    <td class="text-center time-column">&nbsp;</td>
+                                    <td class="text-center temp-column">&nbsp;</td>
+                                    <td class="text-center rh-column">&nbsp;</td>
+                                    <td class="text-center pic-column" style="font-size: 8px;">&nbsp;</td>
                                 @endfor
                             </tr>
                         @endfor
