@@ -191,24 +191,6 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                                 @endforeach
                             </tr>
                         @endforeach
-
-                        @php
-                            $currentRowCount = count($roomRecords);
-                            // Monthly monitoring forms usually show a full month (up to 31 days)
-                            $targetRows = max(31, $currentRowCount + 1);
-                        @endphp
-
-                        @for ($i = $currentRowCount + 1; $i <= $targetRows; $i++)
-                            <tr>
-                                <td class="text-center">&nbsp;</td>
-                                @for($j = 0; $j < 8; $j++)
-                                    <td class="text-center time-column">&nbsp;</td>
-                                    <td class="text-center temp-column">&nbsp;</td>
-                                    <td class="text-center rh-column">&nbsp;</td>
-                                    <td class="text-center pic-column" style="font-size: 8px;">&nbsp;</td>
-                                @endfor
-                            </tr>
-                        @endfor
                     </tbody>
                 </table>
             </div>
