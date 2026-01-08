@@ -171,26 +171,36 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($roomRecords as $record)
+                        @php
+                            $periodDate = \Carbon\Carbon::parse($firstRecord->period);
+                            $daysInMonth = $periodDate->daysInMonth;
+                        @endphp
+                        @for($day = 1; $day <= $daysInMonth; $day++)
+                            @php
+                                $record = $roomRecords->first(function($r) use ($day) {
+                                    return \Carbon\Carbon::parse($r->date)->day == $day;
+                                });
+                            @endphp
                             <tr>
-                                <td class="text-center">{{ \Carbon\Carbon::parse($record->date)->format('d') }}</td>
+                                <td class="text-center">{{ sprintf('%02d', $day) }}</td>
                                 @foreach(['0200', '0500', '0800', '1100', '1400', '1700', '2000', '2300'] as $t)
                                     @php 
                                         $timeField = "time_$t";
                                         $tempField = "temp_$t";
                                         $rhField = "rh_$t";
                                         $picField = "pic_$t";
-                                        $tempVal = $record->$tempField;
-                                        $isOutOfRange = $tempVal !== null && ($tempVal < $record->roomTemperature->temperature_start || $tempVal > $record->roomTemperature->temperature_end);
+                                        $tempVal = $record ? $record->$tempField : null;
+                                        $rhVal = $record ? $record->$rhField : null;
+                                        $isOutOfRange = $record && $tempVal !== null && ($tempVal < $record->roomTemperature->temperature_start || $tempVal > $record->roomTemperature->temperature_end);
                                         $style = $isOutOfRange ? 'color: red; font-weight: bold;' : '';
                                     @endphp
-                                    <td class="text-center">{{ $record->$timeField ? \Carbon\Carbon::parse($record->$timeField)->format('H:i') : '-' }}</td>
+                                    <td class="text-center">{{ ($record && $record->$timeField) ? \Carbon\Carbon::parse($record->$timeField)->format('H:i') : '-' }}</td>
                                     <td class="text-center" style="{{ $style }}">{{ $tempVal ?? '-' }}</td>
-                                    <td class="text-center">{{ $record->$rhField ?? '-' }}</td>
-                                    <td class="text-center" style="font-size: 8px;">{{ $record->formatPicSignature($picField) }}</td>
+                                    <td class="text-center">{{ $rhVal ?? '-' }}</td>
+                                    <td class="text-center" style="font-size: 8px;">{{ $record ? $record->formatPicSignature($picField) : '-' }}</td>
                                 @endforeach
                             </tr>
-                        @endforeach
+                        @endfor
                     </tbody>
                 </table>
             </div>
