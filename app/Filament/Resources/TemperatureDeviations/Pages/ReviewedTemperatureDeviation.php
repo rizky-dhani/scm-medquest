@@ -55,10 +55,10 @@ class ReviewedTemperatureDeviation extends ListRecords
                     ->time('H:i'),
                 TextColumn::make('temperature_deviation')
                     ->label('Temperature Deviation (°C)'),
-                TextColumn::make('length_temperature_deviation')
-                    ->label('Length of Temperature Deviation (Menit/Jam)'),
                 TextColumn::make('deviation_reason')
                     ->label('Reason for Deviation'),
+                TextColumn::make('length_temperature_deviation')
+                    ->label('Length of Temperature Deviation (Menit/Jam)'),
                 TextColumn::make('pic')
                     ->label('PIC (SCM)'),
                 TextColumn::make('risk_analysis')
