@@ -2,32 +2,32 @@
 
 namespace App\Filament\Resources\TemperatureDeviations\Pages;
 
-use Carbon\Carbon;
-use App\Models\Room;
-use Filament\Actions;
-use App\Models\Location;
-use App\Models\SerialNumber;
-use Filament\Actions\Action;
-use App\Models\RoomTemperature;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\CreateAction;
-use App\Models\TemperatureDeviation;
-use Maatwebsite\Excel\Facades\Excel;
-use Filament\Forms\Components\Select;
-use Filament\Notifications\Notification;
-use Filament\Forms\Components\DatePicker;
-use Filament\Resources\Pages\ListRecords;
 use App\Exports\TemperatureDeviationExport;
 use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
+use App\Models\Location;
+use App\Models\Room;
+use App\Models\TemperatureDeviation;
+use Carbon\Carbon;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ListRecords;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ListTemperatureDeviations extends ListRecords
 {
     protected static string $resource = TemperatureDeviationResource::class;
+
     protected static ?string $title = 'All Temperature Deviations';
+
     public function getBreadcrumb(): string
     {
         return 'All'; // or any label you want
     }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -44,9 +44,10 @@ class ListTemperatureDeviations extends ListRecords
                             ->label('Room')
                             ->options(function (callable $get) {
                                 $locationId = $get('location_id');
-                                if (!$locationId) {
+                                if (! $locationId) {
                                     return [];
                                 }
+
                                 return Room::where('location_id', $locationId)->pluck('room_name', 'id');
                             })
                             ->searchable()
@@ -61,7 +62,7 @@ class ListTemperatureDeviations extends ListRecords
                             ->default('this_month')
                             ->reactive(),
 
-                        DatePicker::make('chosen_month')->label('Choose Month')->displayFormat('F Y')->visible(fn($get) => $get('month_type') === 'choose')->required(fn($get) => $get('month_type') === 'choose'),
+                        DatePicker::make('chosen_month')->label('Choose Month')->displayFormat('F Y')->visible(fn ($get) => $get('month_type') === 'choose')->required(fn ($get) => $get('month_type') === 'choose'),
                     ])
                     ->action(function (array $data) {
                         $location_id = $data['location_id'];
@@ -96,12 +97,13 @@ class ListTemperatureDeviations extends ListRecords
                                 ->warning()
                                 ->title('No data is found')
                                 ->send();
+
                             return;
                         }
 
                         $monthName = strtoupper(Carbon::createFromDate($year, $month)->format('M'));
                         $sluggedLocation = strtoupper(str_replace(' ', '_', $location->location_name));
-                        
+
                         if ($room_ids && count($room_ids) === 1) {
                             $room = Room::find($room_ids[0]);
                             $roomName = strtoupper(str_replace(' ', '_', $room->room_name));
@@ -124,9 +126,10 @@ class ListTemperatureDeviations extends ListRecords
                             ->label('Room')
                             ->options(function (callable $get) {
                                 $locationId = $get('location_id');
-                                if (!$locationId) {
+                                if (! $locationId) {
                                     return [];
                                 }
+
                                 return Room::where('location_id', $locationId)->pluck('room_name', 'id');
                             })
                             ->searchable()
@@ -142,7 +145,7 @@ class ListTemperatureDeviations extends ListRecords
                             ->default('this_month')
                             ->reactive(),
 
-                        DatePicker::make('chosen_month')->label('Choose Month')->displayFormat('F Y')->visible(fn($get) => $get('month_type') === 'choose')->required(fn($get) => $get('month_type') === 'choose'),
+                        DatePicker::make('chosen_month')->label('Choose Month')->displayFormat('F Y')->visible(fn ($get) => $get('month_type') === 'choose')->required(fn ($get) => $get('month_type') === 'choose'),
                     ])
                     ->action(function (array $data) {
                         $location_id = $data['location_id'];
@@ -178,6 +181,7 @@ class ListTemperatureDeviations extends ListRecords
                                 ->warning()
                                 ->title('No data is found')
                                 ->send();
+
                             return;
                         }
 
@@ -188,14 +192,14 @@ class ListTemperatureDeviations extends ListRecords
                         return redirect()->route('temperature-deviations.bulk-export-pdf');
                     }),
             ])
-            ->label('Export')
-            ->icon('heroicon-o-arrow-down-tray')
-            ->color('primary')
-            ->button(),
+                ->label('Export')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('primary')
+                ->button(),
             CreateAction::make()
-            ->label('New Temperature Deviation')
-            ->color('success')
-            ->visible(fn() => auth()->user()->hasRole(['Supply Chain Officer', 'Security'])),
+                ->label('New Temperature Deviation')
+                ->color('success')
+                ->visible(fn () => auth()->user()->hasRole(['Supply Chain Officer', 'Security'])),
         ];
     }
 }

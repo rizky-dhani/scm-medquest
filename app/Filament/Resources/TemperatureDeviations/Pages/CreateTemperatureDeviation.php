@@ -2,16 +2,16 @@
 
 namespace App\Filament\Resources\TemperatureDeviations\Pages;
 
+use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
 use Carbon\Carbon;
-use App\Models\Location;
-use Illuminate\Support\Str;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
-use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
+use Illuminate\Support\Str;
 
 class CreateTemperatureDeviation extends CreateRecord
 {
     protected static string $resource = TemperatureDeviationResource::class;
+
     public function mount(): void
     {
         parent::mount();
@@ -34,21 +34,25 @@ class CreateTemperatureDeviation extends CreateRecord
             ]);
         }
     }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['temperatureDeviationId'] = Str::orderedUuid();
         $data['date'] = Carbon::now();
         $data['temperature_deviation'] = request()->get('temperature_deviation') ?? $data['temperature_deviation'];
-        $data['pic'] = auth()->user()->hasRole('Security') 
-            ? auth()->user()->name 
-            : auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
+        $data['pic'] = auth()->user()->hasRole('Security')
+            ? auth()->user()->name
+            : auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y'));
+
         return $data;
     }
+
     protected function getRedirectUrl(): string
     {
         // Default fallback
         return $this->getResource()::getUrl('index');
     }
+
     protected function getCreatedNotification(): ?Notification
     {
         return Notification::make()

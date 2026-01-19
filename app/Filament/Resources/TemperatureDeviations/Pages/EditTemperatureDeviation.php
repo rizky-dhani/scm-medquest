@@ -2,38 +2,40 @@
 
 namespace App\Filament\Resources\TemperatureDeviations\Pages;
 
-use Filament\Actions;
-use Filament\Actions\Action;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Notifications\Notification;
-use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
 use App\Traits\HasLocationBasedAccess;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class EditTemperatureDeviation extends EditRecord
 {
     use HasLocationBasedAccess;
-    
+
     protected static string $resource = TemperatureDeviationResource::class;
 
-    public function mount(int | string $record): void
+    public function mount(int|string $record): void
     {
         parent::mount($record);
-        
+
         // Check if user can access this record's location
-        if (!static::canAccessLocation($this->record->location_id)) {
+        if (! static::canAccessLocation($this->record->location_id)) {
             abort(403, 'You do not have permission to access this record.');
         }
     }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        auth()->user()->hasRole('Security') 
-            ? $data['pic'] = auth()->user()->name 
-            : $data['pic'] = auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-        $data['analyzer_pic'] = auth()->user()->initial.' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
+        auth()->user()->hasRole('Security')
+            ? $data['pic'] = auth()->user()->name
+            : $data['pic'] = auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y'));
+        $data['analyzer_pic'] = auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y'));
+
         return $data;
     }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -43,14 +45,14 @@ class EditTemperatureDeviation extends EditRecord
                 ->action(function (Model $record) {
                     $record->update([
                         'is_reviewed' => true,
-                        'reviewed_by' => auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')),
+                        'reviewed_by' => auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y')),
                         'reviewed_at' => now('Asia/Jakarta'),
                     ]);
-                Notification::make()
-                    ->title('Success!')
-                    ->body('Marked as reviewed successfully by Supply Chain Manager.')
-                    ->success()
-                    ->send();
+                    Notification::make()
+                        ->title('Success!')
+                        ->body('Marked as reviewed successfully by Supply Chain Manager.')
+                        ->success()
+                        ->send();
                 })
                 ->requiresConfirmation()
                 ->color('success')
@@ -61,22 +63,22 @@ class EditTemperatureDeviation extends EditRecord
                 ->action(function (Model $record) {
                     $record->update([
                         'is_acknowledged' => true,
-                        'acknowledged_by' => auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')),
+                        'acknowledged_by' => auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y')),
                         'acknowledged_at' => now('Asia/Jakarta'),
                     ]);
-                Notification::make()
-                    ->title('Success!')
-                    ->body('Marked as acknowledged successfully by QA Manager.')
-                    ->success()
-                    ->send();
+                    Notification::make()
+                        ->title('Success!')
+                        ->body('Marked as acknowledged successfully by QA Manager.')
+                        ->success()
+                        ->send();
                 })
                 ->requiresConfirmation()
                 ->color('info')
                 ->icon('heroicon-o-check'),
         ];
     }
-    
-    public function getRedirectUrl(): string|null
+
+    public function getRedirectUrl(): ?string
     {
         return $this->getResource()::getUrl('index');
     }

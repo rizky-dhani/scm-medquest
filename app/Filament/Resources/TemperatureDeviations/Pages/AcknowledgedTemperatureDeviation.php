@@ -2,33 +2,30 @@
 
 namespace App\Filament\Resources\TemperatureDeviations\Pages;
 
+use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\BulkAction;
-use Filament\Actions;
-use Filament\Tables\Table;
-use App\Models\TemperatureDeviation;
-use Illuminate\Support\Facades\Auth;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Actions\BulkActionGroup;
 use Filament\Notifications\Notification;
-use Filament\Resources\Pages\listRecords;
-use Filament\Tables\Actions\DeleteAction;
+use Filament\Resources\Pages\ListRecords;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Filament\Tables\Actions\DeleteBulkAction;
-use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
-class AcknowledgedTemperatureDeviation extends listRecords
+class AcknowledgedTemperatureDeviation extends ListRecords
 {
     protected static string $resource = TemperatureDeviationResource::class;
+
     protected static ?string $title = 'Pending Acknowledgement';
+
     public function getBreadcrumb(): string
     {
         return 'Pending Acknowledgement'; // or any label you want
     }
-    
+
     public function table(Table $table): Table
     {
         return $table
@@ -43,6 +40,14 @@ class AcknowledgedTemperatureDeviation extends listRecords
                     ->sortable()
                     ->searchable()
                     ->date('d/m/Y'),
+                TextColumn::make('location_id')
+                    ->label('Location / Room / Temp')
+                    ->getStateUsing(function ($record) {
+                        return $record->location->location_name.'<br>'.
+                               $record->room->room_name.'<br>'.
+                               $record->roomTemperature->temperature_start.'°C to '.$record->roomTemperature->temperature_end.'°C';
+                    })
+                    ->html(),
                 TextColumn::make('time')
                     ->label('Time (Jam)')
                     ->sortable()
@@ -69,19 +74,20 @@ class AcknowledgedTemperatureDeviation extends listRecords
                     ->label('Mark as Acknowledged')
                     ->visible(function () {
                         $admin = Auth::user()->hasRole('QA Manager');
+
                         return $admin;
                     })
                     ->action(function (Model $record) {
                         $record->update([
                             'is_acknowledged' => true,
-                            'acknowledged_by' => auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')),
+                            'acknowledged_by' => auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y')),
                             'acknowledged_at' => now('Asia/Jakarta'),
                         ]);
-                    Notification::make()
-                        ->title('Success!')
-                        ->body('Marked as acknowledged successfully')
-                        ->success()
-                        ->send();
+                        Notification::make()
+                            ->title('Success!')
+                            ->body('Marked as acknowledged successfully')
+                            ->success()
+                            ->send();
                     })
                     ->requiresConfirmation()
                     ->color('info')
@@ -89,28 +95,28 @@ class AcknowledgedTemperatureDeviation extends listRecords
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                BulkAction::make('is_acknowledged')
-                    ->label('Mark as Acknowledged')
-                    ->icon('heroicon-o-check-badge')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->visible(function () {
-                        return Auth::user()->hasRole('QA Manager');
-                    })
-                    ->action(function (Collection $records) {
-                        foreach ($records as $record) {
-                            $record->is_acknowledged = true;
-                            $record->acknowledged_by = auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                            $record->acknowledged_at = now('Asia/Jakarta');
-                            $record->save();
-                        }
-                        
-                        Notification::make()
-                            ->title('Success!')
-                            ->body('Selected data marked as acknowledged successfully')
-                            ->success()
-                            ->send();
-                    }),
+                    BulkAction::make('is_acknowledged')
+                        ->label('Mark as Acknowledged')
+                        ->icon('heroicon-o-check-badge')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->visible(function () {
+                            return Auth::user()->hasRole('QA Manager');
+                        })
+                        ->action(function (Collection $records) {
+                            foreach ($records as $record) {
+                                $record->is_acknowledged = true;
+                                $record->acknowledged_by = auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y'));
+                                $record->acknowledged_at = now('Asia/Jakarta');
+                                $record->save();
+                            }
+
+                            Notification::make()
+                                ->title('Success!')
+                                ->body('Selected data marked as acknowledged successfully')
+                                ->success()
+                                ->send();
+                        }),
                 ]),
             ]);
     }

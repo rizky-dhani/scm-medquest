@@ -2,19 +2,19 @@
 
 namespace App\Filament\Resources\TemperatureDeviations\Pages;
 
-use Filament\Actions\EditAction;
-use Filament\Actions;
-use Filament\Actions\Action;
+use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
 use App\Models\TemperatureDeviation;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
-use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ViewTemperatureDeviation extends ViewRecord
 {
     protected static string $resource = TemperatureDeviationResource::class;
+
     protected function getHeaderActions(): array
     {
         return [
@@ -25,41 +25,43 @@ class ViewTemperatureDeviation extends ViewRecord
                 ->visible(function (TemperatureDeviation $record) {
                     $isAcknowledged = $record->is_acknowledged == false && $record->length_temperature_deviation != null && $record->risk_analysis != null;
                     $admin = Auth::user()->hasRole('Supply Chain Manager');
+
                     return $isAcknowledged && $admin;
                 })
                 ->action(function (Model $record) {
                     $record->update([
                         'is_reviewed' => true,
-                        'reviewed_by' => auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')),
+                        'reviewed_by' => auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y')),
                         'reviewed_at' => now('Asia/Jakarta'),
                     ]);
-                Notification::make()
-                    ->title('Success!')
-                    ->body('Marked as reviewed successfully by Supply Chain Manager.')
-                    ->success()
-                    ->send();
+                    Notification::make()
+                        ->title('Success!')
+                        ->body('Marked as reviewed successfully by Supply Chain Manager.')
+                        ->success()
+                        ->send();
                 })
                 ->requiresConfirmation()
                 ->color('success')
                 ->icon('heroicon-o-check'),
             Action::make('is_acknowledged')
                 ->label('Mark as Acknowledged')
-                    ->visible(function (TemperatureDeviation $record) {
-                        $isAcknowledged = $record->is_acknowledged == false && $record->length_temperature_deviation != null && $record->risk_analysis != null;
-                        $admin = Auth::user()->hasRole('QA Manager');
-                        return $isAcknowledged && $admin;
-                    })
+                ->visible(function (TemperatureDeviation $record) {
+                    $isAcknowledged = $record->is_acknowledged == false && $record->length_temperature_deviation != null && $record->risk_analysis != null;
+                    $admin = Auth::user()->hasRole('QA Manager');
+
+                    return $isAcknowledged && $admin;
+                })
                 ->action(function (Model $record) {
                     $record->update([
                         'is_acknowledged' => true,
-                        'acknowledged_by' => auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')),
+                        'acknowledged_by' => auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y')),
                         'acknowledged_at' => now('Asia/Jakarta'),
                     ]);
-                Notification::make()
-                    ->title('Success!')
-                    ->body('Marked as acknowledged successfully by QA Manager.')
-                    ->success()
-                    ->send();
+                    Notification::make()
+                        ->title('Success!')
+                        ->body('Marked as acknowledged successfully by QA Manager.')
+                        ->success()
+                        ->send();
                 })
                 ->requiresConfirmation()
                 ->color('info')

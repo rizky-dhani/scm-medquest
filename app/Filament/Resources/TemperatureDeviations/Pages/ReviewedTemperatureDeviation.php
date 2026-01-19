@@ -2,33 +2,30 @@
 
 namespace App\Filament\Resources\TemperatureDeviations\Pages;
 
+use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\BulkAction;
-use Filament\Actions;
-use Filament\Tables\Table;
-use App\Models\TemperatureDeviation;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Actions\BulkActionGroup;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Filament\Tables\Actions\DeleteBulkAction;
-use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ReviewedTemperatureDeviation extends ListRecords
 {
     protected static string $resource = TemperatureDeviationResource::class;
+
     protected static ?string $title = 'Pending Review';
+
     public function getBreadcrumb(): string
     {
         return 'Pending Review'; // or any label you want
     }
-    
+
     public function table(Table $table): Table
     {
         return $table
@@ -43,6 +40,14 @@ class ReviewedTemperatureDeviation extends ListRecords
                     ->sortable()
                     ->searchable()
                     ->date('d/m/Y'),
+                TextColumn::make('location_id')
+                ->label('Location / Room / Temp')
+                    ->getStateUsing(function ($record) {
+                        return $record->location->location_name . '<br>' .
+                               $record->room->room_name . '<br>' .
+                               $record->roomTemperature->temperature_start . '°C to ' . $record->roomTemperature->temperature_end . '°C';
+                    })
+                    ->html(),
                 TextColumn::make('time')
                     ->label('Time (Jam)')
                     ->sortable()
@@ -69,19 +74,20 @@ class ReviewedTemperatureDeviation extends ListRecords
                     ->label('Mark as Reviewed')
                     ->visible(function () {
                         $admin = Auth::user()->hasRole('Supply Chain Manager');
+
                         return $admin;
                     })
                     ->action(function (Model $record) {
                         $record->update([
                             'is_reviewed' => true,
-                            'reviewed_by' => auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')),
+                            'reviewed_by' => auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y')),
                             'reviewed_at' => now('Asia/Jakarta'),
                         ]);
-                    Notification::make()
-                        ->title('Success!')
-                        ->body('Marked as reviewed successfully')
-                        ->success()
-                        ->send();
+                        Notification::make()
+                            ->title('Success!')
+                            ->body('Marked as reviewed successfully')
+                            ->success()
+                            ->send();
                     })
                     ->requiresConfirmation()
                     ->color('success')
@@ -90,28 +96,29 @@ class ReviewedTemperatureDeviation extends ListRecords
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkAction::make('is_reviewed')
-                    ->label('Mark as Reviewed')
-                    ->icon('heroicon-o-check-badge')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->visible(function () {
-                        $admin = Auth::user()->hasRole('Supply Chain Manager');
-                        return $admin;
-                    })
-                    ->action(function (Collection $records) {
-                        foreach ($records as $record) {
-                            $record->is_reviewed = true;
-                            $record->reviewed_by = auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                            $record->reviewed_at = now('Asia/Jakarta');
-                            $record->save();
-                        }
-                        
-                    Notification::make()
-                        ->title('Success!')
-                        ->body('Selected data marked as reviewed successfully')
-                        ->success()
-                        ->send();
-                    }),
+                        ->label('Mark as Reviewed')
+                        ->icon('heroicon-o-check-badge')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->visible(function () {
+                            $admin = Auth::user()->hasRole('Supply Chain Manager');
+
+                            return $admin;
+                        })
+                        ->action(function (Collection $records) {
+                            foreach ($records as $record) {
+                                $record->is_reviewed = true;
+                                $record->reviewed_by = auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y'));
+                                $record->reviewed_at = now('Asia/Jakarta');
+                                $record->save();
+                            }
+
+                            Notification::make()
+                                ->title('Success!')
+                                ->body('Selected data marked as reviewed successfully')
+                                ->success()
+                                ->send();
+                        }),
                 ]),
             ]);
     }

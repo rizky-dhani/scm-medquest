@@ -2,59 +2,52 @@
 
 namespace App\Filament\Resources\TemperatureDeviations;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Resources\TemperatureDeviations\Pages\ListTemperatureDeviations;
+use App\Filament\Resources\TemperatureDeviations\Pages\AcknowledgedTemperatureDeviation;
 use App\Filament\Resources\TemperatureDeviations\Pages\CreateTemperatureDeviation;
 use App\Filament\Resources\TemperatureDeviations\Pages\EditTemperatureDeviation;
-use App\Filament\Resources\TemperatureDeviations\Pages\ViewTemperatureDeviation;
+use App\Filament\Resources\TemperatureDeviations\Pages\ListTemperatureDeviations;
 use App\Filament\Resources\TemperatureDeviations\Pages\ReviewedTemperatureDeviation;
-use App\Filament\Resources\TemperatureDeviations\Pages\AcknowledgedTemperatureDeviation;
-use Carbon\Carbon;
-use App\Models\Room;
+use App\Filament\Resources\TemperatureDeviations\Pages\ViewTemperatureDeviation;
 use App\Models\Location;
-use Filament\Tables\Table;
-use Illuminate\Support\Str;
-use App\Models\SerialNumber;
+use App\Models\Room;
 use App\Models\RoomTemperature;
-use Filament\Resources\Resource;
-use App\Models\TemperatureHumidity;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters\Filter;
+use App\Models\SerialNumber;
 use App\Models\TemperatureDeviation;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Models\TemperatureHumidity;
+use App\Traits\HasLocationBasedAccess;
+use Carbon\Carbon;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use App\Exports\TemperatureDeviationExport;
 use Filament\Infolists\Components\TextEntry;
-use App\Filament\Resources\TemperatureDeviationResource\Pages;
-use App\Traits\HasLocationBasedAccess;
-use Spatie\LaravelPdf\Facades\Pdf;
-use Spatie\Browsershot\Browsershot;
-use Spatie\LaravelPdf\Enums\Format;
-use Filament\Actions\BulkAction;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class TemperatureDeviationResource extends Resource
 {
     use HasLocationBasedAccess;
 
     protected static ?string $model = TemperatureDeviation::class;
+
     protected static ?int $navigationSort = 1;
-    protected static string | \UnitEnum | null $navigationGroup = 'Temperature Deviation';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Temperature Deviation';
+
     protected static bool $shouldRegisterNavigation = false;
 
     public static function getEloquentQuery(): Builder
@@ -75,6 +68,7 @@ class TemperatureDeviationResource extends Resource
                         ->seconds(false)
                         ->default(function () {
                             $time = request()->get('time');
+
                             return $time ? Carbon::createFromFormat('H:i', $time)->format('H:i') : null;
                         })
                         ->required(),
@@ -97,7 +91,7 @@ class TemperatureDeviationResource extends Resource
                             'location_name',
                             modifyQueryUsing: function (Builder $query) {
                                 $accessibleLocationIds = static::getAccessibleLocationIds();
-                                if (!empty($accessibleLocationIds)) {
+                                if (! empty($accessibleLocationIds)) {
                                     $query->whereIn('id', $accessibleLocationIds);
                                 }
                             },
@@ -109,9 +103,10 @@ class TemperatureDeviationResource extends Resource
                                 return request()->get('location_id');
                             }
                             // If user has specific location and doesn't have admin-level roles, default to that
-                            if ($user->location_id && !$user->hasRole(['Super Admin', 'Admin', 'Supply Chain Manager', 'QA Manager'])) {
+                            if ($user->location_id && ! $user->hasRole(['Super Admin', 'Admin', 'Supply Chain Manager', 'QA Manager'])) {
                                 return $user->location_id;
                             }
+
                             return null;
                         })
                         ->preload()
@@ -121,11 +116,11 @@ class TemperatureDeviationResource extends Resource
                     Select::make('room_id')
                         ->label('Room')
                         ->relationship('room', 'room_name')
-                        ->default(fn() => request()->get('room_id') ?? null)
+                        ->default(fn () => request()->get('room_id') ?? null)
                         ->options(function (callable $get) {
                             $locationId = $get('location_id');
 
-                            if (!$locationId) {
+                            if (! $locationId) {
                                 return [];
                             }
 
@@ -135,14 +130,14 @@ class TemperatureDeviationResource extends Resource
                         ->reactive()
                         ->preload()
                         ->required()
-                        ->disabled(fn(callable $get) => !$get('location_id')),
+                        ->disabled(fn (callable $get) => ! $get('location_id')),
                     Select::make('serial_number_id')
                         ->label('Serial Number')
-                        ->default(fn() => request()->get('serial_number_id') ?? null)
+                        ->default(fn () => request()->get('serial_number_id') ?? null)
                         ->options(function (callable $get) {
                             $roomId = $get('room_id');
 
-                            if (!$roomId) {
+                            if (! $roomId) {
                                 return [];
                             }
 
@@ -150,22 +145,24 @@ class TemperatureDeviationResource extends Resource
                         })
                         ->searchable()
                         ->required()
-                        ->disabled(fn(callable $get) => !$get('room_id'))
+                        ->disabled(fn (callable $get) => ! $get('room_id'))
                         ->preload()
                         ->required(),
                     Select::make('room_temperature_id')
                         ->label('Room Temperature Standards')
-                        ->default(fn() => request()->get('room_temperature_id') ?? null)
+                        ->default(fn () => request()->get('room_temperature_id') ?? null)
                         ->relationship('roomTemperature', 'temperature_start')
                         ->options(function (callable $get) {
                             $roomId = $get('room_id');
-                            if (!$roomId) {
+                            if (! $roomId) {
                                 return [];
                             }
+
                             return RoomTemperature::where('room_id', $roomId)
                                 ->get()
                                 ->mapWithKeys(function ($item) {
                                     $label = "{$item->temperature_start}°C to {$item->temperature_end}°C";
+
                                     return [$item->id => $label];
                                 })
                                 ->toArray();
@@ -174,7 +171,7 @@ class TemperatureDeviationResource extends Resource
                         ->reactive()
                         ->preload()
                         ->required()
-                        ->disabled(fn(callable $get) => !$get('room_id'))
+                        ->disabled(fn (callable $get) => ! $get('room_id'))
                         ->afterStateUpdated(function ($state, callable $set) {
                             $roomTemperature = RoomTemperature::find($state);
                             if ($roomTemperature) {
@@ -191,14 +188,14 @@ class TemperatureDeviationResource extends Resource
                     TextInput::make('temperature_deviation')
                         ->label('Temperature deviation (°C)')
                         ->required(Auth::user()->hasRole(['Staff', 'Security']))
-                        ->default(fn() => request()->get('temperature_deviation'))
+                        ->default(fn () => request()->get('temperature_deviation'))
                         ->dehydrated(),
                     TextArea::make('deviation_reason')
                         ->label('Reason for deviation')
                         ->required(Auth::user()->hasRole(['Staff', 'Security']))
                         ->dehydrated(),
                 ])
-                ->disabled(fn() => !Auth::user()->hasRole(['Supply Chain Officer', 'Security'])),
+                ->disabled(fn () => ! Auth::user()->hasRole(['Supply Chain Officer', 'Security'])),
             Section::make('Length of Temperature Deviation & Risk Analysis (Filled by QA Staff / Supervisor)')
                 ->columns(2)
                 ->schema([
@@ -211,7 +208,7 @@ class TemperatureDeviationResource extends Resource
                         ->required(Auth::user()->hasRole(['QA Staff', 'QA Supervisor']))
                         ->dehydrated(),
                 ])
-                ->disabled(fn() => !Auth::user()->hasAnyRole(['QA Staff', 'QA Supervisor'])),
+                ->disabled(fn () => ! Auth::user()->hasAnyRole(['QA Staff', 'QA Supervisor'])),
         ]);
     }
 
@@ -227,15 +224,17 @@ class TemperatureDeviationResource extends Resource
                 return $query->orderByDesc('created_at');
             })
             ->columns([
-                TextColumn::make('location.location_name')
-                    ->label('Location')
+                TextColumn::make('date')->label('Date (Tanggal)')->sortable()->searchable()->date('d/m/Y'),
+                TextColumn::make('location_id')
+                    ->label('Location / Room / Temp')
                     ->getStateUsing(function ($record) {
-                        return $record->location->location_name . '<br>' . $record->room->room_name . '<br>' . $record->serialNumber->serial_number;
+                        return $record->location->location_name.'<br>'.
+                               $record->room->room_name.'<br>'.
+                               $record->roomTemperature->temperature_start.'°C to '.$record->roomTemperature->temperature_end.'°C';
                     })
                     ->sortable()
                     ->searchable()
                     ->html(),
-                TextColumn::make('date')->label('Date (Tanggal)')->sortable()->searchable()->date('d/m/Y'),
                 TextColumn::make('time')->label('Time (Jam)')->sortable()->searchable()->time('H:i'),
                 TextColumn::make('temperature_deviation')->label('Temperature Deviation (°C)'),
                 TextColumn::make('length_temperature_deviation')->label('Length of Temperature Deviation (Menit/Jam)'),
@@ -252,26 +251,27 @@ class TemperatureDeviationResource extends Resource
                 Filter::make('period')
                     ->schema([DatePicker::make('period')->label('Period')->displayFormat('M Y')->native(false)->closeOnDateSelection()])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!$data['period']) {
+                        if (! $data['period']) {
                             return $query;
                         }
 
                         $date = Carbon::parse($data['period']);
+
                         return $query->whereMonth('date', $date->month)->whereYear('date', $date->year);
                     }),
             ])
             ->recordActions([
-                ViewAction::make(), 
+                ViewAction::make(),
                 EditAction::make()
-                    ->visible(fn($record) => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff', 'QA Supervisor'])), 
+                    ->visible(fn ($record) => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff', 'QA Supervisor'])),
                 DeleteAction::make()
-                    ->visible(fn($record) => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff', 'QA Supervisor']))
-                    ->successNotificationTitle('Temperature Deviation deleted successfully')
+                    ->visible(fn ($record) => Auth::user()->hasRole(['Supply Chain Officer', 'QA Staff', 'QA Supervisor']))
+                    ->successNotificationTitle('Temperature Deviation deleted successfully'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                    ->successNotificationTitle('Selected Temperature Deviation(s) deleted successfully'),
+                        ->successNotificationTitle('Selected Temperature Deviation(s) deleted successfully'),
                 ]),
             ]);
     }
@@ -284,10 +284,10 @@ class TemperatureDeviationResource extends Resource
                 ->schema([TextEntry::make('date')->label('Date')->date('d/m/Y'), TextEntry::make('time')->label('Time')->time('H:i')]),
             Section::make('Reviewed & Acknowledged')
                 ->columns(2)
-                ->schema([TextEntry::make('reviewed_by')->label('Reviewed By')->formatStateUsing(fn($record) => $record->reviewed_by ? $record->reviewed_by : '-'), TextEntry::make('acknowledged_by')->label('Acknowledged By')->formatStateUsing(fn($record) => $record->acknowledged_by ? $record->acknowledged_by : '-')]),
+                ->schema([TextEntry::make('reviewed_by')->label('Reviewed By')->formatStateUsing(fn ($record) => $record->reviewed_by ? $record->reviewed_by : '-'), TextEntry::make('acknowledged_by')->label('Acknowledged By')->formatStateUsing(fn ($record) => $record->acknowledged_by ? $record->acknowledged_by : '-')]),
             Section::make('Location & Storage Temperature Standards')
                 ->columns(4)
-                ->schema([TextEntry::make('location_id')->label('Location')->formatStateUsing(fn($record) => $record->location->location_name), TextEntry::make('room_id')->label('Room')->formatStateUsing(fn($record) => $record->room->room_name), TextEntry::make('serial_number_id')->label('Serial Number')->formatStateUsing(fn($record) => $record->serialNumber->serial_number), TextEntry::make('room_temperature_id')->label('Storage Temperature Standards')->formatStateUsing(fn($record) => $record->roomTemperature->temperature_start . '°C to ' . $record->roomTemperature->temperature_end . '°C')]),
+                ->schema([TextEntry::make('location_id')->label('Location')->formatStateUsing(fn ($record) => $record->location->location_name), TextEntry::make('room_id')->label('Room')->formatStateUsing(fn ($record) => $record->room->room_name), TextEntry::make('serial_number_id')->label('Serial Number')->formatStateUsing(fn ($record) => $record->serialNumber->serial_number), TextEntry::make('room_temperature_id')->label('Storage Temperature Standards')->formatStateUsing(fn ($record) => $record->roomTemperature->temperature_start.'°C to '.$record->roomTemperature->temperature_end.'°C')]),
             Section::make('Temperature Deviation & Reason')
                 ->columns(2)
                 ->schema([TextEntry::make('temperature_deviation')->label('Temperature Deviation'), TextEntry::make('deviation_reason')->label('Reason for Deviation')]),
@@ -296,11 +296,12 @@ class TemperatureDeviationResource extends Resource
                 ->schema([TextEntry::make('length_temperature_deviation')->label('Length of Temperature Deviation'), TextEntry::make('risk_analysis')->label('Risk Analysis')]),
         ]);
     }
+
     public static function getRelations(): array
     {
         return [
-                //
-            ];
+            //
+        ];
     }
 
     public static function getPages(): array
