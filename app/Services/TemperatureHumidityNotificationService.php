@@ -7,9 +7,11 @@ namespace App\Services;
 use Exception;
 use App\Models\User;
 use App\Models\TemperatureHumidity;
+use App\Models\NotificationSetting;
 use App\Mail\TemperatureHumidityBulkNotification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
 
 final class TemperatureHumidityNotificationService
 {
@@ -62,16 +64,16 @@ final class TemperatureHumidityNotificationService
     private function sendBulkReviewNotification(int $count): void
     {
         try {
-            $supplyChainManagers = User::role('Supply Chain Manager')->get();
+            $recipients = $this->getRecipientsByEventKey('temperature_humidity_review');
 
-            if ($supplyChainManagers->isEmpty()) {
-                Log::warning('No Supply Chain Managers found to send review notifications');
+            if ($recipients->isEmpty()) {
+                Log::warning('No recipients found to send review notifications');
                 return;
             }
 
-            foreach ($supplyChainManagers as $manager) {
-                if ($manager->email) {
-                    Mail::to($manager->email)->send(
+            foreach ($recipients as $recipient) {
+                if ($recipient->email) {
+                    Mail::to($recipient->email)->send(
                         new TemperatureHumidityBulkNotification($count, 'review')
                     );
                 }
@@ -79,7 +81,7 @@ final class TemperatureHumidityNotificationService
 
             Log::info('Bulk review notifications sent', [
                 'count' => $count,
-                'managers_notified' => $supplyChainManagers->count(),
+                'recipients_notified' => $recipients->count(),
             ]);
         } catch (Exception $e) {
             Log::error('Failed to send bulk review notifications', [
@@ -92,16 +94,16 @@ final class TemperatureHumidityNotificationService
     private function sendBulkAcknowledgmentNotification(int $count): void
     {
         try {
-            $qaManagers = User::role('QA Manager')->get();
+            $recipients = $this->getRecipientsByEventKey('temperature_humidity_acknowledge');
 
-            if ($qaManagers->isEmpty()) {
-                Log::warning('No QA Managers found to send acknowledgment notifications');
+            if ($recipients->isEmpty()) {
+                Log::warning('No recipients found to send acknowledgment notifications');
                 return;
             }
 
-            foreach ($qaManagers as $manager) {
-                if ($manager->email) {
-                    Mail::to($manager->email)->send(
+            foreach ($recipients as $recipient) {
+                if ($recipient->email) {
+                    Mail::to($recipient->email)->send(
                         new TemperatureHumidityBulkNotification($count, 'acknowledge')
                     );
                 }
@@ -109,7 +111,7 @@ final class TemperatureHumidityNotificationService
 
             Log::info('Bulk acknowledgment notifications sent', [
                 'count' => $count,
-                'managers_notified' => $qaManagers->count(),
+                'recipients_notified' => $recipients->count(),
             ]);
         } catch (Exception $e) {
             Log::error('Failed to send bulk acknowledgment notifications', [
@@ -142,6 +144,24 @@ final class TemperatureHumidityNotificationService
                 'date' => $temperatureHumidity->date,
             ]);
         }
+    }
+
+    private function getRecipientsByEventKey(string $eventKey): Collection
+    {
+        $setting = NotificationSetting::where('event_key', $eventKey)->first();
+
+        if (!$setting) {
+            // Fallback for backward compatibility
+            $fallbackRoles = match ($eventKey) {
+                'temperature_humidity_review' => ['Supply Chain Manager'],
+                'temperature_humidity_acknowledge' => ['QA Manager'],
+                default => [],
+            };
+
+            return User::role($fallbackRoles)->where('is_active', true)->get();
+        }
+
+        return $setting->getRecipients();
     }
 
     private function areAllFieldsFilled(TemperatureHumidity $temperatureHumidity): bool

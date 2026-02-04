@@ -24,7 +24,10 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'userId' => Str::orderedUuid(),
             'name' => fake()->name(),
+            'username' => substr(fake()->unique()->userName(), 0, 8),
+            'initial' => strtoupper(Str::random(3)),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),

@@ -8,9 +8,11 @@ use Exception;
 use App\Models\User;
 use App\Models\TemperatureDeviation;
 use App\Models\NotificationLog;
+use App\Models\NotificationSetting;
 use App\Mail\TemperatureDeviationNotification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
 
 final class TemperatureDeviationNotificationService
 {
@@ -19,7 +21,7 @@ final class TemperatureDeviationNotificationService
         // Eager load related models to avoid N+1 queries in the email template
         $temperatureDeviation->load(['location', 'room', 'roomTemperature', 'serialNumber']);
 
-        $recipients = User::role(['QA Manager', 'Supply Chain Manager'])->get();
+        $recipients = $this->getRecipientsByEventKey('temperature_deviation');
 
         if ($recipients->isEmpty()) {
             Log::warning('No users found to send temperature deviation notifications');
@@ -62,7 +64,7 @@ final class TemperatureDeviationNotificationService
         // Eager load related models to avoid N+1 queries in the email template
         $temperatureDeviation->load(['location', 'room', 'roomTemperature', 'serialNumber']);
 
-        $highLevelManagers = User::role(['Admin', 'Super Admin'])->get();
+        $highLevelManagers = $this->getRecipientsByEventKey('temperature_deviation_high_priority');
 
         if ($highLevelManagers->isEmpty()) {
             Log::warning('No high-level managers found to send high priority temperature deviation notifications');
@@ -98,6 +100,24 @@ final class TemperatureDeviationNotificationService
             'users_failed' => $failedNotifications,
             'total_tried' => $highLevelManagers->count(),
         ]);
+    }
+
+    private function getRecipientsByEventKey(string $eventKey): Collection
+    {
+        $setting = NotificationSetting::where('event_key', $eventKey)->first();
+
+        if (!$setting) {
+            // Fallback for backward compatibility if setting is missing
+            $fallbackRoles = match ($eventKey) {
+                'temperature_deviation' => ['QA Manager', 'QA Supervisor', 'QA Staff', 'Supply Chain Manager'],
+                'temperature_deviation_high_priority' => ['Admin', 'Super Admin'],
+                default => [],
+            };
+
+            return User::role($fallbackRoles)->where('is_active', true)->get();
+        }
+
+        return $setting->getRecipients();
     }
 
     private function logNotification(
