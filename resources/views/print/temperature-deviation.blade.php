@@ -153,7 +153,7 @@ $renderGroups =
                             </div>
                         </div>
                         <div class="col-6 border border-black py-1">
-                            <p class="mb-0" style="font-size: 11px;">****) Initial name and date (<i>Inisial nama dan tanggal</i>) </p>
+                            <p class="mb-0" style="font-size: 11px;">****) Initial name and date (<i>Inisial nama dan tanggal</i>) or Name for Security (Nama untuk Sekuriti)</p>
                         </div>
                     </div>
 
