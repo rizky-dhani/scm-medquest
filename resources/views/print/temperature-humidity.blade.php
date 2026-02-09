@@ -134,7 +134,7 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                             <div class="col-3">
                                 <p class="mb-0" style="font-size: 12px;">Period</p>
                                 <p class="mb-0" style="font-size: 12px;">Location / Serial No.</p>
-                                <p class="mb-0" style="font-size: 12px;">Observed Temp *</p>
+                                <p class="mb-0" style="font-size: 12px;">Observed Temp</p>
                             </div>
                             <div class="col-9">
                                 <p class="mb-0 text-uppercase" style="font-size: 12px;">:&emsp;{{ \Carbon\Carbon::parse($firstRecord->period)->format('M Y') }}</p>
@@ -144,9 +144,7 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                         </div>
                     </div>
                     <div class="col-5 pe-0 border border-black py-1">
-                        <p class="mb-0" style="font-size: 11px;">*) Give a mark (&#10003;) in the appropriate box</p>
-                        <p class="mb-0" style="font-size: 11px;">**) Initial name & date</p>
-                        <p class="mb-0" style="font-size: 11px;">***) Signature, initial name and date </p>
+                        <p class="mb-0" style="font-size: 11px;">***) Initial name and date (<i>Inisial nama dan tanggal</i>) or Name for Security (Nama untuk Sekuriti)</p>
                     </div>
                 </div>
             </div>
@@ -160,13 +158,15 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                             @foreach(['0200', '0500', '0800', '1100', '1400', '1700', '2000', '2300'] as $time)
                                 <th colspan="4" class="text-center">{{ $time }}</th>
                             @endforeach
+                            <th rowspan="2" class="text-center align-middle" style="width: 50px">Reviewed By</th>
+                            <th rowspan="2" class="text-center align-middle" style="width: 50px">Acknowledged By</th>
                         </tr>
                         <tr class="bg-light">
                             @for($i = 0; $i < 8; $i++)
                                 <th class="text-center time-column">Time</th>
                                 <th class="text-center temp-column">Temp<br>(°C)</th>
                                 <th class="text-center rh-column">RH<br>(%)</th>
-                                <th class="text-center pic-column">PIC</th>
+                                <th class="text-center pic-column">PIC ***</th>
                             @endfor
                         </tr>
                     </thead>
@@ -199,6 +199,8 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                                     <td class="text-center">{{ $rhVal ?? '-' }}</td>
                                     <td class="text-center" style="font-size: 8px;">{{ $record ? $record->formatPicSignature($picField) : '-' }}</td>
                                 @endforeach
+                                <td class="text-center">{{ $record->reviewed_by ?? '-' }}</td>
+                                <td class="text-center">{{ $record->acknowledged_by ?? '-' }}</td>
                             </tr>
                         @endfor
                     </tbody>
