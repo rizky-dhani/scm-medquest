@@ -28,7 +28,8 @@ test('temperature deviation creates notification', function () {
         'time' => now()->toTimeString(),
         'temperature_deviation' => 5.5,
         'deviation_reason' => 'Test reason',
-        'length_temperature_deviation' => '30 minutes'
+        'length_temperature_deviation' => '30 minutes',
+        'pic' => 'Test PIC'
     ]);
 
     // Assert that the deviation was created successfully

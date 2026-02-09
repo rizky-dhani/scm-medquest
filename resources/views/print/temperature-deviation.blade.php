@@ -153,11 +153,6 @@ $renderGroups =
                             </div>
                         </div>
                         <div class="col-6 border border-black py-1">
-                            <p class="mb-0" style="font-size: 11px;">*) Give a mark (&#10003;) in the appropriate box
-                                (<i>Beri tanda (&#10003;) pada kotak yang sesuai</i>)
-                            </p>
-                            <p class="mb-0" style="font-size: 11px;">***) Cross out inappropriate text (<i>Coret tulisan
-                                    yang tidak sesuai</i>)</p>
                             <p class="mb-0" style="font-size: 11px;">****) Signature and initial name (<i>Tanda tangan dan
                                     inisial nama</i>) </p>
                             <p class="mb-0" style="font-size: 11px;">*****) Signature initial name and date (<i>Tanda
@@ -211,6 +206,8 @@ $renderGroups =
                                 <th class="text-center" style="font-size: 11px">Risk Analysis of impact
                                     deviation<br>(<i>Analisis risiko dari dampak penyimpangan</i>)</th>
                                 <th class="text-center" style="font-size: 11px">Analyzed by ****<br>(<i>QA</i>)</th>
+                                <th class="text-center" style="font-size: 11px">Reviewed by</th>
+                                <th class="text-center" style="font-size: 11px">Acknowledged by</th>
                             </tr>
                         </thead>
                                             <tbody>
@@ -219,13 +216,15 @@ $renderGroups =
                                                         <td class="text-center">{{ $loop->iteration }}</td>
                                                         <td class="text-center">
                                                             {{ strtoupper(\Carbon\Carbon::parse($record->date)->format('d M Y')) }}</td>
-                                                        <td class="text-center">{{ \Carbon\Carbon::parse($record->time)->format('H:i') }}</td>
+                                                        <td class="text-center">{{ \Carbon\Carbon::parse($record->time)->format('Hi') }}</td>
                                                         <td class="text-center">{{ $record->temperature_deviation ?? '-' }}°C</td>
                                                         <td class="text-center">{{ $record->length_temperature_deviation ?? '-' }}</td>
                                                         <td class="text-center">{{ $record->deviation_reason ?? '-' }}</td>
                                                         <td class="text-center">{{ $record->pic ?? '-' }}</td>
                                                         <td class="text-center">{{ $record->risk_analysis ?? '-' }}</td>
                                                         <td class="text-center">{{ $record->analyzer_pic ?? '-' }}</td>
+                                                        <td class="text-center">{{ $record->reviewed_by ?? '-' }}</td>
+                                                        <td class="text-center">{{ $record->acknowledged_by ?? '-' }}</td>
                                                     </tr>
                                                 @endforeach
                         
@@ -245,6 +244,8 @@ $renderGroups =
                                                         <td>&nbsp;</td>
                                                         <td>&nbsp;</td>
                                                         <td>&nbsp;</td>
+                                                        <td>&nbsp;</td>
+                                                        <td>&nbsp;</td>
                                                     </tr>
                                                 @endfor
                                             </tbody>                    </table>
@@ -252,9 +253,8 @@ $renderGroups =
                 <div class="container-fluid footer-section">
                     <div class="row">
                         <div class="col-4 border border-black py-2 d-flex align-items-center">
-                            <p class="fw-bolder text-center mb-0" style="font-size: 10px;">Especially for Grifols Diagnostics' products, report to QAS
-                                department and Grifols Diagnostics' for any temperature excursion immediately <br><br>
-                                (Khusus produk Grifols Diagnostics, segera laporkan ke departemen QAS dan prinsipal Grifols
+                            <p class="fw-bolder text-center mb-0" style="font-size: 10px;">Specifically for Grifols Diagnostics products, immediately report to QA and Grifols Diagnostics principals if there is a temperature deviation <br><br>
+                                (Khusus produk Grifols Diagnostics, segera laporkan ke QA dan prinsipal Grifols
                                 Diagnostics jika terjadi penyimpangan suhu)</p>
                         </div>
                         <div class="col-8 border border-start-0 border-black">
