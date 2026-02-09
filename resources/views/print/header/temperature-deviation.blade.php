@@ -58,8 +58,6 @@
                 </div>
             </div>
             <div class="col-5 pe-0 border border-black">
-                <p class="mb-0" style="font-size: 16px;">*) Give a mark (&#10003;) in the appropriate box (<i>Beri tanda (&#10003;) pada kotak yang sesuai</i>)</p>
-                <p class="mb-0" style="font-size: 16px;">***) Cross out inappropriate text (<i>Coret tulisan yang tidak sesuai</i>)</p>
                 <p class="mb-0" style="font-size: 16px;">****) Signature and initial name (<i>Tanda tangan dan inisial nama</i>) </p>
                 <p class="mb-0" style="font-size: 16px;">*****) Signature initial name and date (<i>Tanda tangan, inisial nama dan tanggal</i>) </p>
 

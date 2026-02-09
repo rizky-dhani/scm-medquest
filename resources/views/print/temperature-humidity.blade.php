@@ -133,7 +133,7 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                         <div class="row">
                             <div class="col-3">
                                 <p class="mb-0" style="font-size: 12px;">Period</p>
-                                <p class="mb-0" style="font-size: 12px;">Location / SN</p>
+                                <p class="mb-0" style="font-size: 12px;">Location / Serial No.</p>
                                 <p class="mb-0" style="font-size: 12px;">Observed Temp *</p>
                             </div>
                             <div class="col-9">
@@ -194,7 +194,7 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                                         $isOutOfRange = $record && $tempVal !== null && ($tempVal < $record->roomTemperature->temperature_start || $tempVal > $record->roomTemperature->temperature_end);
                                         $style = $isOutOfRange ? 'color: red; font-weight: bold;' : '';
                                     @endphp
-                                    <td class="text-center">{{ ($record && $record->$timeField) ? \Carbon\Carbon::parse($record->$timeField)->format('H:i') : '-' }}</td>
+                                    <td class="text-center">{{ ($record && $record->$timeField) ? \Carbon\Carbon::parse($record->$timeField)->format('Hi') : '-' }}</td>
                                     <td class="text-center" style="{{ $style }}">{{ $tempVal ?? '-' }}</td>
                                     <td class="text-center">{{ $rhVal ?? '-' }}</td>
                                     <td class="text-center" style="font-size: 8px;">{{ $record ? $record->formatPicSignature($picField) : '-' }}</td>
