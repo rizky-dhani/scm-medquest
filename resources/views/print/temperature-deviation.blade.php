@@ -153,11 +153,7 @@ $renderGroups =
                             </div>
                         </div>
                         <div class="col-6 border border-black py-1">
-                            <p class="mb-0" style="font-size: 11px;">****) Signature and initial name (<i>Tanda tangan dan
-                                    inisial nama</i>) </p>
-                            <p class="mb-0" style="font-size: 11px;">*****) Signature initial name and date (<i>Tanda
-                                    tangan, inisial nama dan tanggal</i>) </p>
-
+                            <p class="mb-0" style="font-size: 11px;">****) Initial name and date (<i>Inisial nama dan tanggal</i>) </p>
                         </div>
                     </div>
 
@@ -199,56 +195,57 @@ $renderGroups =
                                 <th class="text-center" style="font-size: 11px">Temperature deviation<br>(<i>Penyimpangan
                                         suhu</i>)<br>(°C)</th>
                                 <th class="text-center" style="font-size: 11px">Length of temperature
-                                    deviation<br>(<i>Lamanya penyimpangan suhu</i>)<br>(Menit) ***</th>
+                                    deviation<br>(<i>Lamanya penyimpangan suhu</i>)<br>(Menit)</th>
                                 <th class="text-center" style="font-size: 11px">Reason of the deviations **<br>(<i>Alasan
                                         penyimpangan</i>) **</th>
                                 <th class="text-center" style="font-size: 11px">PIC ****<br>(<i>SCM</i>)</th>
                                 <th class="text-center" style="font-size: 11px">Risk Analysis of impact
                                     deviation<br>(<i>Analisis risiko dari dampak penyimpangan</i>)</th>
                                 <th class="text-center" style="font-size: 11px">Analyzed by ****<br>(<i>QA</i>)</th>
-                                <th class="text-center" style="font-size: 11px">Reviewed by</th>
-                                <th class="text-center" style="font-size: 11px">Acknowledged by</th>
+                                <th class="text-center" style="font-size: 11px">Reviewed by ****</th>
+                                <th class="text-center" style="font-size: 11px">Acknowledged by ****</th>
                             </tr>
                         </thead>
-                                            <tbody>
-                                                @foreach ($roomDeviations as $record)
-                                                    <tr>
-                                                        <td class="text-center">{{ $loop->iteration }}</td>
-                                                        <td class="text-center">
-                                                            {{ strtoupper(\Carbon\Carbon::parse($record->date)->format('d M Y')) }}</td>
-                                                        <td class="text-center">{{ \Carbon\Carbon::parse($record->time)->format('Hi') }}</td>
-                                                        <td class="text-center">{{ $record->temperature_deviation ?? '-' }}°C</td>
-                                                        <td class="text-center">{{ $record->length_temperature_deviation ?? '-' }}</td>
-                                                        <td class="text-center">{{ $record->deviation_reason ?? '-' }}</td>
-                                                        <td class="text-center">{{ $record->pic ?? '-' }}</td>
-                                                        <td class="text-center">{{ $record->risk_analysis ?? '-' }}</td>
-                                                        <td class="text-center">{{ $record->analyzer_pic ?? '-' }}</td>
-                                                        <td class="text-center">{{ $record->reviewed_by ?? '-' }}</td>
-                                                        <td class="text-center">{{ $record->acknowledged_by ?? '-' }}</td>
-                                                    </tr>
-                                                @endforeach
-                        
-                                                @php
-                                                    $currentRowCount = count($roomDeviations);
-                                                    $minRows = 10;
-                                                @endphp
-                        
-                                                @for ($i = $currentRowCount + 1; $i <= $minRows; $i++)
-                                                    <tr>
-                                                        <td class="text-center">{{ $i }}</td>
-                                                        <td>&nbsp;</td>
-                                                        <td>&nbsp;</td>
-                                                        <td>&nbsp;</td>
-                                                        <td>&nbsp;</td>
-                                                        <td>&nbsp;</td>
-                                                        <td>&nbsp;</td>
-                                                        <td>&nbsp;</td>
-                                                        <td>&nbsp;</td>
-                                                        <td>&nbsp;</td>
-                                                        <td>&nbsp;</td>
-                                                    </tr>
-                                                @endfor
-                                            </tbody>                    </table>
+                        <tbody>
+                            @foreach ($roomDeviations as $record)
+                                <tr>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="text-center">
+                                        {{ strtoupper(\Carbon\Carbon::parse($record->date)->format('d M Y')) }}</td>
+                                    <td class="text-center">{{ \Carbon\Carbon::parse($record->time)->format('Hi') }}</td>
+                                    <td class="text-center">{{ $record->temperature_deviation ?? '-' }}°C</td>
+                                    <td class="text-center">{{ $record->length_temperature_deviation ?? '-' }}</td>
+                                    <td class="text-center">{{ $record->deviation_reason ?? '-' }}</td>
+                                    <td class="text-center">{{ $record->pic ?? '-' }}</td>
+                                    <td class="text-center">{{ $record->risk_analysis ?? '-' }}</td>
+                                    <td class="text-center">{{ $record->analyzer_pic ?? '-' }}</td>
+                                    <td class="text-center">{{ $record->reviewed_by ?? '-' }}</td>
+                                    <td class="text-center">{{ $record->acknowledged_by ?? '-' }}</td>
+                                </tr>
+                            @endforeach
+    
+                            @php
+                                $currentRowCount = count($roomDeviations);
+                                $minRows = 10;
+                            @endphp
+    
+                            @for ($i = $currentRowCount + 1; $i <= $minRows; $i++)
+                                <tr>
+                                    <td class="text-center">{{ $i }}</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                            @endfor
+                        </tbody>                    
+                    </table>
                 </div>
                 <div class="container-fluid footer-section">
                     <div class="row">
