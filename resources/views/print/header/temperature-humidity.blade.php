@@ -72,7 +72,7 @@
                     <div class="col-3">
                         <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">Period</p>
                         <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">Location / Serial No.</p>
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">Observed Temperature</p>
+                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">Observed Temp</p>
                     </div>
                     <div class="col-9">
                         <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&emsp;</p>
@@ -82,10 +82,7 @@
                 </div>
             </div>
             <div class="col-5 pe-0 border border-black">
-                <p class="mb-0" style="font-size: 16px;">*) Give a mark (&#10003;) in the appropriate box</p>
-                <p class="mb-0" style="font-size: 16px;">**) Initial name & date</p>
-                <p class="mb-0" style="font-size: 16px;">***) Signature, initial name and date </p>
-
+                <p class="mb-0" style="font-size: 11px;">***) Initial name and date (<i>Inisial nama dan tanggal</i>) or Name for Security (Nama untuk Sekuriti)</p>
             </div>
         </div>
     </div>

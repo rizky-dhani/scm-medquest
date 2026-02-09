@@ -83,7 +83,7 @@ Route::get('/temperature-deviations/bulk-export', function () {
     $roomCount = $temperatureDeviations->pluck('room_id')->unique()->count();
     $firstDeviation = $temperatureDeviations->first();
     $locationName = strtoupper(Str::slug($firstDeviation->location->location_name, '_'));
-    $period = Carbon::parse($firstDeviation->date)->format('MY');
+    $period = strtoupper(Carbon::parse($firstDeviation->date)->format('MY'));
 
     if ($roomCount === 1) {
         $roomName = strtoupper(Str::slug($firstDeviation->room->room_name, '_'));
