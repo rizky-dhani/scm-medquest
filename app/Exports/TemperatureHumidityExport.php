@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class TemperatureHumidityExport implements WithMultipleSheets
@@ -88,10 +89,9 @@ class TemperatureHumidityExport implements WithMultipleSheets
                 {
                     return [
                         AfterSheet::class => function (AfterSheet $event) {
-                            // Merge cells for time slot grouping in the new order
                             $sheet = $event->sheet->getDelegate();
 
-                            // Merge cells for each time slot group (in 02:00 to 23:00 order)
+                            // Merge cells for time slot grouping in the new order
                             $sheet->mergeCells('D1:G1'); // 02:00
                             $sheet->mergeCells('H1:K1'); // 05:00
                             $sheet->mergeCells('L1:O1'); // 08:00
@@ -118,6 +118,55 @@ class TemperatureHumidityExport implements WithMultipleSheets
                             $sheet->getStyle('A1:AK1')
                                 ->getAlignment()
                                 ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                            // Apply red bold text for temperature cells that are out of range or have deviations
+                            $timeSlots = [
+                                ['column' => 'E', 'time' => '02:00', 'index' => '0200'],
+                                ['column' => 'I', 'time' => '05:00', 'index' => '0500'],
+                                ['column' => 'M', 'time' => '08:00', 'index' => '0800'],
+                                ['column' => 'Q', 'time' => '11:00', 'index' => '1100'],
+                                ['column' => 'U', 'time' => '14:00', 'index' => '1400'],
+                                ['column' => 'Y', 'time' => '17:00', 'index' => '1700'],
+                                ['column' => 'AC', 'time' => '20:00', 'index' => '2000'],
+                                ['column' => 'AG', 'time' => '23:00', 'index' => '2300'],
+                            ];
+
+                            $row = 3; // Start from row 3 (after 2 header rows)
+                            foreach ($this->records as $record) {
+                                $minTemp = $record->roomTemperature->temperature_start;
+                                $maxTemp = $record->roomTemperature->temperature_end;
+
+                                foreach ($timeSlots as $slot) {
+                                    $tempField = 'temp_' . $slot['index'];
+                                    $tempVal = $record->$tempField;
+
+                                    if ($tempVal !== null) {
+                                        $isOutOfRange = $tempVal < $minTemp || $tempVal > $maxTemp;
+
+                                        $hasDeviation = false;
+                                        if (!$isOutOfRange) {
+                                            $startTime = substr($slot['time'], 0, 5) . ':00';
+                                            $endTime = substr($slot['time'], 0, 5) . ':59';
+
+                                            $deviation = $record->temperatureDeviations()
+                                                ->whereTime('time', '>=', $startTime)
+                                                ->whereTime('time', '<=', $endTime)
+                                                ->first();
+
+                                            $hasDeviation = $deviation !== null;
+                                        }
+
+                                        if ($isOutOfRange || $hasDeviation) {
+                                            $cell = $slot['column'] . $row;
+                                            $sheet->getStyle($cell)
+                                                ->getFont()
+                                                ->setBold(true)
+                                                ->setColor(new Color(Color::COLOR_RED));
+                                        }
+                                    }
+                                }
+                                $row++;
+                            }
                         },
                     ];
                 }

@@ -192,7 +192,16 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                                         $tempVal = $record ? $record->$tempField : null;
                                         $rhVal = $record ? $record->$rhField : null;
                                         $isOutOfRange = $record && $tempVal !== null && ($tempVal < $record->roomTemperature->temperature_start || $tempVal > $record->roomTemperature->temperature_end);
-                                        $style = $isOutOfRange ? 'color: red; font-weight: bold;' : '';
+                                        $hasDeviation = false;
+                                        if ($record && $tempVal !== null) {
+                                            $startTime = substr($t, 0, 2) . ':00:00';
+                                            $endTime = substr($t, 0, 2) . ':59:59';
+                                            $hasDeviation = $record->temperatureDeviations()
+                                                ->whereTime('time', '>=', $startTime)
+                                                ->whereTime('time', '<=', $endTime)
+                                                ->exists();
+                                        }
+                                        $style = ($isOutOfRange || $hasDeviation) ? 'color: red; font-weight: bold;' : '';
                                     @endphp
                                     <td class="text-center">{{ ($record && $record->$timeField) ? \Carbon\Carbon::parse($record->$timeField)->format('Hi') : '-' }}</td>
                                     <td class="text-center" style="{{ $style }}">{{ $tempVal ?? '-' }}</td>
