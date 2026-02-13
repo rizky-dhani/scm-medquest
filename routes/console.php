@@ -14,3 +14,8 @@ Artisan::command('inspire', function () {
 Schedule::command('temperature:send-daily-notifications')
     ->dailyAt('08:00')
     ->timezone('Asia/Jakarta');
+
+// Schedule daily notification purge (2 AM)
+Schedule::command('notifications:purge --all --days=30')
+    ->dailyAt('02:00')
+    ->timezone('Asia/Jakarta');

@@ -55,6 +55,8 @@ Route::get('/temperature-humidities/bulk-export', function () {
         'groupedTempHumidity' => $groupedTempHumidity
     ]);
     $pdf = Browsershot::html($html)
+        ->setNodeBinary('/home/da1shiq/.config/FlyEnv/env/node/bin/node')
+        ->setNpmBinary('/home/da1shiq/.config/FlyEnv/env/node/bin/npm')
         ->format('A4')
         ->margins(3, 3, 3, 3)
         ->landscape()
@@ -97,6 +99,8 @@ Route::get('/temperature-deviations/bulk-export', function () {
         'groupedDeviations' => $groupedDeviations
     ]);
     $pdf = Browsershot::html($html)
+        ->setNodeBinary('/home/da1shiq/.config/FlyEnv/env/node/bin/node')
+        ->setNpmBinary('/home/da1shiq/.config/FlyEnv/env/node/bin/npm')
         ->format('A4')
         ->margins(3, 3, 3, 3)
         ->landscape()
