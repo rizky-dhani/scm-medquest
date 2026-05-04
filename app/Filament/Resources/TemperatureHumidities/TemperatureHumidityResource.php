@@ -1047,9 +1047,13 @@ class TemperatureHumidityResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make()
-                ->visible(fn($record) => $record->date == now()->toDateString() && Auth::user()->hasRole(['Supply Chain Officer', 'Security'])),
+                ->visible(fn($record) => Auth::user()->hasRole('Super Admin') || (
+                    $record->date == now()->toDateString() && Auth::user()->hasRole(['Supply Chain Officer', 'Security'])
+                )),
                 DeleteAction::make()
-                ->visible(fn($record) => $record->date == now()->toDateString() && Auth::user()->hasRole(['Supply Chain Officer', 'Security']))
+                ->visible(fn($record) => Auth::user()->hasRole('Super Admin') || (
+                    $record->date == now()->toDateString() && Auth::user()->hasRole(['Supply Chain Officer', 'Security'])
+                ))
                     ->successNotificationTitle('Temperature Humidity deleted successfully'),
             ])
             ->toolbarActions([
