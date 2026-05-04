@@ -25,7 +25,7 @@ class ViewTemperatureHumidity extends ViewRecord
         return [
             
             EditAction::make()
-                ->visible(fn () => Auth::user()->hasRole(['Supply Chain Officer', 'Security'])),
+                ->visible(fn () => Auth::user()->hasRole(['Super Admin', 'Supply Chain Officer', 'Security'])),
             Action::make('view_deviations')
                 ->label('View Deviations')
                 ->icon('heroicon-o-exclamation-triangle')
@@ -40,7 +40,7 @@ class ViewTemperatureHumidity extends ViewRecord
                 ->label('Mark as Reviewed')
                     ->visible(function (TemperatureHumidity $record) {
                         $isAcknowledged = $record->is_acknowledged == false && $record->time_0800 != null && $record->time_1100 != null && $record->time_1400 != null && $record->time_1700 != null && $record->temp_0800 != null && $record->temp_1100 != null && $record->temp_1400 != null && $record->temp_1700 != null;    
-                        $admin = Auth::user()->hasRole(['Supply Chain Manager']);
+                        $admin = Auth::user()->hasRole(['Super Admin', 'Supply Chain Manager']);
                         return $isAcknowledged && $admin;
                     })
                 ->action(function (Model $record) {
@@ -51,7 +51,7 @@ class ViewTemperatureHumidity extends ViewRecord
                     ]);
                 Notification::make()
                     ->title('Success!')
-                    ->body('Marked as reviewed successfully by Supply Chain Manager.')
+                    ->body('Marked as reviewed successfully by ' . auth()->user()->name . '.')
                     ->success()
                     ->send();
                 })
@@ -62,7 +62,7 @@ class ViewTemperatureHumidity extends ViewRecord
                 ->label('Mark as Acknowledged')
                     ->visible(function (TemperatureHumidity $record) {
                         $isAcknowledged = $record->is_acknowledged == false && $record->time_0800 != null && $record->time_1100 != null && $record->time_1400 != null && $record->time_1700 != null && $record->temp_0800 != null && $record->temp_1100 != null && $record->temp_1400 != null && $record->temp_1700 != null;    
-                        $admin = Auth::user()->hasRole(['QA Manager']);
+                        $admin = Auth::user()->hasRole(['Super Admin', 'QA Manager']);
                         return $isAcknowledged && $admin;
                     })
                 ->action(function (Model $record) {
@@ -73,7 +73,7 @@ class ViewTemperatureHumidity extends ViewRecord
                     ]);
                 Notification::make()
                     ->title('Success!')
-                    ->body('Marked as acknowledged successfully by QA Manager.')
+                    ->body('Marked as acknowledged successfully by ' . auth()->user()->name . '.')
                     ->success()
                     ->send();
                 })

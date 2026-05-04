@@ -344,7 +344,7 @@ class ReviewedTemperatureHumidity extends ListRecords
                 ViewAction::make(),
                 Action::make('is_reviewed')
                     ->label('Mark as Reviewed')
-                    ->visible(fn() => auth()->user()->hasRole('Supply Chain Manager'))
+                    ->visible(fn() => auth()->user()->hasRole(['Super Admin', 'Supply Chain Manager']))
                     ->action(function (TemperatureHumidity $record) {
                         $record->update([
                             'is_reviewed' => true,
@@ -353,7 +353,7 @@ class ReviewedTemperatureHumidity extends ListRecords
                         ]);
                     Notification::make()
                         ->title('Success!')
-                        ->body('Marked as reviewed successfully by Supply Chain Manager')
+                        ->body('Marked as reviewed successfully by ' . auth()->user()->name . '.')
                         ->success()
                         ->send();
                     })
@@ -369,7 +369,7 @@ class ReviewedTemperatureHumidity extends ListRecords
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(function () {
-                        $admin = Auth::user()->hasRole('Supply Chain Manager');
+                        $admin = Auth::user()->hasRole(['Super Admin', 'Supply Chain Manager']);
                         return $admin;
                     })
                     ->action(function (Collection $records) {

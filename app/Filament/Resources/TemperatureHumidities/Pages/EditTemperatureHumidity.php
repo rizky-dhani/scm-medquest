@@ -146,7 +146,7 @@ class EditTemperatureHumidity extends EditRecord
         return [
             Action::make('is_reviewed')
                 ->label('Mark as Reviewed')
-                ->visible(fn () => Auth::user()->hasRole('Supply Chain Manager'))
+                ->visible(fn () => Auth::user()->hasRole(['Super Admin', 'Supply Chain Manager']))
                 ->action(function (Model $record) {
                     $record->update([
                         'is_reviewed' => true,
@@ -155,7 +155,7 @@ class EditTemperatureHumidity extends EditRecord
                     ]);
                 Notification::make()
                     ->title('Success!')
-                    ->body('Marked as reviewed successfully by Supply Chain Manager.')
+                    ->body('Marked as reviewed successfully by ' . auth()->user()->name . '.')
                     ->success()
                     ->send();
                 })
@@ -164,7 +164,7 @@ class EditTemperatureHumidity extends EditRecord
                 ->icon('heroicon-o-check'),
             Action::make('is_acknowledged')
                 ->label('Mark as Acknowledged')
-                ->visible(fn () => Auth::user()->hasRole(['QA Manager']))
+                ->visible(fn () => Auth::user()->hasRole(['Super Admin', 'QA Manager']))
                 ->action(function (Model $record) {
                     $record->update([
                         'is_acknowledged' => true,
@@ -173,7 +173,7 @@ class EditTemperatureHumidity extends EditRecord
                     ]);
                 Notification::make()
                     ->title('Success!')
-                    ->body('Marked as acknowledged successfully by QA Manager.')
+                    ->body('Marked as acknowledged successfully by ' . auth()->user()->name . '.')
                     ->success()
                     ->send();
                 })

@@ -337,7 +337,7 @@ class AcknowledgedTemperatureHumidity extends listRecords
                     ->label('Mark as Acknowledged')
                     ->visible(function (TemperatureHumidity $record) {
                         $isAcknowledged = $record->is_acknowledged == false && $record->time_0800 != null && $record->time_1100 != null && $record->time_1400 != null && $record->time_1700 != null && $record->temp_0800 != null && $record->temp_1100 != null && $record->temp_1400 != null && $record->temp_1700 != null;
-                        $admin = Auth::user()->hasRole('QA Manager');
+                        $admin = Auth::user()->hasRole(['Super Admin', 'QA Manager']);
                         return $isAcknowledged && $admin;
                     })
                     ->action(function (TemperatureHumidity $record) {
@@ -348,7 +348,7 @@ class AcknowledgedTemperatureHumidity extends listRecords
                         ]);
                     Notification::make()
                         ->title('Success!')
-                        ->body('Marked as acknowledged successfully by QA Manager')
+                        ->body('Marked as acknowledged successfully by ' . auth()->user()->name . '.')
                         ->success()
                         ->send();
                     })
@@ -364,7 +364,7 @@ class AcknowledgedTemperatureHumidity extends listRecords
                     ->color('info')
                     ->requiresConfirmation()
                     ->visible(function () {  
-                        $admin = Auth::user()->hasRole('QA Manager');
+                        $admin = Auth::user()->hasRole(['Super Admin', 'QA Manager']);
                         return $admin;
                     })
                     ->action(function (Collection $records) {

@@ -37,7 +37,7 @@ class ListTemperatureHumidity extends ListRecords
             CreateAction::make()
             ->label('New Temperature & Humidity')
             ->color('success')
-            ->visible(fn() => auth()->user()->hasRole(['Supply Chain Officer', 'Security'])),
+            ->visible(fn() => auth()->user()->hasRole(['Super Admin', 'Supply Chain Officer', 'Security'])),
             ActionGroup::make([
                 Action::make('export_xlsx')
                     ->label('Export to XLSX')
