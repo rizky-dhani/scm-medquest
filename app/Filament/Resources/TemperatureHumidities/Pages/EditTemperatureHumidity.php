@@ -14,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\TemperatureHumidities\TemperatureHumidityResource;
 use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
+use Illuminate\Support\Facades\Log;
 
 class EditTemperatureHumidity extends EditRecord
 {
@@ -46,9 +47,14 @@ class EditTemperatureHumidity extends EditRecord
     }
     protected function afterSave(): void
     {
+        $t0 = microtime(true);
         $record = $this->record;
-        // Get temperature range from related location
+
+        // --- Location load ---
         $location = $record->location;
+        $t1 = microtime(true);
+        Log::info('[TIMING] afterSave - location load: ' . ($t1 - $t0) . 's');
+
         $minTemp = $location->temperature_start;
         $maxTemp = $location->temperature_end;
         $now = Carbon::now('Asia/Jakarta');
@@ -64,11 +70,13 @@ class EditTemperatureHumidity extends EditRecord
             'temp_2300' => ['start' => '23:00:00', 'end' => '23:30:59', 'time_field' => 'time_2300'],
         ];
 
+        $matched = false;
         foreach ($timeWindows as $tempField => $window) {
             $start = Carbon::createFromTimeString($window['start'], 'Asia/Jakarta');
             $end = Carbon::createFromTimeString($window['end'], 'Asia/Jakarta');
 
             if ($now->between($start, $end)) {
+                $matched = true;
                 $tempValue = $record->$tempField;
                 $timeValue = $record->{$window['time_field']};
 
@@ -88,7 +96,9 @@ class EditTemperatureHumidity extends EditRecord
                 break; // Only evaluate the current time window
             }
         }
-        
+        $t2 = microtime(true);
+        Log::info('[TIMING] afterSave - deviation check (matched=' . ($matched ? 'yes' : 'no') . '): ' . ($t2 - $t1) . 's');
+
         $recipient = auth()->user();
         Notification::make()
             ->success()
@@ -103,6 +113,9 @@ class EditTemperatureHumidity extends EditRecord
                     ->markAsRead()
             ])
             ->sendToDatabase($recipient);
+        $t3 = microtime(true);
+        Log::info('[TIMING] afterSave - sendToDatabase: ' . ($t3 - $t2) . 's');
+        Log::info('[TIMING] afterSave - TOTAL: ' . ($t3 - $t0) . 's');
     }
     protected function getRedirectUrl(): string
     {

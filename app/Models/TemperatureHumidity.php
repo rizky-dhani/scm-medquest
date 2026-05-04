@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use App\Services\TemperatureHumidityNotificationService;
+use Illuminate\Support\Facades\Log;
 
 class TemperatureHumidity extends Model
 {
@@ -100,32 +101,16 @@ class TemperatureHumidity extends Model
         });
 
         static::updated(function (TemperatureHumidity $temperatureHumidity) {
+            $t0 = microtime(true);
+
             // Check if any of the monitored fields were updated
             $monitoredFields = [
-                'time_0800',
-                'time_1100',
-                'time_1400',
-                'time_1700',
-                'time_2000',
-                'time_2300',
-                'time_0200',
-                'time_0500',
-                'temp_0800',
-                'temp_1100',
-                'temp_1400',
-                'temp_1700',
-                'temp_2000',
-                'temp_2300',
-                'temp_0200',
-                'temp_0500',
-                'rh_0800',
-                'rh_1100',
-                'rh_1400',
-                'rh_1700',
-                'rh_2000',
-                'rh_2300',
-                'rh_0200',
-                'rh_0500',
+                'time_0800', 'time_1100', 'time_1400', 'time_1700',
+                'time_2000', 'time_2300', 'time_0200', 'time_0500',
+                'temp_0800', 'temp_1100', 'temp_1400', 'temp_1700',
+                'temp_2000', 'temp_2300', 'temp_0200', 'temp_0500',
+                'rh_0800', 'rh_1100', 'rh_1400', 'rh_1700',
+                'rh_2000', 'rh_2300', 'rh_0200', 'rh_0500',
                 'is_reviewed'
             ];
 
@@ -136,6 +121,8 @@ class TemperatureHumidity extends Model
                     break;
                 }
             }
+            $t1 = microtime(true);
+            Log::info('[TIMING] model updated - wasChanged check: ' . ($t1 - $t0) . 's');
 
             if ($hasRelevantChanges) {
                 // Dispatch notification check asynchronously to avoid blocking the update
@@ -144,6 +131,9 @@ class TemperatureHumidity extends Model
                         ->checkAndSendNotifications($temperatureHumidity);
                 })->afterResponse();
             }
+            $t2 = microtime(true);
+            Log::info('[TIMING] model updated - dispatch: ' . ($t2 - $t1) . 's');
+            Log::info('[TIMING] model updated - TOTAL: ' . ($t2 - $t0) . 's');
         });
     }
 
