@@ -14,7 +14,6 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\TemperatureHumidities\TemperatureHumidityResource;
 use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
-use Illuminate\Support\Facades\Log;
 
 class EditTemperatureHumidity extends EditRecord
 {
@@ -33,9 +32,6 @@ class EditTemperatureHumidity extends EditRecord
     }
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $t0 = microtime(true);
-        Log::info('[TIMING] mutateFormDataBeforeSave START');
-
         // Ensure temperature fields are set
         $tempFields = ['temp_0200', 'temp_0500', 'temp_0800', 'temp_1100', 'temp_1400', 'temp_1700', 'temp_2000', 'temp_2300'];
         foreach ($tempFields as $temp) {
@@ -46,70 +42,53 @@ class EditTemperatureHumidity extends EditRecord
         session()->forget('deviation_triggered');
         session()->forget('deviation_data');
 
-        $t1 = microtime(true);
-        Log::info('[TIMING] mutateFormDataBeforeSave END - took: ' . ($t1 - $t0) . 's');
-
         return $data;
     }
     protected function afterSave(): void
     {
-        $t0 = microtime(true);
         $record = $this->record;
-
-        // --- Location load (needed for notification below, even if Super Admin) ---
+        // Get temperature range from related location
         $location = $record->location;
-        $t1 = microtime(true);
-        Log::info('[TIMING] afterSave - location load: ' . ($t1 - $t0) . 's');
+        $minTemp = $location->temperature_start;
+        $maxTemp = $location->temperature_end;
+        $now = Carbon::now('Asia/Jakarta');
 
-        // Skip deviation detection for Super Admin (bypasses time windows)
-        if (!auth()->user()->hasRole('Super Admin')) {
-            $minTemp = $location->temperature_start;
-            $maxTemp = $location->temperature_end;
-            $now = Carbon::now('Asia/Jakarta');
+        $timeWindows = [
+            'temp_0200' => ['start' => '02:00:00', 'end' => '02:30:59', 'time_field' => 'time_0200'],
+            'temp_0500' => ['start' => '05:00:00', 'end' => '05:30:59', 'time_field' => 'time_0500'],
+            'temp_0800' => ['start' => '08:00:00', 'end' => '08:30:59', 'time_field' => 'time_0800'],
+            'temp_1100' => ['start' => '11:00:00', 'end' => '11:30:59', 'time_field' => 'time_1100'],
+            'temp_1400' => ['start' => '14:00:00', 'end' => '14:30:59', 'time_field' => 'time_1400'],
+            'temp_1700' => ['start' => '17:00:00', 'end' => '17:30:59', 'time_field' => 'time_1700'],
+            'temp_2000' => ['start' => '20:00:00', 'end' => '20:30:59', 'time_field' => 'time_2000'],
+            'temp_2300' => ['start' => '23:00:00', 'end' => '23:30:59', 'time_field' => 'time_2300'],
+        ];
 
-            $timeWindows = [
-                'temp_0200' => ['start' => '02:00:00', 'end' => '02:30:59', 'time_field' => 'time_0200'],
-                'temp_0500' => ['start' => '05:00:00', 'end' => '05:30:59', 'time_field' => 'time_0500'],
-                'temp_0800' => ['start' => '08:00:00', 'end' => '08:30:59', 'time_field' => 'time_0800'],
-                'temp_1100' => ['start' => '11:00:00', 'end' => '11:30:59', 'time_field' => 'time_1100'],
-                'temp_1400' => ['start' => '14:00:00', 'end' => '14:30:59', 'time_field' => 'time_1400'],
-                'temp_1700' => ['start' => '17:00:00', 'end' => '17:30:59', 'time_field' => 'time_1700'],
-                'temp_2000' => ['start' => '20:00:00', 'end' => '20:30:59', 'time_field' => 'time_2000'],
-                'temp_2300' => ['start' => '23:00:00', 'end' => '23:30:59', 'time_field' => 'time_2300'],
-            ];
+        foreach ($timeWindows as $tempField => $window) {
+            $start = Carbon::createFromTimeString($window['start'], 'Asia/Jakarta');
+            $end = Carbon::createFromTimeString($window['end'], 'Asia/Jakarta');
 
-            $matched = false;
-            foreach ($timeWindows as $tempField => $window) {
-                $start = Carbon::createFromTimeString($window['start'], 'Asia/Jakarta');
-                $end = Carbon::createFromTimeString($window['end'], 'Asia/Jakarta');
+            if ($now->between($start, $end)) {
+                $tempValue = $record->$tempField;
+                $timeValue = $record->{$window['time_field']};
 
-                if ($now->between($start, $end)) {
-                    $matched = true;
-                    $tempValue = $record->$tempField;
-                    $timeValue = $record->{$window['time_field']};
-
-                    if (!is_null($tempValue) && ($tempValue < $minTemp || $tempValue > $maxTemp)) {
-                        session()->put('deviation_triggered', true);
-                        session()->put('deviation_data', [[ // wrap in array to match expected format
-                            'temperature_id' => $record->id,
-                            'location_id' => $record->location_id,
-                            'room_id' => $record->room_id,
-                            'room_temperature_id' => $record->room_temperature_id,
-                            'serial_number_id' => $record->serial_number_id,
-                            'time' => $timeValue,
-                            'temperature_deviation' => $tempValue,
-                        ]]);
-                    }
-
-                    break; // Only evaluate the current time window
+                if (!is_null($tempValue) && ($tempValue < $minTemp || $tempValue > $maxTemp)) {
+                    session()->put('deviation_triggered', true);
+                    session()->put('deviation_data', [[ // wrap in array to match expected format
+                        'temperature_id' => $record->id,
+                        'location_id' => $record->location_id,
+                        'room_id' => $record->room_id,
+                        'room_temperature_id' => $record->room_temperature_id,
+                        'serial_number_id' => $record->serial_number_id,
+                        'time' => $timeValue,
+                        'temperature_deviation' => $tempValue,
+                    ]]);
                 }
-            }
-            $t2 = microtime(true);
-            Log::info('[TIMING] afterSave - deviation check (matched=' . ($matched ? 'yes' : 'no') . '): ' . ($t2 - $t1) . 's');
-        } else {
-            $t2 = microtime(true); // Keep timing consistent even though we skipped deviation
-        }
 
+                break; // Only evaluate the current time window
+            }
+        }
+        
         $recipient = auth()->user();
         Notification::make()
             ->success()
@@ -124,9 +103,6 @@ class EditTemperatureHumidity extends EditRecord
                     ->markAsRead()
             ])
             ->sendToDatabase($recipient);
-        $t3 = microtime(true);
-        Log::info('[TIMING] afterSave - sendToDatabase: ' . ($t3 - $t2) . 's');
-        Log::info('[TIMING] afterSave - TOTAL: ' . ($t3 - $t0) . 's');
     }
     protected function getRedirectUrl(): string
     {

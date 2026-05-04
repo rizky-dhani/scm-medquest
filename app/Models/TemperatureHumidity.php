@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use App\Services\TemperatureHumidityNotificationService;
-use Illuminate\Support\Facades\Log;
 
 class TemperatureHumidity extends Model
 {
@@ -15,9 +14,6 @@ class TemperatureHumidity extends Model
     protected static function booted(): void
     {
         static::saving(function ($temperatureHumidity) {
-            $st0 = microtime(true);
-            Log::info('[TIMING] model saving START');
-
             // Auto-populate PIC fields based on current time window AND if the corresponding time field is being updated
             $currentTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
             $isSuperAdmin = auth()->user()?->hasRole('Super Admin');
@@ -103,14 +99,9 @@ class TemperatureHumidity extends Model
                 // Also store the user ID for tracking purposes
                 $temperatureHumidity->pic_2300_id = $user->id;
             }
-
-            $st1 = microtime(true);
-            Log::info('[TIMING] model saving END - took: ' . ($st1 - $st0) . 's');
         });
 
         static::updated(function (TemperatureHumidity $temperatureHumidity) {
-            $t0 = microtime(true);
-
             // Check if any of the monitored fields were updated
             $monitoredFields = [
                 'time_0800', 'time_1100', 'time_1400', 'time_1700',
@@ -129,8 +120,6 @@ class TemperatureHumidity extends Model
                     break;
                 }
             }
-            $t1 = microtime(true);
-            Log::info('[TIMING] model updated - wasChanged check: ' . ($t1 - $t0) . 's');
 
             if ($hasRelevantChanges) {
                 // Dispatch notification check asynchronously to avoid blocking the update
@@ -139,9 +128,6 @@ class TemperatureHumidity extends Model
                         ->checkAndSendNotifications($temperatureHumidity);
                 })->afterResponse();
             }
-            $t2 = microtime(true);
-            Log::info('[TIMING] model updated - dispatch: ' . ($t2 - $t1) . 's');
-            Log::info('[TIMING] model updated - TOTAL: ' . ($t2 - $t0) . 's');
         });
     }
 
