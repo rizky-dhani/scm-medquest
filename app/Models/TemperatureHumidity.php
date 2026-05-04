@@ -15,6 +15,9 @@ class TemperatureHumidity extends Model
     protected static function booted(): void
     {
         static::saving(function ($temperatureHumidity) {
+            $st0 = microtime(true);
+            Log::info('[TIMING] model saving START');
+
             // Auto-populate PIC fields based on current time window AND if the corresponding time field is being updated
             $currentTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
             $isSuperAdmin = auth()->user()?->hasRole('Super Admin');
@@ -100,6 +103,9 @@ class TemperatureHumidity extends Model
                 // Also store the user ID for tracking purposes
                 $temperatureHumidity->pic_2300_id = $user->id;
             }
+
+            $st1 = microtime(true);
+            Log::info('[TIMING] model saving END - took: ' . ($st1 - $st0) . 's');
         });
 
         static::updated(function (TemperatureHumidity $temperatureHumidity) {

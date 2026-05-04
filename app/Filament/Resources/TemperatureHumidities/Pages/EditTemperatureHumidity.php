@@ -33,6 +33,9 @@ class EditTemperatureHumidity extends EditRecord
     }
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        $t0 = microtime(true);
+        Log::info('[TIMING] mutateFormDataBeforeSave START');
+
         // Ensure temperature fields are set
         $tempFields = ['temp_0200', 'temp_0500', 'temp_0800', 'temp_1100', 'temp_1400', 'temp_1700', 'temp_2000', 'temp_2300'];
         foreach ($tempFields as $temp) {
@@ -42,6 +45,9 @@ class EditTemperatureHumidity extends EditRecord
         // Clear any existing deviation flag to ensure we only check the current time slot
         session()->forget('deviation_triggered');
         session()->forget('deviation_data');
+
+        $t1 = microtime(true);
+        Log::info('[TIMING] mutateFormDataBeforeSave END - took: ' . ($t1 - $t0) . 's');
 
         return $data;
     }
