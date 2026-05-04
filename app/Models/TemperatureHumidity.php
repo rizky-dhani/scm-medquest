@@ -17,9 +17,11 @@ class TemperatureHumidity extends Model
         static::saving(function ($temperatureHumidity) {
             // Auto-populate PIC fields based on current time window AND if the corresponding time field is being updated
             $currentTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
+            $isSuperAdmin = auth()->user()?->hasRole('Super Admin');
 
             // Only populate PIC if the corresponding time field is being updated AND we're in the correct time window
-            if (!empty($temperatureHumidity->time_0200) && empty($temperatureHumidity->pic_0200) && $currentTime >= '02:00:00' && $currentTime < '02:30:59') {
+            // Super Admin bypasses the time window check
+            if (!empty($temperatureHumidity->time_0200) && empty($temperatureHumidity->pic_0200) && ($isSuperAdmin || ($currentTime >= '02:00:00' && $currentTime < '02:30:59'))) {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
@@ -29,7 +31,7 @@ class TemperatureHumidity extends Model
                 $temperatureHumidity->pic_0200_id = $user->id;
             }
 
-            if (!empty($temperatureHumidity->time_0500) && empty($temperatureHumidity->pic_0500) && $currentTime >= '05:00:00' && $currentTime < '05:30:59') {
+            if (!empty($temperatureHumidity->time_0500) && empty($temperatureHumidity->pic_0500) && ($isSuperAdmin || ($currentTime >= '05:00:00' && $currentTime < '05:30:59'))) {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
@@ -39,7 +41,7 @@ class TemperatureHumidity extends Model
                 $temperatureHumidity->pic_0500_id = $user->id;
             }
 
-            if (!empty($temperatureHumidity->time_0800) && empty($temperatureHumidity->pic_0800) && $currentTime >= '08:00:00' && $currentTime < '08:30:59') {
+            if (!empty($temperatureHumidity->time_0800) && empty($temperatureHumidity->pic_0800) && ($isSuperAdmin || ($currentTime >= '08:00:00' && $currentTime < '08:30:59'))) {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
@@ -49,7 +51,7 @@ class TemperatureHumidity extends Model
                 $temperatureHumidity->pic_0800_id = $user->id;
             }
 
-            if (!empty($temperatureHumidity->time_1100) && empty($temperatureHumidity->pic_1100) && $currentTime >= '11:00:00' && $currentTime < '11:30:59') {
+            if (!empty($temperatureHumidity->time_1100) && empty($temperatureHumidity->pic_1100) && ($isSuperAdmin || ($currentTime >= '11:00:00' && $currentTime < '11:30:59'))) {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
@@ -59,7 +61,7 @@ class TemperatureHumidity extends Model
                 $temperatureHumidity->pic_1100_id = $user->id;
             }
 
-            if (!empty($temperatureHumidity->time_1400) && empty($temperatureHumidity->pic_1400) && $currentTime >= '14:00:00' && $currentTime < '14:30:59') {
+            if (!empty($temperatureHumidity->time_1400) && empty($temperatureHumidity->pic_1400) && ($isSuperAdmin || ($currentTime >= '14:00:00' && $currentTime < '14:30:59'))) {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
@@ -69,7 +71,7 @@ class TemperatureHumidity extends Model
                 $temperatureHumidity->pic_1400_id = $user->id;
             }
 
-            if (!empty($temperatureHumidity->time_1700) && empty($temperatureHumidity->pic_1700) && $currentTime >= '17:00:00' && $currentTime < '17:30:59') {
+            if (!empty($temperatureHumidity->time_1700) && empty($temperatureHumidity->pic_1700) && ($isSuperAdmin || ($currentTime >= '17:00:00' && $currentTime < '17:30:59'))) {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
@@ -79,7 +81,7 @@ class TemperatureHumidity extends Model
                 $temperatureHumidity->pic_1700_id = $user->id;
             }
 
-            if (!empty($temperatureHumidity->time_2000) && empty($temperatureHumidity->pic_2000) && $currentTime >= '20:00:00' && $currentTime < '20:30:59') {
+            if (!empty($temperatureHumidity->time_2000) && empty($temperatureHumidity->pic_2000) && ($isSuperAdmin || ($currentTime >= '20:00:00' && $currentTime < '20:30:59'))) {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name
@@ -89,7 +91,7 @@ class TemperatureHumidity extends Model
                 $temperatureHumidity->pic_2000_id = $user->id;
             }
 
-            if (!empty($temperatureHumidity->time_2300) && empty($temperatureHumidity->pic_2300) && $currentTime >= '23:00:00' && $currentTime < '23:30:59') {
+            if (!empty($temperatureHumidity->time_2300) && empty($temperatureHumidity->pic_2300) && ($isSuperAdmin || ($currentTime >= '23:00:00' && $currentTime < '23:30:59'))) {
                 $user = auth()->user();
                 $value = $user->hasRole('Security')
                     ? $user->name

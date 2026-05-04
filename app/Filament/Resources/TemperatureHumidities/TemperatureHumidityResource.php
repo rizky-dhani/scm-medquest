@@ -211,8 +211,10 @@ class TemperatureHumidityResource extends Resource
                                     ->label('Time')
                                     ->seconds(false)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_0200')
@@ -222,8 +224,10 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('°C')
                                     ->maxValue(100)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_0200')
@@ -232,8 +236,10 @@ class TemperatureHumidityResource extends Resource
                                     ->numeric()
                                     ->maxValue(100)
                                     ->readOnly(fn () =>
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' ||
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' ||
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
+                                        )
                                     ),
                                 ]),
 
@@ -250,8 +256,10 @@ class TemperatureHumidityResource extends Resource
                                     ->label('Time')
                                     ->seconds(false)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_0500')
@@ -261,8 +269,10 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('°C')
                                     ->maxValue(100)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_0500')
@@ -271,8 +281,10 @@ class TemperatureHumidityResource extends Resource
                                     ->numeric()
                                     ->maxValue(100)
                                     ->readOnly(fn () =>
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' ||
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' ||
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
+                                        )
                                     ),
                                 ]),
 
@@ -289,8 +301,10 @@ class TemperatureHumidityResource extends Resource
                                     ->label('Time')
                                     ->seconds(false)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_0800')
@@ -301,8 +315,10 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('°C')
                                     ->maxValue(100)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_0800')
@@ -311,8 +327,10 @@ class TemperatureHumidityResource extends Resource
                                     ->numeric()
                                     ->maxValue(100)
                                     ->readOnly(fn () =>
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' ||
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' ||
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
+                                        )
                                     ),
                             ]),
 
@@ -329,8 +347,10 @@ class TemperatureHumidityResource extends Resource
                                     ->label('Time')
                                     ->seconds(false)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_1100')
@@ -340,8 +360,10 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('°C')
                                     ->maxValue(100)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_1100')
@@ -350,8 +372,10 @@ class TemperatureHumidityResource extends Resource
                                     ->numeric()
                                     ->maxValue(100)
                                     ->readOnly(fn () =>
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' ||
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' ||
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
+                                        )
                                     ),
                             ]),
 
@@ -368,8 +392,10 @@ class TemperatureHumidityResource extends Resource
                                     ->label('Time')
                                     ->seconds(false)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_1400')
@@ -379,8 +405,10 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('°C')
                                     ->maxValue(100)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_1400')
@@ -389,8 +417,10 @@ class TemperatureHumidityResource extends Resource
                                     ->numeric()
                                     ->maxValue(100)
                                     ->readOnly(fn () =>
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' ||
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' ||
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
+                                        )
                                     ),
                             ]),
 
@@ -407,8 +437,10 @@ class TemperatureHumidityResource extends Resource
                                     ->label('Time')
                                     ->seconds(false)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_1700')
@@ -418,8 +450,10 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('°C')
                                     ->maxValue(100)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_1700')
@@ -428,8 +462,10 @@ class TemperatureHumidityResource extends Resource
                                     ->numeric()
                                     ->maxValue(100)
                                     ->readOnly(fn () =>
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' ||
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' ||
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
+                                        )
                                     ),
                                 ]),
 
@@ -446,8 +482,10 @@ class TemperatureHumidityResource extends Resource
                                     ->label('Time')
                                     ->seconds(false)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_2000')
@@ -457,8 +495,10 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('°C')
                                     ->maxValue(100)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_2000')
@@ -467,8 +507,10 @@ class TemperatureHumidityResource extends Resource
                                     ->numeric()
                                     ->maxValue(100)
                                     ->readOnly(fn () =>
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' ||
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' ||
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
+                                        )
                                     ),
                                 ]),
 
@@ -485,8 +527,10 @@ class TemperatureHumidityResource extends Resource
                                     ->label('Time')
                                     ->seconds(false)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_2300')
@@ -496,8 +540,10 @@ class TemperatureHumidityResource extends Resource
                                     ->suffix('°C')
                                     ->maxValue(100)
                                     ->readOnly(fn () => 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
+                                        )
                                     ),
                                     // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_2300')
@@ -506,8 +552,10 @@ class TemperatureHumidityResource extends Resource
                                     ->numeric()
                                     ->maxValue(100)
                                     ->readOnly(fn () =>
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' ||
-                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
+                                        !auth()->user()->hasRole('Super Admin') && (
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' ||
+                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
+                                        )
                                     ),
                             ])
                             // ->disabled(fn (string $operation) => 
