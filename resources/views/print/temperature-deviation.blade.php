@@ -152,8 +152,16 @@ $renderGroups =
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6 border border-black py-1">
-                            <p class="mb-0" style="font-size: 11px;">****) Initial name and date (<i>Inisial nama dan tanggal</i>) or Name for Security (Nama untuk Sekuriti)</p>
+                        <div class="col-6 border border-black py-1 px-0">
+                            <div class="row h-100">
+                                <div class="col-8 border-end border-black d-flex align-items-center py-1 ps-1">
+                                    <p class="mb-0" style="font-size: 11px;">**) Initial name and date (<i>Inisial nama dan tanggal</i>)</p>
+                                </div>
+                                <div class="col-4 d-flex align-items-center py-1">
+                                    <p class="fw-bolder text-center mb-0" style="font-size: 10px;">Specifically for Grifols Diagnostics products, immediately report to QA and Grifols Diagnostics principals if there is a temperature deviation <br><br>
+                                        (Khusus produk Grifols Diagnostics, segera laporkan ke QA dan prinsipal Grifols Diagnostics jika terjadi penyimpangan suhu)</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -161,8 +169,8 @@ $renderGroups =
                         <div class="col-12 border border-black py-1">
                             <div class="row">
                                 <div class="col-3">
-                                    <p class="mb-0" style="font-size: 12px;">Reason of deviations **) <br> (<i>Alasan
-                                            penyimpangan **</i>)</p>
+                                    <p class="mb-0" style="font-size: 12px;">Reason of deviations *) <br> (<i>Alasan
+                                            penyimpangan *</i>)</p>
                                 </div>
                                 <div class="col-9">
                                     <p class="mb-0" style="font-size: 11px;">:&ensp; A.&nbsp;There were many people in the
@@ -171,6 +179,7 @@ $renderGroups =
                                     <p class="mb-0" style="font-size: 11px;">&ensp;&ensp;B.&nbsp;There were activities
                                         related to packaging / moving goods (<i>Sedang ada aktivitas terkait dengan
                                             pengemasan / pemindahan barang</i>)</p>
+                                    <p class="mb-0" style="font-size: 11px;">&ensp;&ensp;C.&nbsp;Other, please fill in with a more appropriate reason (<i>Lain-lain, silakan isi dengan alasan yang lebih sesuai</i>)</p>
                                 </div>
                             </div>
                         </div>
@@ -196,14 +205,14 @@ $renderGroups =
                                         suhu</i>)<br>(°C)</th>
                                 <th class="text-center" style="font-size: 11px">Length of temperature
                                     deviation<br>(<i>Lamanya penyimpangan suhu</i>)<br>(Menit)</th>
-                                <th class="text-center" style="font-size: 11px">Reason of the deviations **<br>(<i>Alasan
-                                        penyimpangan</i>) **</th>
-                                <th class="text-center" style="font-size: 11px">PIC ****<br>(<i>SCM</i>)</th>
+                                <th class="text-center" style="font-size: 11px">Reason of the deviations *<br>(<i>Alasan
+                                        penyimpangan</i>) *</th>
+                                <th class="text-center" style="font-size: 11px">PIC **<br>(<i>SCM</i>)</th>
                                 <th class="text-center" style="font-size: 11px">Risk Analysis of impact
                                     deviation<br>(<i>Analisis risiko dari dampak penyimpangan</i>)</th>
-                                <th class="text-center" style="font-size: 11px">Analyzed by ****<br>(<i>QA</i>)</th>
-                                <th class="text-center" style="font-size: 11px">Reviewed by ****</th>
-                                <th class="text-center" style="font-size: 11px">Acknowledged by ****</th>
+                                <th class="text-center" style="font-size: 11px">Analyzed by **<br>(<i>QA</i>)</th>
+                                <th class="text-center" style="font-size: 11px">Reviewed by ** (SCM Manager)</th>
+                                <th class="text-center" style="font-size: 11px">Acknowledged by ** (QA Manager)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -246,17 +255,6 @@ $renderGroups =
                             @endfor
                         </tbody>                    
                     </table>
-                </div>
-                <div class="container-fluid footer-section">
-                    <div class="row">
-                        <div class="col-4 border border-black py-2 d-flex align-items-center">
-                            <p class="fw-bolder text-center mb-0" style="font-size: 10px;">Specifically for Grifols Diagnostics products, immediately report to QA and Grifols Diagnostics principals if there is a temperature deviation <br><br>
-                                (Khusus produk Grifols Diagnostics, segera laporkan ke QA dan prinsipal Grifols
-                                Diagnostics jika terjadi penyimpangan suhu)</p>
-                        </div>
-                        <div class="col-8 border border-start-0 border-black">
-                        </div>
-                    </div>
                 </div>
             </div>
     @empty
