@@ -2,42 +2,41 @@
 
 namespace App\Filament\Resources\TemperatureHumidities\Pages;
 
-use Carbon\Carbon;
-use App\Models\Room;
-use Filament\Actions;
+use App\Exports\AllLocationsTemperatureHumidityExport;
+use App\Exports\TemperatureHumidityExport;
+use App\Filament\Resources\TemperatureHumidities\TemperatureHumidityResource;
 use App\Models\Location;
-use App\Models\SerialNumber;
+use App\Models\Room;
+use App\Models\TemperatureHumidity;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use App\Models\RoomTemperature;
 use Filament\Actions\CreateAction;
-use App\Models\TemperatureHumidity;
-use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\DatePicker;
-use Filament\Resources\Pages\ListRecords;
-use App\Exports\TemperatureHumidityExport;
-use App\Exports\AllLocationsTemperatureHumidityExport;
-use App\Filament\Resources\TemperatureHumidities\TemperatureHumidityResource;
-use Filament\Notifications\Notification;
 
 class ListTemperatureHumidity extends ListRecords
 {
     protected static string $resource = TemperatureHumidityResource::class;
+
     protected static ?string $title = 'All Temperature & Humidity';
+
     public function getBreadcrumb(): string
     {
         return 'All'; // or any label you want
     }
+
     protected function getHeaderActions(): array
     {
         return [
             CreateAction::make()
-            ->label('New Temperature & Humidity')
-            ->color('success')
-            ->visible(fn() => auth()->user()->hasRole(['Super Admin', 'Supply Chain Officer', 'Security'])),
+                ->label('New Temperature & Humidity')
+                ->color('success')
+                ->visible(fn () => auth()->user()->hasRole(['Super Admin', 'Supply Chain Officer', 'Security'])),
             ActionGroup::make([
                 Action::make('export_xlsx')
                     ->label('Export to XLSX')
@@ -55,6 +54,7 @@ class ListTemperatureHumidity extends ListRecords
                                     return Location::where('id', $user->location_id)
                                         ->pluck('location_name', 'id');
                                 }
+
                                 return Location::pluck('location_name', 'id');
                             })
                             ->searchable()
@@ -70,9 +70,10 @@ class ListTemperatureHumidity extends ListRecords
                             ->multiple()
                             ->options(function (callable $get) {
                                 $locationId = $get('location_id');
-                                if (!$locationId) {
+                                if (! $locationId) {
                                     return [];
                                 }
+
                                 return Room::where('location_id', $locationId)
                                     ->pluck('room_name', 'id');
                             })
@@ -116,17 +117,18 @@ class ListTemperatureHumidity extends ListRecords
                             ->whereYear('period', $year)
                             ->with(['location', 'room', 'serialNumber', 'roomTemperature']);
 
-                        if (!empty($room_ids)) {
+                        if (! empty($room_ids)) {
                             $query->whereIn('room_id', $room_ids);
                         }
 
                         $records = $query->get();
-                        
+
                         if ($records->isEmpty()) {
                             Notification::make()
                                 ->warning()
                                 ->title('No data is found')
                                 ->send();
+
                             return;
                         }
 
@@ -160,6 +162,7 @@ class ListTemperatureHumidity extends ListRecords
                                     return Location::where('id', $user->location_id)
                                         ->pluck('location_name', 'id');
                                 }
+
                                 return Location::pluck('location_name', 'id');
                             })
                             ->searchable()
@@ -175,9 +178,10 @@ class ListTemperatureHumidity extends ListRecords
                             ->multiple()
                             ->options(function (callable $get) {
                                 $locationId = $get('location_id');
-                                if (!$locationId) {
+                                if (! $locationId) {
                                     return [];
                                 }
+
                                 return Room::where('location_id', $locationId)
                                     ->pluck('room_name', 'id');
                             })
@@ -221,17 +225,27 @@ class ListTemperatureHumidity extends ListRecords
                             ->whereYear('period', $year)
                             ->with(['location', 'room', 'serialNumber', 'roomTemperature']);
 
-                        if (!empty($room_ids)) {
+                        if (! empty($room_ids)) {
                             $query->whereIn('room_id', $room_ids);
                         }
-
+                        $totalCount = $query->count();
+                        if ($totalCount > 1000) {
+                            Notification::make()
+                                ->warning()
+                                ->title('Data export limit')
+                                ->body("Your selection has {$totalCount} records. Only the first 1,000 will be exported for performance.")
+                                ->persistent()
+                                ->send();
+                        }
+                        $query->limit(1000);
                         $records = $query->get();
-                        
+
                         if ($records->isEmpty()) {
                             Notification::make()
                                 ->warning()
                                 ->title('No data is found')
                                 ->send();
+
                             return;
                         }
 
@@ -242,16 +256,17 @@ class ListTemperatureHumidity extends ListRecords
                         return redirect()->route('temperature-humidities.bulk-export');
                     }),
             ])
-            ->label('Export')
-            ->icon('heroicon-o-arrow-down-tray')
-            ->color('primary')
-            ->button(),
+                ->label('Export')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('primary')
+                ->button(),
             Action::make('export_all_locations')
                 ->label('Export All Locations')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->visible(function () {
                     $user = Auth::user();
-                    return $user->location_id === null && 
+
+                    return $user->location_id === null &&
                         $user->hasRole(['Supply Chain Manager', 'QA Manager']);
                 })
                 ->schema([
@@ -297,7 +312,7 @@ class ListTemperatureHumidity extends ListRecords
                             $exportData[$location->id] = [
                                 'records' => $records,
                                 'location' => $location,
-                                'location_name' => $location->location_name
+                                'location_name' => $location->location_name,
                             ];
                         }
                     }
@@ -309,14 +324,15 @@ class ListTemperatureHumidity extends ListRecords
                             ->warning()
                             ->title('No data is found')
                             ->send();
+
                         return;
                     }
-                    
+
                     $monthName = strtoupper(Carbon::createFromDate($year, $month)->format('M'));
                     $filename = "TemperatureHumidity_ALL_{$monthName}{$year}.xlsx";
 
                     return Excel::download(new AllLocationsTemperatureHumidityExport($exportData), $filename);
-                })
+                }),
         ];
     }
 }

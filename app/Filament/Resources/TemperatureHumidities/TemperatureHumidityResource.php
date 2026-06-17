@@ -2,77 +2,70 @@
 
 namespace App\Filament\Resources\TemperatureHumidities;
 
-use Carbon\Carbon;
-use App\Models\Room;
-use App\Models\Location;
-use Filament\Tables\Table;
-use Illuminate\Support\Str;
-use App\Models\SerialNumber;
-use Filament\Schemas\Schema;
-use App\Models\RoomTemperature;
-use Filament\Actions\BulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Infolists\Infolist;
-use Filament\Resources\Resource;
-use Filament\Actions\DeleteAction;
-use Spatie\LaravelPdf\Facades\Pdf;
-use App\Models\TemperatureHumidity;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters\Filter;
-use Spatie\Browsershot\Browsershot;
-use Spatie\LaravelPdf\Enums\Format;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use Filament\Actions\BulkActionGroup;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use App\Traits\HasLocationBasedAccess;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Tables\Filters\Indicator;
-use Filament\Navigation\NavigationItem;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\TimePicker;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use App\Exports\TemperatureHumidityExport;
-use Filament\Infolists\Components\TextEntry;
-use App\Exports\AllLocationsTemperatureHumidityExport;
-use Filament\Infolists\Components\Section as InfoSection;
-use App\Filament\Resources\TemperatureHumidityResource\Pages;
+use App\Filament\Resources\TemperatureHumidities\Pages\AcknowledgedTemperatureHumidity;
+use App\Filament\Resources\TemperatureHumidities\Pages\CreateTemperatureHumidity;
 use App\Filament\Resources\TemperatureHumidities\Pages\EditTemperatureHumidity;
 use App\Filament\Resources\TemperatureHumidities\Pages\ListTemperatureHumidity;
-use App\Filament\Resources\TemperatureHumidities\Pages\ViewTemperatureHumidity;
-use App\Filament\Resources\TemperatureHumidities\Pages\CreateTemperatureHumidity;
 use App\Filament\Resources\TemperatureHumidities\Pages\ReviewedTemperatureHumidity;
-use App\Filament\Resources\TemperatureHumidities\Pages\AcknowledgedTemperatureHumidity;
+use App\Filament\Resources\TemperatureHumidities\Pages\ViewTemperatureHumidity;
+use App\Models\Location;
+use App\Models\Room;
+use App\Models\RoomTemperature;
+use App\Models\SerialNumber;
+use App\Models\TemperatureHumidity;
+use App\Traits\HasLocationBasedAccess;
+use Carbon\Carbon;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
+use Filament\Navigation\NavigationItem;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+use Spatie\LaravelPdf\Enums\Format;
 
 class TemperatureHumidityResource extends Resource
 {
     use HasLocationBasedAccess;
-    
+
     protected static ?string $model = TemperatureHumidity::class;
+
     protected static ?int $navigationSort = 0;
+
     protected static ?string $navigationLabel = 'All';
-    protected static string | \UnitEnum | null $navigationGroup = 'Temperature & Humidity';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Temperature & Humidity';
+
     protected static bool $shouldRegisterNavigation = false;
 
     public static function getHeading(): string
     {
-        if(auth()->user()->hasRole(['Supply Chain Officer', 'Security'])){
+        if (auth()->user()->hasRole(['Supply Chain Officer', 'Security'])) {
             return '*** Untuk update data: cari nama ruangan lalu scroll ke kanan, setelah itu klik tombol edit. Jangan membuat data baru untuk menghindari duplikasi data! ***';
         }
+
         return '';
     }
-    
+
     public static function getEloquentQuery(): Builder
     {
         return static::applyLocationFilter(parent::getEloquentQuery());
     }
-    
+
     // public static function canCreate(): bool
     // {
     //     return !TemperatureHumidity::whereDate('created_at', Carbon::today())->exists();
@@ -81,31 +74,31 @@ class TemperatureHumidityResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Section::make('Date & Period')
-                ->columns(2)
-                ->schema([
-                    DatePicker::make('date')
-                        ->label('Date')
-                        ->default(Carbon::now())
-                        ->required(),
-                    DatePicker::make('period')
-                        ->label('Period')
-                        ->native(false)
-                        ->displayFormat('M Y')
-                        ->default(Carbon::now())
-                        ->required(),   
-                ]),
-                \Filament\Schemas\Components\Section::make('Location & Storage Temperature Standards')
+                Section::make('Date & Period')
+                    ->columns(2)
+                    ->schema([
+                        DatePicker::make('date')
+                            ->label('Date')
+                            ->default(Carbon::now())
+                            ->required(),
+                        DatePicker::make('period')
+                            ->label('Period')
+                            ->native(false)
+                            ->displayFormat('M Y')
+                            ->default(Carbon::now())
+                            ->required(),
+                    ]),
+                Section::make('Location & Storage Temperature Standards')
                     ->columns(4)
                     ->schema([
                         Select::make('location_id')
                             ->label('Location')
                             ->relationship(
-                                'location', 
+                                'location',
                                 'location_name',
                                 modifyQueryUsing: function (Builder $query) {
                                     $accessibleLocationIds = static::getAccessibleLocationIds();
-                                    if (!empty($accessibleLocationIds)) {
+                                    if (! empty($accessibleLocationIds)) {
                                         $query->whereIn('id', $accessibleLocationIds);
                                     }
                                 }
@@ -117,9 +110,10 @@ class TemperatureHumidityResource extends Resource
                             ->default(function () {
                                 $user = Auth::user();
                                 // If user has specific location and doesn't have admin-level roles, default to that
-                                if ($user->location_id && !$user->hasRole(['Super Admin', 'Admin', 'Supply Chain Manager', 'QA Manager'])) {
+                                if ($user->location_id && ! $user->hasRole(['Super Admin', 'Admin', 'Supply Chain Manager', 'QA Manager'])) {
                                     return $user->location_id;
                                 }
+
                                 return null;
                             }),
                         Select::make('room_id')
@@ -127,9 +121,10 @@ class TemperatureHumidityResource extends Resource
                             ->relationship('room', 'room_name')
                             ->options(function (callable $get) {
                                 $locationId = Auth::user()->location_id;
-                                if (!$locationId) {
+                                if (! $locationId) {
                                     return [];
                                 }
+
                                 return Room::where('location_id', $locationId)
                                     ->pluck('room_name', 'id');
                             })
@@ -156,7 +151,7 @@ class TemperatureHumidityResource extends Resource
                             ->options(function (callable $get) {
                                 $roomId = $get('room_id');
 
-                                if (!$roomId) {
+                                if (! $roomId) {
                                     return [];
                                 }
 
@@ -173,13 +168,15 @@ class TemperatureHumidityResource extends Resource
                             ->relationship('roomTemperature', 'temperature_start')
                             ->options(function (callable $get) {
                                 $roomId = $get('room_id');
-                                if (!$roomId) {
+                                if (! $roomId) {
                                     return [];
                                 }
+
                                 return RoomTemperature::where('room_id', $roomId)
                                     ->get()
                                     ->mapWithKeys(function ($item) {
                                         $label = "{$item->temperature_start}°C to {$item->temperature_end}°C";
+
                                         return [$item->id => $label];
                                     })
                                     ->toArray();
@@ -199,114 +196,107 @@ class TemperatureHumidityResource extends Resource
                                 }
                             }),
                         Hidden::make('temperature_start'),
-                        Hidden::make('temperature_end')
+                        Hidden::make('temperature_end'),
                     ]),
-                \Filament\Schemas\Components\Section::make('Time')
+                Section::make('Time')
                     ->columns(1)
                     ->schema([
-                        \Filament\Schemas\Components\Section::make('0200')
+                        Section::make('0200')
                             ->columns(3)
                             ->schema([
                                 TimePicker::make('time_0200')
                                     ->label('Time')
                                     ->seconds(false)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_0200')
                                     ->label('Temperature')
                                     ->numeric()
                                     ->inputMode('decimal')
                                     ->suffix('°C')
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_0200')
                                     ->label('Humidity')
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () =>
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' ||
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
+                                    )
                                     ),
-                                ]),
+                            ]),
 
-                            // ->disabled(fn (string $operation) => 
-                            //         $operation === 'create' && (
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' || 
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
-                            //         )
-                            // ),
-                        \Filament\Schemas\Components\Section::make('0500')
+                        // ->disabled(fn (string $operation) =>
+                        //         $operation === 'create' && (
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '02:00:00' ||
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '02:30:59'
+                        //         )
+                        // ),
+                        Section::make('0500')
                             ->columns(3)
                             ->schema([
                                 TimePicker::make('time_0500')
                                     ->label('Time')
                                     ->seconds(false)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_0500')
                                     ->label('Temperature')
                                     ->numeric()
                                     ->inputMode('decimal')
                                     ->suffix('°C')
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_0500')
                                     ->label('Humidity')
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () =>
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' ||
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
+                                    )
                                     ),
-                                ]),
+                            ]),
 
-                            // ->disabled(fn (string $operation) => 
-                            //         $operation === 'create' && (
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' || 
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
-                            //         )
-                            // ),
-                        \Filament\Schemas\Components\Section::make('0800')
+                        // ->disabled(fn (string $operation) =>
+                        //         $operation === 'create' && (
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '05:00:00' ||
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '05:30:59'
+                        //         )
+                        // ),
+                        Section::make('0800')
                             ->columns(3)
                             ->schema([
                                 TimePicker::make('time_0800')
                                     ->label('Time')
                                     ->seconds(false)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_0800')
                                     ->label('Temperature')
                                     ->numeric()
@@ -314,257 +304,240 @@ class TemperatureHumidityResource extends Resource
                                     ->step(0.1)
                                     ->suffix('°C')
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_0800')
                                     ->label('Humidity')
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () =>
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' ||
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
+                                    )
                                     ),
                             ]),
 
-                            // ->disabled(fn (string $operation) => 
-                            //         $operation === 'create' && (
-                            //             Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' || 
-                            //             Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
-                            //         )
-                            // ),
-                        \Filament\Schemas\Components\Section::make('1100')
+                        // ->disabled(fn (string $operation) =>
+                        //         $operation === 'create' && (
+                        //             Carbon::now('Asia/Jakarta')->format('H:i:s') < '08:00:00' ||
+                        //             Carbon::now('Asia/Jakarta')->format('H:i:s') >= '08:30:59'
+                        //         )
+                        // ),
+                        Section::make('1100')
                             ->columns(3)
                             ->schema([
                                 TimePicker::make('time_1100')
                                     ->label('Time')
                                     ->seconds(false)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_1100')
                                     ->label('Temperature')
                                     ->numeric()
                                     ->inputMode('decimal')
                                     ->suffix('°C')
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_1100')
                                     ->label('Humidity')
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () =>
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' ||
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
+                                    )
                                     ),
                             ]),
 
-                            // ->disabled(fn (string $operation) => 
-                            //         $operation === 'create' && (
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' || 
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
-                            //         )
-                            // ),
-                        \Filament\Schemas\Components\Section::make('1400')
+                        // ->disabled(fn (string $operation) =>
+                        //         $operation === 'create' && (
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '11:00:00' ||
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '11:30:59'
+                        //         )
+                        // ),
+                        Section::make('1400')
                             ->columns(3)
                             ->schema([
                                 TimePicker::make('time_1400')
                                     ->label('Time')
                                     ->seconds(false)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_1400')
                                     ->label('Temperature')
                                     ->numeric()
                                     ->inputMode('decimal')
                                     ->suffix('°C')
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_1400')
                                     ->label('Humidity')
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () =>
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' ||
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
+                                    )
                                     ),
                             ]),
 
-                            // ->disabled(fn (string $operation) => 
-                            //         $operation === 'create' && (
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' || 
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
-                            //         )
-                            // ),
-                        \Filament\Schemas\Components\Section::make('1700')
+                        // ->disabled(fn (string $operation) =>
+                        //         $operation === 'create' && (
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '14:00:00' ||
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '14:30:59'
+                        //         )
+                        // ),
+                        Section::make('1700')
                             ->columns(3)
                             ->schema([
                                 TimePicker::make('time_1700')
                                     ->label('Time')
                                     ->seconds(false)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_1700')
                                     ->label('Temperature')
                                     ->numeric()
                                     ->inputMode('decimal')
                                     ->suffix('°C')
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_1700')
                                     ->label('Humidity')
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () =>
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' ||
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
+                                    )
                                     ),
-                                ]),
+                            ]),
 
-                            // ->disabled(fn (string $operation) => 
-                            //         $operation === 'create' && (
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' || 
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
-                            //         )
-                            // ),
-                        \Filament\Schemas\Components\Section::make('2000')
+                        // ->disabled(fn (string $operation) =>
+                        //         $operation === 'create' && (
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '17:00:00' ||
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '17:30:59'
+                        //         )
+                        // ),
+                        Section::make('2000')
                             ->columns(3)
                             ->schema([
                                 TimePicker::make('time_2000')
                                     ->label('Time')
                                     ->seconds(false)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_2000')
                                     ->label('Temperature')
                                     ->numeric()
                                     ->inputMode('decimal')
                                     ->suffix('°C')
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_2000')
                                     ->label('Humidity')
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () =>
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' ||
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
+                                    )
                                     ),
-                                ]),
+                            ]),
 
-                            // ->disabled(fn (string $operation) => 
-                            //         $operation === 'create' && (
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' || 
-                            //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
-                            //         )
-                            // ),
-                        \Filament\Schemas\Components\Section::make('2300')
+                        // ->disabled(fn (string $operation) =>
+                        //         $operation === 'create' && (
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') < '20:00:00' ||
+                        //                 Carbon::now('Asia/Jakarta')->format('H:i:s') >= '20:30:59'
+                        //         )
+                        // ),
+                        Section::make('2300')
                             ->columns(3)
                             ->schema([
                                 TimePicker::make('time_2300')
                                     ->label('Time')
                                     ->seconds(false)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('temp_2300')
                                     ->label('Temperature')
                                     ->numeric()
                                     ->inputMode('decimal')
                                     ->suffix('°C')
                                     ->maxValue(100)
-                                    ->readOnly(fn () => 
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
+                                    )
                                     ),
-                                    // ->required(Auth::user()->hasRole('Supply Chain Officer')),
+                                // ->required(Auth::user()->hasRole('Supply Chain Officer')),
                                 TextInput::make('rh_2300')
                                     ->label('Humidity')
                                     ->suffix('%')
                                     ->numeric()
                                     ->maxValue(100)
-                                    ->readOnly(fn () =>
-                                        !auth()->user()->hasRole('Super Admin') && (
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' ||
-                                            Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
-                                        )
+                                    ->readOnly(fn () => ! auth()->user()->hasRole('Super Admin') && (
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' ||
+                                        Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
+                                    )
                                     ),
-                            ])
-                            // ->disabled(fn (string $operation) => 
-                            //         $operation === 'create' && (
-                            //             Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' || 
-                            //             Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
-                            //         )
-                            // ),
-                    ])
+                            ]),
+                        // ->disabled(fn (string $operation) =>
+                        //         $operation === 'create' && (
+                        //             Carbon::now('Asia/Jakarta')->format('H:i:s') < '23:00:00' ||
+                        //             Carbon::now('Asia/Jakarta')->format('H:i:s') >= '23:30:59'
+                        //         )
+                        // ),
+                    ]),
             ])->columns(1);
     }
 
@@ -573,26 +546,27 @@ class TemperatureHumidityResource extends Resource
         return $table
             ->header(view('filament.tables.top-bottom-pagination-tables', [
                 'table' => $table,
-                'heading' => static::getHeading()
+                'heading' => static::getHeading(),
             ]))
             ->modifyQueryUsing(function ($query) {
-                return $query->orderByDesc('date')->orderByDesc('created_at');
+                return $query->with(['temperatureDeviations', 'roomTemperature'])
+                    ->orderByDesc('date')->orderByDesc('created_at');
             })
             ->columns([
                 TextColumn::make('date')
                     ->label('Date')
-                    ->formatStateUsing(fn($record) => Carbon::parse($record->date)->format('d'))
+                    ->formatStateUsing(fn ($record) => Carbon::parse($record->date)->format('d'))
                     ->searchable(),
                 TextColumn::make('period')
                     ->label('Period')
-                    ->formatStateUsing(fn($record) => strtoupper(Carbon::parse($record->period)->format('M')) . '<br>' . Carbon::parse($record->period)->format('Y'))
+                    ->formatStateUsing(fn ($record) => strtoupper(Carbon::parse($record->period)->format('M')).'<br>'.Carbon::parse($record->period)->format('Y'))
                     ->html()
                     ->searchable(),
                 TextColumn::make('location.location_name')
                     ->label('Location')
                     ->getStateUsing(function ($record) {
-                        return $record->location->location_name . '<br>' .
-                            $record->room->room_name . '<br>' .
+                        return $record->location->location_name.'<br>'.
+                            $record->room->room_name.'<br>'.
                             $record->serialNumber->serial_number;
                     })
                     ->html(),
@@ -625,16 +599,16 @@ class TemperatureHumidityResource extends Resource
 
                         // Check if there's a deviation record matching the specific time and temperature
                         if ($temp0200 !== '-' && $record->time_0200) {
-                            $deviation = $record->temperatureDeviations()
+                            $deviation = $record->temperatureDeviations
                                 ->where('time', $record->time_0200)
                                 ->where('temperature_deviation', $temp0200)
                                 ->first();
                         }
 
                         // Apply red styling only if temperature is out of range OR if there's a matching deviation record
-                        $isOutOfRange = $temp0200 !== '-' && 
+                        $isOutOfRange = $temp0200 !== '-' &&
                             ($temp0200 < $record->roomTemperature->temperature_start || $temp0200 > $record->roomTemperature->temperature_end);
-                        
+
                         if ($isOutOfRange || $deviation) {
                             $color = 'color: red; font-weight: bold;';
                         }
@@ -648,6 +622,7 @@ class TemperatureHumidityResource extends Resource
                         if ($deviation) {
                             $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
                             $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+
                             return "$linkStart <div style='$color'>Time: $time0200 <br> Temp: $temp0200 °C <br> Humidity: $rh0200% <br> PIC: $pic0200 <br> $button</div> $linkEnd";
                         } else {
                             return "$linkStart <div style='$color'>Time: $time0200 <br> Temp: $temp0200 °C <br> Humidity: $rh0200% <br> PIC: $pic0200</div> $linkEnd";
@@ -668,16 +643,16 @@ class TemperatureHumidityResource extends Resource
 
                         // Check if there's a deviation record matching the specific time and temperature
                         if ($temp0500 !== '-' && $record->time_0500) {
-                            $deviation = $record->temperatureDeviations()
+                            $deviation = $record->temperatureDeviations
                                 ->where('time', $record->time_0500)
                                 ->where('temperature_deviation', $temp0500)
                                 ->first();
                         }
 
                         // Apply red styling only if temperature is out of range OR if there's a matching deviation record
-                        $isOutOfRange = $temp0500 !== '-' && 
+                        $isOutOfRange = $temp0500 !== '-' &&
                             ($temp0500 < $record->roomTemperature->temperature_start || $temp0500 > $record->roomTemperature->temperature_end);
-                        
+
                         if ($isOutOfRange || $deviation) {
                             $color = 'color: red; font-weight: bold;';
                         }
@@ -691,6 +666,7 @@ class TemperatureHumidityResource extends Resource
                         if ($deviation) {
                             $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
                             $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+
                             return "$linkStart <div style='$color'>Time: $time0500 <br> Temp: $temp0500 °C <br> Humidity: $rh0500% <br> PIC: $pic0500 <br> $button</div> $linkEnd";
                         } else {
                             return "$linkStart <div style='$color'>Time: $time0500 <br> Temp: $temp0500 °C <br> Humidity: $rh0500% <br> PIC: $pic0500</div> $linkEnd";
@@ -711,16 +687,16 @@ class TemperatureHumidityResource extends Resource
 
                         // Check if there's a deviation record matching the specific time and temperature
                         if ($temp0800 !== '-' && $record->time_0800) {
-                            $deviation = $record->temperatureDeviations()
+                            $deviation = $record->temperatureDeviations
                                 ->where('time', $record->time_0800)
                                 ->where('temperature_deviation', $temp0800)
                                 ->first();
                         }
 
                         // Apply red styling only if temperature is out of range OR if there's a matching deviation record
-                        $isOutOfRange = $temp0800 !== '-' && 
+                        $isOutOfRange = $temp0800 !== '-' &&
                             ($temp0800 < $record->roomTemperature->temperature_start || $temp0800 > $record->roomTemperature->temperature_end);
-                        
+
                         if ($isOutOfRange || $deviation) {
                             $color = 'color: red; font-weight: bold;';
                         }
@@ -734,6 +710,7 @@ class TemperatureHumidityResource extends Resource
                         if ($deviation) {
                             $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
                             $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+
                             return "$linkStart <div style='$color'>Time: $time0800 <br> Temp: $temp0800 °C <br> Humidity: $rh0800% <br> PIC: $pic0800 <br> $button</div> $linkEnd";
                         } else {
                             return "$linkStart <div style='$color'>Time: $time0800 <br> Temp: $temp0800 °C <br> Humidity: $rh0800% <br> PIC: $pic0800</div> $linkEnd";
@@ -754,16 +731,16 @@ class TemperatureHumidityResource extends Resource
 
                         // Check if there's a deviation record matching the specific time and temperature
                         if ($temp1100 !== '-' && $record->time_1100) {
-                            $deviation = $record->temperatureDeviations()
+                            $deviation = $record->temperatureDeviations
                                 ->where('time', $record->time_1100)
                                 ->where('temperature_deviation', $temp1100)
                                 ->first();
                         }
 
                         // Apply red styling only if temperature is out of range OR if there's a matching deviation record
-                        $isOutOfRange = $temp1100 !== '-' && 
+                        $isOutOfRange = $temp1100 !== '-' &&
                             ($temp1100 < $record->roomTemperature->temperature_start || $temp1100 > $record->roomTemperature->temperature_end);
-                        
+
                         if ($isOutOfRange || $deviation) {
                             $color = 'color: red; font-weight: bold;';
                         }
@@ -777,6 +754,7 @@ class TemperatureHumidityResource extends Resource
                         if ($deviation) {
                             $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
                             $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+
                             return "$linkStart <div style='$color'>Time: $time1100 <br> Temp: $temp1100 °C <br> Humidity: $rh1100% <br> PIC: $pic1100 <br> $button</div> $linkEnd";
                         } else {
                             return "$linkStart <div style='$color'>Time: $time1100 <br> Temp: $temp1100 °C <br> Humidity: $rh1100% <br> PIC: $pic1100</div> $linkEnd";
@@ -797,16 +775,16 @@ class TemperatureHumidityResource extends Resource
 
                         // Check if there's a deviation record matching the specific time and temperature
                         if ($temp1400 !== '-' && $record->time_1400) {
-                            $deviation = $record->temperatureDeviations()
+                            $deviation = $record->temperatureDeviations
                                 ->where('time', $record->time_1400)
                                 ->where('temperature_deviation', $temp1400)
                                 ->first();
                         }
 
                         // Apply red styling only if temperature is out of range OR if there's a matching deviation record
-                        $isOutOfRange = $temp1400 !== '-' && 
+                        $isOutOfRange = $temp1400 !== '-' &&
                             ($temp1400 < $record->roomTemperature->temperature_start || $temp1400 > $record->roomTemperature->temperature_end);
-                        
+
                         if ($isOutOfRange || $deviation) {
                             $color = 'color: red; font-weight: bold;';
                         }
@@ -820,6 +798,7 @@ class TemperatureHumidityResource extends Resource
                         if ($deviation) {
                             $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
                             $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+
                             return "$linkStart <div style='$color'>Time: $time1400 <br> Temp: $temp1400 °C <br> Humidity: $rh1400% <br> PIC: $pic1400 <br> $button</div> $linkEnd";
                         } else {
                             return "$linkStart <div style='$color'>Time: $time1400 <br> Temp: $temp1400 °C <br> Humidity: $rh1400% <br> PIC: $pic1400</div> $linkEnd";
@@ -840,16 +819,16 @@ class TemperatureHumidityResource extends Resource
 
                         // Check if there's a deviation record matching the specific time and temperature
                         if ($temp1700 !== '-' && $record->time_1700) {
-                            $deviation = $record->temperatureDeviations()
+                            $deviation = $record->temperatureDeviations
                                 ->where('time', $record->time_1700)
                                 ->where('temperature_deviation', $temp1700)
                                 ->first();
                         }
 
                         // Apply red styling only if temperature is out of range OR if there's a matching deviation record
-                        $isOutOfRange = $temp1700 !== '-' && 
+                        $isOutOfRange = $temp1700 !== '-' &&
                             ($temp1700 < $record->roomTemperature->temperature_start || $temp1700 > $record->roomTemperature->temperature_end);
-                        
+
                         if ($isOutOfRange || $deviation) {
                             $color = 'color: red; font-weight: bold;';
                         }
@@ -863,6 +842,7 @@ class TemperatureHumidityResource extends Resource
                         if ($deviation) {
                             $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
                             $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+
                             return "$linkStart <div style='$color'>Time: $time1700 <br> Temp: $temp1700 °C <br> Humidity: $rh1700% <br> PIC: $pic1700 <br> $button</div> $linkEnd";
                         } else {
                             return "$linkStart <div style='$color'>Time: $time1700 <br> Temp: $temp1700 °C <br> Humidity: $rh1700% <br> PIC: $pic1700</div> $linkEnd";
@@ -883,16 +863,16 @@ class TemperatureHumidityResource extends Resource
 
                         // Check if there's a deviation record matching the specific time and temperature
                         if ($temp2000 !== '-' && $record->time_2000) {
-                            $deviation = $record->temperatureDeviations()
+                            $deviation = $record->temperatureDeviations
                                 ->where('time', $record->time_2000)
                                 ->where('temperature_deviation', $temp2000)
                                 ->first();
                         }
 
                         // Apply red styling only if temperature is out of range OR if there's a matching deviation record
-                        $isOutOfRange = $temp2000 !== '-' && 
+                        $isOutOfRange = $temp2000 !== '-' &&
                             ($temp2000 < $record->roomTemperature->temperature_start || $temp2000 > $record->roomTemperature->temperature_end);
-                        
+
                         if ($isOutOfRange || $deviation) {
                             $color = 'color: red; font-weight: bold;';
                         }
@@ -906,6 +886,7 @@ class TemperatureHumidityResource extends Resource
                         if ($deviation) {
                             $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
                             $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+
                             return "$linkStart <div style='$color'>Time: $time2000 <br> Temp: $temp2000 °C <br> Humidity: $rh2000% <br> PIC: $pic2000 <br> $button</div> $linkEnd";
                         } else {
                             return "$linkStart <div style='$color'>Time: $time2000 <br> Temp: $temp2000 °C <br> Humidity: $rh2000% <br> PIC: $pic2000</div> $linkEnd";
@@ -926,16 +907,16 @@ class TemperatureHumidityResource extends Resource
 
                         // Check if there's a deviation record matching the specific time and temperature
                         if ($temp2300 !== '-' && $record->time_2300) {
-                            $deviation = $record->temperatureDeviations()
+                            $deviation = $record->temperatureDeviations
                                 ->where('time', $record->time_2300)
                                 ->where('temperature_deviation', $temp2300)
                                 ->first();
                         }
 
                         // Apply red styling only if temperature is out of range OR if there's a matching deviation record
-                        $isOutOfRange = $temp2300 !== '-' && 
+                        $isOutOfRange = $temp2300 !== '-' &&
                             ($temp2300 < $record->roomTemperature->temperature_start || $temp2300 > $record->roomTemperature->temperature_end);
-                        
+
                         if ($isOutOfRange || $deviation) {
                             $color = 'color: red; font-weight: bold;';
                         }
@@ -949,6 +930,7 @@ class TemperatureHumidityResource extends Resource
                         if ($deviation) {
                             $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', ['record' => $deviation->id]);
                             $button = "<br><a href='$deviationUrl' class='inline-flex items-center px-2 py-1 bg-danger text-xs rounded hover:bg-red-600 mt-1' style='display:inline-block; margin-top:4px;'>View Deviation</a>";
+
                             return "$linkStart <div style='$color'>Time: $time2300 <br> Temp: $temp2300 °C <br> Humidity: $rh2300% <br> PIC: $pic2300 <br> $button</div> $linkEnd";
                         } else {
                             return "$linkStart <div style='$color'>Time: $time2300 <br> Temp: $temp2300 °C <br> Humidity: $rh2300% <br> PIC: $pic2300</div> $linkEnd";
@@ -983,7 +965,7 @@ class TemperatureHumidityResource extends Resource
                             ->options(function (callable $get) {
                                 $locationId = $get('location_id');
 
-                                if (!$locationId) {
+                                if (! $locationId) {
                                     return [];
                                 }
 
@@ -994,10 +976,10 @@ class TemperatureHumidityResource extends Resource
                             ->reactive()
                             ->preload()
                             ->required()
-                            ->disabled(fn(callable $get) => !$get('location_id')),
+                            ->disabled(fn (callable $get) => ! $get('location_id')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!$data['location_id']) {
+                        if (! $data['location_id']) {
                             return $query;
                         }
 
@@ -1011,19 +993,20 @@ class TemperatureHumidityResource extends Resource
                     })
                     ->indicateUsing(function (array $data): ?array {
                         $indicators = [];
-                        if (!$data['location_id']) {
+                        if (! $data['location_id']) {
                             return null;
                         } else {
                             $locationName = Location::find($data['location_id'])->location_name ?? 'Unknown Location';
                             $indicators[] = Indicator::make("Location: {$locationName}")->removeField('location_id');
                         }
 
-                        if (!$data['room_id']) {
+                        if (! $data['room_id']) {
                             return null;
                         } else {
                             $roomName = Room::find($data['room_id'])->room_name ?? 'All Rooms';
                             $indicators[] = Indicator::make("Room: {$roomName}")->removeField('room_id');
                         }
+
                         return $indicators;
                     }),
                 Filter::make('period')
@@ -1032,34 +1015,35 @@ class TemperatureHumidityResource extends Resource
                             ->label('Period')
                             ->displayFormat('M Y')
                             ->native(false)
-                            ->closeOnDateSelection()
+                            ->closeOnDateSelection(),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!$data['period']) {
+                        if (! $data['period']) {
                             return $query;
                         }
 
                         $date = Carbon::parse($data['period']);
+
                         return $query->whereMonth('period', $date->month)
                             ->whereYear('period', $date->year);
-                    })
+                    }),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make()
-                ->visible(fn($record) => Auth::user()->hasRole('Super Admin') || (
-                    $record->date == now()->toDateString() && Auth::user()->hasRole(['Supply Chain Officer', 'Security'])
-                )),
+                    ->visible(fn ($record) => Auth::user()->hasRole('Super Admin') || (
+                        $record->date == now()->toDateString() && Auth::user()->hasRole(['Supply Chain Officer', 'Security'])
+                    )),
                 DeleteAction::make()
-                ->visible(fn($record) => Auth::user()->hasRole('Super Admin') || (
-                    $record->date == now()->toDateString() && Auth::user()->hasRole(['Supply Chain Officer', 'Security'])
-                ))
+                    ->visible(fn ($record) => Auth::user()->hasRole('Super Admin') || (
+                        $record->date == now()->toDateString() && Auth::user()->hasRole(['Supply Chain Officer', 'Security'])
+                    ))
                     ->successNotificationTitle('Temperature Humidity deleted successfully'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                    ->successNotificationTitle('Selected Temperature Humidity deleted successfully'),
+                        ->successNotificationTitle('Selected Temperature Humidity deleted successfully'),
                 ]),
             ]);
     }
@@ -1088,19 +1072,18 @@ class TemperatureHumidityResource extends Resource
         return [
             NavigationItem::make()
                 ->label('All')
-                ->url(fn()=>TemperatureHumidityResource::getUrl('index'))
-                ->isActiveWhen(fn() => !request()->routeIs('filament.dashboard.resources.temperature-humidities.reviewed'))
+                ->url(fn () => TemperatureHumidityResource::getUrl('index'))
+                ->isActiveWhen(fn () => ! request()->routeIs('filament.dashboard.resources.temperature-humidities.reviewed'))
                 ->group('Temperature & Humidity')
                 ->sort(0),
             NavigationItem::make()
                 ->label('Reviewed')
-                ->isActiveWhen(fn()=> request()->routeIs('filament.dashboard.resources.temperature-humidities.reviewed'))
+                ->isActiveWhen(fn () => request()->routeIs('filament.dashboard.resources.temperature-humidities.reviewed'))
                 ->sort(1),
             NavigationItem::make()
                 ->label('Acknowledged')
-                ->isActiveWhen(fn()=> request()->routeIs('filament.dashboard.resources.temperature-humidities.acknowledged'))
+                ->isActiveWhen(fn () => request()->routeIs('filament.dashboard.resources.temperature-humidities.acknowledged'))
                 ->sort(1),
         ];
     }
-
 }

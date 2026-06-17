@@ -2,71 +2,72 @@
 
 namespace App\Filament\Resources\TemperatureHumidities\Pages;
 
-use Filament\Actions\ViewAction;
-use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\BulkAction;
-use Carbon\Carbon;
-use Filament\Actions;
-use Filament\Tables\Table;
+use App\Filament\Resources\TemperatureHumidities\TemperatureHumidityResource;
 use App\Models\TemperatureHumidity;
-use Illuminate\Support\Facades\Auth;
-use Filament\Tables\Columns\TextColumn;
+use Carbon\Carbon;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\listRecords;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Filament\Tables\Actions\DeleteBulkAction;
-use App\Filament\Resources\TemperatureHumidities\TemperatureHumidityResource;
+use Illuminate\Support\Facades\Auth;
 
 class AcknowledgedTemperatureHumidity extends listRecords
 {
     protected static string $resource = TemperatureHumidityResource::class;
+
     protected static ?string $title = 'Pending Acknowledgement';
+
     public function getBreadcrumb(): string
     {
         return 'Pending Acknowledgement'; // or any label you want
     }
+
     public function table(Table $table): Table
     {
         return $table
             ->header(view('filament.tables.top-bottom-pagination-tables', [
                 'table' => $table,
             ]))
-            ->modifyQueryUsing(fn (Builder $query) => $query->orderByDesc('date')->where('is_acknowledged', false)
-            ->whereNotNull('time_0200')
-            ->whereNotNull('time_0500')
-            ->whereNotNull('time_0800')
-            ->whereNotNull('time_1100')
-            ->whereNotNull('time_1400')
-            ->whereNotNull('time_1700')
-            ->whereNotNull('time_2000')
-            ->whereNotNull('time_2300')
-            ->whereNotNull('temp_0200')
-            ->whereNotNull('temp_0500')
-            ->whereNotNull('temp_0800')
-            ->whereNotNull('temp_1100')
-            ->whereNotNull('temp_1400')
-            ->whereNotNull('temp_1700')
-            ->whereNotNull('temp_2000')
-            ->whereNotNull('temp_2300')
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['temperatureDeviations', 'roomTemperature'])->orderByDesc('date')->where('is_acknowledged', false)
+                ->whereNotNull('time_0200')
+                ->whereNotNull('time_0500')
+                ->whereNotNull('time_0800')
+                ->whereNotNull('time_1100')
+                ->whereNotNull('time_1400')
+                ->whereNotNull('time_1700')
+                ->whereNotNull('time_2000')
+                ->whereNotNull('time_2300')
+                ->whereNotNull('temp_0200')
+                ->whereNotNull('temp_0500')
+                ->whereNotNull('temp_0800')
+                ->whereNotNull('temp_1100')
+                ->whereNotNull('temp_1400')
+                ->whereNotNull('temp_1700')
+                ->whereNotNull('temp_2000')
+                ->whereNotNull('temp_2300')
             )
             ->emptyStateHeading('No pending acknowledged data is found')
             ->columns([
                 TextColumn::make('date')
                     ->label('Date')
-                    ->formatStateUsing(fn($record) => Carbon::parse($record->date)->format('d'))
+                    ->formatStateUsing(fn ($record) => Carbon::parse($record->date)->format('d'))
                     ->searchable(),
                 TextColumn::make('period')
                     ->label('Period')
-                    ->formatStateUsing(fn($record) => strtoupper(Carbon::parse($record->period)->format('M')) . '<br>' . Carbon::parse($record->period)->format('Y'))
+                    ->formatStateUsing(fn ($record) => strtoupper(Carbon::parse($record->period)->format('M')).'<br>'.Carbon::parse($record->period)->format('Y'))
                     ->html()
                     ->searchable(),
                 TextColumn::make('location.location_name')
-                    ->label('Location')                    
+                    ->label('Location')
                     ->getStateUsing(function ($record) {
-                        return  $record->location->location_name . '<br>' . 
-                                $record->room->room_name . '<br>' . 
+                        return $record->location->location_name.'<br>'.
+                                $record->room->room_name.'<br>'.
                                 $record->serialNumber->serial_number;
                     })
                     ->html(),
@@ -77,21 +78,20 @@ class AcknowledgedTemperatureHumidity extends listRecords
                         $time0200 = $record->time_0200 ? Carbon::parse($record->time_0200)->format('H:i') : '-';
                         $rh0200 = $record->rh_0200 ?? '-';
                         $pic0200 = $record->formatPicSignature('pic_0200');
-                        
+
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
-                        
+
                         if ($temp0200 !== '-') {
                             if ($temp0200 < $record->roomTemperature->temperature_start || $temp0200 > $record->roomTemperature->temperature_end) {
                                 $color = 'color: red; font-weight: bold;';
-                                
+
                                 // Check if there's a deviation record for this time slot (02:00 - 02:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '02:00:00')
-                                    ->whereTime('time', '<=', '02:30:59')
+                                $deviation = $record->temperatureDeviations
+                                    ->filter(fn ($d) => Carbon::parse($d->time)->between('02:00:00', '02:30:59'))
                                     ->first();
-                                    
+
                                 if ($deviation) {
                                     $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
                                     $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
@@ -109,21 +109,20 @@ class AcknowledgedTemperatureHumidity extends listRecords
                         $time0500 = $record->time_0500 ? Carbon::parse($record->time_0500)->format('H:i') : '-';
                         $rh0500 = $record->rh_0500 ?? '-';
                         $pic0500 = $record->formatPicSignature('pic_0500');
-                        
+
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
-                        
+
                         if ($temp0500 !== '-') {
                             if ($temp0500 < $record->roomTemperature->temperature_start || $temp0500 > $record->roomTemperature->temperature_end) {
                                 $color = 'color: red; font-weight: bold;';
-                                
+
                                 // Check if there's a deviation record for this time slot (05:00 - 05:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '05:00:00')
-                                    ->whereTime('time', '<=', '05:30:59')
+                                $deviation = $record->temperatureDeviations
+                                    ->filter(fn ($d) => Carbon::parse($d->time)->between('05:00:00', '05:30:59'))
                                     ->first();
-                                    
+
                                 if ($deviation) {
                                     $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
                                     $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
@@ -141,21 +140,20 @@ class AcknowledgedTemperatureHumidity extends listRecords
                         $time0800 = $record->time_0800 ? Carbon::parse($record->time_0800)->format('H:i') : '-';
                         $rh0800 = $record->rh_0800 ?? '-';
                         $pic0800 = $record->formatPicSignature('pic_0800');
-                        
+
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
-                        
+
                         if ($temp0800 !== '-') {
                             if ($temp0800 < $record->roomTemperature->temperature_start || $temp0800 > $record->roomTemperature->temperature_end) {
                                 $color = 'color: red; font-weight: bold;';
-                                
+
                                 // Check if there's a deviation record for this time slot (08:00 - 08:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '08:00:00')
-                                    ->whereTime('time', '<=', '08:30:59')
+                                $deviation = $record->temperatureDeviations
+                                    ->filter(fn ($d) => Carbon::parse($d->time)->between('08:00:00', '08:30:59'))
                                     ->first();
-                                    
+
                                 if ($deviation) {
                                     $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
                                     $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
@@ -173,21 +171,20 @@ class AcknowledgedTemperatureHumidity extends listRecords
                         $time1100 = $record->time_1100 ? Carbon::parse($record->time_1100)->format('H:i') : '-';
                         $rh1100 = $record->rh_1100 ?? '-';
                         $pic1100 = $record->formatPicSignature('pic_1100');
-                        
+
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
-                        
+
                         if ($temp1100 !== '-') {
                             if ($temp1100 < $record->roomTemperature->temperature_start || $temp1100 > $record->roomTemperature->temperature_end) {
                                 $color = 'color: red; font-weight: bold;';
-                                
+
                                 // Check if there's a deviation record for this time slot (11:00 - 11:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '11:00:00')
-                                    ->whereTime('time', '<=', '11:30:59')
+                                $deviation = $record->temperatureDeviations
+                                    ->filter(fn ($d) => Carbon::parse($d->time)->between('11:00:00', '11:30:59'))
                                     ->first();
-                                    
+
                                 if ($deviation) {
                                     $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
                                     $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
@@ -195,7 +192,7 @@ class AcknowledgedTemperatureHumidity extends listRecords
                                 }
                             }
                         }
-                        
+
                         return "$linkStart <div style='$color'>Time: $time1100 <br> Temp: $temp1100 °C <br> Humidity: $rh1100% <br> PIC: $pic1100</div> $linkEnd";
                     })->html(),
                 TextColumn::make('1400_data')
@@ -205,21 +202,20 @@ class AcknowledgedTemperatureHumidity extends listRecords
                         $time1400 = $record->time_1400 ? Carbon::parse($record->time_1400)->format('H:i') : '-';
                         $rh1400 = $record->rh_1400 ?? '-';
                         $pic1400 = $record->formatPicSignature('pic_1400');
-                        
+
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
-                        
+
                         if ($temp1400 !== '-') {
                             if ($temp1400 < $record->roomTemperature->temperature_start || $temp1400 > $record->roomTemperature->temperature_end) {
                                 $color = 'color: red; font-weight: bold;';
-                                
+
                                 // Check if there's a deviation record for this time slot (14:00 - 14:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '14:00:00')
-                                    ->whereTime('time', '<=', '14:30:59')
+                                $deviation = $record->temperatureDeviations
+                                    ->filter(fn ($d) => Carbon::parse($d->time)->between('14:00:00', '14:30:59'))
                                     ->first();
-                                    
+
                                 if ($deviation) {
                                     $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
                                     $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
@@ -237,21 +233,20 @@ class AcknowledgedTemperatureHumidity extends listRecords
                         $time1700 = $record->time_1700 ? Carbon::parse($record->time_1700)->format('H:i') : '-';
                         $rh1700 = $record->rh_1700 ?? '-';
                         $pic1700 = $record->formatPicSignature('pic_1700');
-                        
+
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
-                        
+
                         if ($temp1700 !== '-') {
                             if ($temp1700 < $record->roomTemperature->temperature_start || $temp1700 > $record->roomTemperature->temperature_end) {
                                 $color = 'color: red; font-weight: bold;';
-                                
+
                                 // Check if there's a deviation record for this time slot (17:00 - 17:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '17:00:00')
-                                    ->whereTime('time', '<=', '17:30:59')
+                                $deviation = $record->temperatureDeviations
+                                    ->filter(fn ($d) => Carbon::parse($d->time)->between('17:00:00', '17:30:59'))
                                     ->first();
-                                    
+
                                 if ($deviation) {
                                     $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
                                     $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
@@ -269,21 +264,20 @@ class AcknowledgedTemperatureHumidity extends listRecords
                         $time2000 = $record->time_2000 ? Carbon::parse($record->time_2000)->format('H:i') : '-';
                         $rh2000 = $record->rh_2000 ?? '-';
                         $pic2000 = $record->formatPicSignature('pic_2000');
-                        
+
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
-                        
+
                         if ($temp2000 !== '-') {
                             if ($temp2000 < $record->roomTemperature->temperature_start || $temp2000 > $record->roomTemperature->temperature_end) {
                                 $color = 'color: red; font-weight: bold;';
-                                
+
                                 // Check if there's a deviation record for this time slot (20:00 - 20:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '20:00:00')
-                                    ->whereTime('time', '<=', '20:30:59')
+                                $deviation = $record->temperatureDeviations
+                                    ->filter(fn ($d) => Carbon::parse($d->time)->between('20:00:00', '20:30:59'))
                                     ->first();
-                                    
+
                                 if ($deviation) {
                                     $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
                                     $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
@@ -301,21 +295,20 @@ class AcknowledgedTemperatureHumidity extends listRecords
                         $time2300 = $record->time_2300 ? Carbon::parse($record->time_2300)->format('H:i') : '-';
                         $rh2300 = $record->rh_2300 ?? '-';
                         $pic2300 = $record->formatPicSignature('pic_2300');
-                        
+
                         $color = '';
                         $linkStart = '';
                         $linkEnd = '';
-                        
+
                         if ($temp2300 !== '-') {
                             if ($temp2300 < $record->roomTemperature->temperature_start || $temp2300 > $record->roomTemperature->temperature_end) {
                                 $color = 'color: red; font-weight: bold;';
-                                
+
                                 // Check if there's a deviation record for this time slot (23:00 - 23:30)
-                                $deviation = $record->temperatureDeviations()
-                                    ->whereTime('time', '>=', '23:00:00')
-                                    ->whereTime('time', '<=', '23:30:59')
+                                $deviation = $record->temperatureDeviations
+                                    ->filter(fn ($d) => Carbon::parse($d->time)->between('23:00:00', '23:30:59'))
                                     ->first();
-                                    
+
                                 if ($deviation) {
                                     $deviationUrl = route('filament.dashboard.resources.temperature-deviations.view', $deviation->id);
                                     $linkStart = "<a href='$deviationUrl' style='text-decoration: none; color: inherit;'>";
@@ -326,7 +319,7 @@ class AcknowledgedTemperatureHumidity extends listRecords
 
                         return "$linkStart <div style='$color'>Time: $time2300 <br> Temp: $temp2300 °C <br> Humidity: $rh2300% <br> PIC: $pic2300</div> $linkEnd";
                     })->html(),
-                
+
             ])
             ->filters([
                 //
@@ -338,19 +331,20 @@ class AcknowledgedTemperatureHumidity extends listRecords
                     ->visible(function (TemperatureHumidity $record) {
                         $isAcknowledged = $record->is_acknowledged == false && $record->time_0800 != null && $record->time_1100 != null && $record->time_1400 != null && $record->time_1700 != null && $record->temp_0800 != null && $record->temp_1100 != null && $record->temp_1400 != null && $record->temp_1700 != null;
                         $admin = Auth::user()->hasRole(['Super Admin', 'QA Manager']);
+
                         return $isAcknowledged && $admin;
                     })
                     ->action(function (TemperatureHumidity $record) {
                         $record->update([
                             'is_acknowledged' => true,
-                            'acknowledged_by' => auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')),
+                            'acknowledged_by' => auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y')),
                             'acknowledged_at' => now('Asia/Jakarta'),
                         ]);
-                    Notification::make()
-                        ->title('Success!')
-                        ->body('Marked as acknowledged successfully by ' . auth()->user()->name . '.')
-                        ->success()
-                        ->send();
+                        Notification::make()
+                            ->title('Success!')
+                            ->body('Marked as acknowledged successfully by '.auth()->user()->name.'.')
+                            ->success()
+                            ->send();
                     })
                     ->requiresConfirmation()
                     ->color('info')
@@ -359,39 +353,40 @@ class AcknowledgedTemperatureHumidity extends listRecords
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkAction::make('is_acknowledged')
-                    ->label('Mark as Acknowledged')
-                    ->icon('heroicon-o-check-badge')
-                    ->color('info')
-                    ->requiresConfirmation()
-                    ->visible(function () {  
-                        $admin = Auth::user()->hasRole(['Super Admin', 'QA Manager']);
-                        return $admin;
-                    })
-                    ->action(function (Collection $records) {
-                        $alreadyAcknowledged = $records->every(fn ($record) => $record->is_acknowledged);
+                        ->label('Mark as Acknowledged')
+                        ->icon('heroicon-o-check-badge')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->visible(function () {
+                            $admin = Auth::user()->hasRole(['Super Admin', 'QA Manager']);
 
-                        if ($alreadyAcknowledged) {
-                            Notification::make()
-                                ->title('All selected records are already acknowledged')
-                                ->warning()
-                                ->send();
+                            return $admin;
+                        })
+                        ->action(function (Collection $records) {
+                            $alreadyAcknowledged = $records->every(fn ($record) => $record->is_acknowledged);
 
-                            return;
-                        }
-                        foreach ($records as $record) {
-                            if (! $record->is_acknowledged); {
+                            if ($alreadyAcknowledged) {
+                                Notification::make()
+                                    ->title('All selected records are already acknowledged')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+                            foreach ($records as $record) {
+                                if (! $record->is_acknowledged);
                                 $record->is_acknowledged = true;
-                                $record->acknowledged_by = auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
+                                $record->acknowledged_by = auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y'));
                                 $record->acknowledged_at = now('Asia/Jakarta');
                                 $record->save();
+
                             }
-                        }
-                        
-                        Notification::make()
-                            ->title('Success!')
-                            ->body('Selected data marked as acknowledged successfully')
-                            ->success()
-                            ->send();
+
+                            Notification::make()
+                                ->title('Success!')
+                                ->body('Selected data marked as acknowledged successfully')
+                                ->success()
+                                ->send();
                         }),
                 ]),
             ]);

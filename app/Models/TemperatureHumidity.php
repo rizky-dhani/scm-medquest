@@ -10,6 +10,8 @@ class TemperatureHumidity extends Model
 {
     protected $guarded = ['id'];
 
+    protected static array $picUserCache = [];
+
     protected static function booted(): void
     {
         static::saving(function ($temperatureHumidity) {
@@ -164,7 +166,7 @@ class TemperatureHumidity extends Model
         // Check if it's a numeric value (user ID) or string (old signature)
         if (is_numeric($picValue)) {
             // New format: user ID
-            $user = User::find($picValue);
+            $user = static::$picUserCache[$picValue] ??= User::find($picValue);
             if (! $user) {
                 return '-';
             }

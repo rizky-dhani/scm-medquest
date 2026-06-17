@@ -174,6 +174,18 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                         @php
                             $periodDate = \Carbon\Carbon::parse($firstRecord->period);
                             $daysInMonth = $periodDate->daysInMonth;
+
+                            // Build per-day/time-slot deviation lookup once (avoids N+1 DB queries in the loop)
+                            $deviationTimeSlots = [];
+                            foreach ($roomRecords as $rec) {
+                                $recDay = \Carbon\Carbon::parse($rec->date)->day;
+                                if ($rec->relationLoaded('temperatureDeviations')) {
+                                    foreach ($rec->temperatureDeviations as $dev) {
+                                        $hourPrefix = substr(\Carbon\Carbon::parse($dev->time)->format('Hi'), 0, 2) . '00';
+                                        $deviationTimeSlots[$recDay][$hourPrefix] = true;
+                                    }
+                                }
+                            }
                         @endphp
                         @for($day = 1; $day <= $daysInMonth; $day++)
                             @php
@@ -192,15 +204,7 @@ $renderGroups = isset($groupedTempHumidity) && $groupedTempHumidity->count() > 0
                                         $tempVal = $record ? $record->$tempField : null;
                                         $rhVal = $record ? $record->$rhField : null;
                                         $isOutOfRange = $record && $tempVal !== null && ($tempVal < $record->roomTemperature->temperature_start || $tempVal > $record->roomTemperature->temperature_end);
-                                        $hasDeviation = false;
-                                        if ($record && $tempVal !== null) {
-                                            $startTime = substr($t, 0, 2) . ':00:00';
-                                            $endTime = substr($t, 0, 2) . ':59:59';
-                                            $hasDeviation = $record->temperatureDeviations()
-                                                ->whereTime('time', '>=', $startTime)
-                                                ->whereTime('time', '<=', $endTime)
-                                                ->exists();
-                                        }
+                                        $hasDeviation = $record && $tempVal !== null && isset($deviationTimeSlots[$day][$t]);
                                         $style = ($isOutOfRange || $hasDeviation) ? 'color: red; font-weight: bold;' : '';
                                     @endphp
                                     <td class="text-center">{{ ($record && $record->$timeField) ? \Carbon\Carbon::parse($record->$timeField)->format('Hi') : '-' }}</td>

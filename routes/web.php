@@ -27,7 +27,7 @@ Route::get('/email-preview/acknowledgment', function () {
 Route::get('/temperature-humidities/bulk-export', function () {
     $ids = session()->get('export_ids', []);
     $tempHumidity = TemperatureHumidity::whereIn('id', $ids)
-        ->with(['location', 'room', 'serialNumber', 'roomTemperature'])
+        ->with(['location', 'room', 'serialNumber', 'roomTemperature', 'temperatureDeviations'])
         ->get();
 
     if ($tempHumidity->isEmpty()) {
@@ -52,7 +52,7 @@ Route::get('/temperature-humidities/bulk-export', function () {
 
     $html = view('print.temperature-humidity', [
         'tempHumidity' => $tempHumidity,
-        'groupedTempHumidity' => $groupedTempHumidity
+        'groupedTempHumidity' => $groupedTempHumidity,
     ]);
     $pdf = Browsershot::html($html)
         ->format('A4')
@@ -94,7 +94,7 @@ Route::get('/temperature-deviations/bulk-export', function () {
 
     $html = view('print.temperature-deviation', [
         'temperatureDeviations' => $temperatureDeviations,
-        'groupedDeviations' => $groupedDeviations
+        'groupedDeviations' => $groupedDeviations,
     ]);
     $pdf = Browsershot::html($html)
         ->format('A4')

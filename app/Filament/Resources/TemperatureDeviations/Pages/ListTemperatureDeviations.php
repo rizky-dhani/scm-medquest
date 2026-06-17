@@ -171,7 +171,16 @@ class ListTemperatureDeviations extends ListRecords
                         if ($room_ids && count($room_ids) > 0) {
                             $query->whereIn('room_id', $room_ids);
                         }
-
+                        $totalCount = $query->count();
+                        if ($totalCount > 1000) {
+                            Notification::make()
+                                ->warning()
+                                ->title('Data export limit')
+                                ->body("Your selection has {$totalCount} records. Only the first 1,000 will be exported for performance.")
+                                ->persistent()
+                                ->send();
+                        }
+                        $query->limit(1000);
                         $records = $query->get();
 
                         // Check if there are any records to export

@@ -31,7 +31,10 @@ class EditTemperatureHumidity extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Ensure temperature fields are set
+        // Strip transient UI-only fields that don't exist as DB columns
+        unset($data['temperature_start'], $data['temperature_end'], $data['observed_temperature']);
+
+        // Ensure temperature numeric fields are set
         $tempFields = ['temp_0200', 'temp_0500', 'temp_0800', 'temp_1100', 'temp_1400', 'temp_1700', 'temp_2000', 'temp_2300'];
         foreach ($tempFields as $temp) {
             $data[$temp] = $data[$temp] ?? null;
