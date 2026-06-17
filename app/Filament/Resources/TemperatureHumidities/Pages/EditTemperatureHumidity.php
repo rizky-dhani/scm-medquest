@@ -2,34 +2,33 @@
 
 namespace App\Filament\Resources\TemperatureHumidities\Pages;
 
-use Carbon\Carbon;
-use Filament\Actions;
-use Filament\Actions\Action;
-use App\Models\RoomTemperature;
-use App\Models\TemperatureHumidity;
-use Illuminate\Support\Facades\Auth;
+use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
+use App\Filament\Resources\TemperatureHumidities\TemperatureHumidityResource;
 use App\Traits\HasLocationBasedAccess;
-use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
-use App\Filament\Resources\TemperatureHumidities\TemperatureHumidityResource;
-use App\Filament\Resources\TemperatureDeviations\TemperatureDeviationResource;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EditTemperatureHumidity extends EditRecord
 {
     use HasLocationBasedAccess;
-    
+
     protected static string $resource = TemperatureHumidityResource::class;
 
-    public function mount(int | string $record): void
+    public function mount(int|string $record): void
     {
         parent::mount($record);
-        
+
         // Check if user can access this record's location
-        if (!static::canAccessLocation($this->record->location_id)) {
+        if (! static::canAccessLocation($this->record->location_id)) {
             abort(403, 'You do not have permission to access this record.');
         }
     }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         // Ensure temperature fields are set
@@ -37,13 +36,27 @@ class EditTemperatureHumidity extends EditRecord
         foreach ($tempFields as $temp) {
             $data[$temp] = $data[$temp] ?? null;
         }
-        
+
         // Clear any existing deviation flag to ensure we only check the current time slot
         session()->forget('deviation_triggered');
         session()->forget('deviation_data');
 
         return $data;
     }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        $start = microtime(true);
+        Log::info('[TIMING] handleRecordUpdate START for record '.$record->id);
+
+        $result = parent::handleRecordUpdate($record, $data);
+
+        $elapsed = microtime(true) - $start;
+        Log::info('[TIMING] handleRecordUpdate END - took '.$elapsed.'s for record '.$record->id);
+
+        return $result;
+    }
+
     protected function afterSave(): void
     {
         $record = $this->record;
@@ -72,7 +85,7 @@ class EditTemperatureHumidity extends EditRecord
                 $tempValue = $record->$tempField;
                 $timeValue = $record->{$window['time_field']};
 
-                if (!is_null($tempValue) && ($tempValue < $minTemp || $tempValue > $maxTemp)) {
+                if (! is_null($tempValue) && ($tempValue < $minTemp || $tempValue > $maxTemp)) {
                     session()->put('deviation_triggered', true);
                     session()->put('deviation_data', [[ // wrap in array to match expected format
                         'temperature_id' => $record->id,
@@ -88,11 +101,11 @@ class EditTemperatureHumidity extends EditRecord
                 break; // Only evaluate the current time window
             }
         }
-        
+
         $recipient = auth()->user();
         Notification::make()
             ->success()
-            ->title('Temperature & Humidity for '. $location->location_name .' updated')
+            ->title('Temperature & Humidity for '.$location->location_name.' updated')
             ->body('Please check the Temperature & Humidity page for more details.')
             ->actions([
                 Action::make('View')
@@ -100,17 +113,18 @@ class EditTemperatureHumidity extends EditRecord
                     ->icon('heroicon-o-eye')
                     ->color('success')
                     ->close()
-                    ->markAsRead()
+                    ->markAsRead(),
             ])
             ->sendToDatabase($recipient);
     }
+
     protected function getRedirectUrl(): string
     {
         // Check if deviation was triggered
         if (session()->pull('deviation_triggered', false)) {
             $deviations = session()->pull('deviation_data', []);
 
-            if (!empty($deviations) && isset($deviations[0])) {
+            if (! empty($deviations) && isset($deviations[0])) {
                 return TemperatureDeviationResource::getUrl('create', [
                     'temp_id' => $deviations[0]['temperature_id'],
                     'location_id' => $this->record->location_id,
@@ -123,6 +137,7 @@ class EditTemperatureHumidity extends EditRecord
         // Default fallback
         return $this->getResource()::getUrl('index');
     }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -132,14 +147,14 @@ class EditTemperatureHumidity extends EditRecord
                 ->action(function (Model $record) {
                     $record->update([
                         'is_reviewed' => true,
-                        'reviewed_by' => auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')),
+                        'reviewed_by' => auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y')),
                         'reviewed_at' => now('Asia/Jakarta'),
                     ]);
-                Notification::make()
-                    ->title('Success!')
-                    ->body('Marked as reviewed successfully by ' . auth()->user()->name . '.')
-                    ->success()
-                    ->send();
+                    Notification::make()
+                        ->title('Success!')
+                        ->body('Marked as reviewed successfully by '.auth()->user()->name.'.')
+                        ->success()
+                        ->send();
                 })
                 ->requiresConfirmation()
                 ->color('success')
@@ -150,21 +165,21 @@ class EditTemperatureHumidity extends EditRecord
                 ->action(function (Model $record) {
                     $record->update([
                         'is_acknowledged' => true,
-                        'acknowledged_by' => auth()->user()->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y')),
+                        'acknowledged_by' => auth()->user()->initial.' '.strtoupper(now('Asia/Jakarta')->format('d M Y')),
                         'acknowledged_at' => now('Asia/Jakarta'),
                     ]);
-                Notification::make()
-                    ->title('Success!')
-                    ->body('Marked as acknowledged successfully by ' . auth()->user()->name . '.')
-                    ->success()
-                    ->send();
+                    Notification::make()
+                        ->title('Success!')
+                        ->body('Marked as acknowledged successfully by '.auth()->user()->name.'.')
+                        ->success()
+                        ->send();
                 })
                 ->requiresConfirmation()
                 ->color('info')
                 ->icon('heroicon-o-check'),
         ];
     }
-    
+
     protected function getSavedNotification(): ?Notification
     {
         return Notification::make()

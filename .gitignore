@@ -22,6 +22,7 @@ yarn-error.log
 /.vscode
 /.zed
 scm_logs
+scm.log
 .continue/*
 /public/.htaccess
 /app/Providers/AppServiceProvider.php

@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
+use App\Services\TemperatureHumidityNotificationService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use App\Services\TemperatureHumidityNotificationService;
 
 class TemperatureHumidity extends Model
 {
@@ -14,90 +13,43 @@ class TemperatureHumidity extends Model
     protected static function booted(): void
     {
         static::saving(function ($temperatureHumidity) {
-            // Auto-populate PIC fields based on current time window AND if the corresponding time field is being updated
+            // Cache user and role checks to avoid redundant DB/cache calls
             $currentTime = Carbon::now('Asia/Jakarta')->format('H:i:s');
-            $isSuperAdmin = auth()->user()?->hasRole('Super Admin');
+            $user = auth()->user();
+            $isSuperAdmin = $user?->hasRole('Super Admin');
+            $isSecurity = $user?->hasRole('Security');
+            $nowFormatted = strtoupper(now('Asia/Jakarta')->format('d M Y'));
 
-            // Only populate PIC if the corresponding time field is being updated AND we're in the correct time window
-            // Super Admin bypasses the time window check
-            if (!empty($temperatureHumidity->time_0200) && empty($temperatureHumidity->pic_0200) && ($isSuperAdmin || ($currentTime >= '02:00:00' && $currentTime < '02:30:59'))) {
-                $user = auth()->user();
-                $value = $user->hasRole('Security')
-                    ? $user->name
-                    : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                $temperatureHumidity->pic_0200 = $value;
-                // Also store the user ID for tracking purposes
-                $temperatureHumidity->pic_0200_id = $user->id;
-            }
+            $timeSlots = [
+                '0200' => '02:00:00',
+                '0500' => '05:00:00',
+                '0800' => '08:00:00',
+                '1100' => '11:00:00',
+                '1400' => '14:00:00',
+                '1700' => '17:00:00',
+                '2000' => '20:00:00',
+                '2300' => '23:00:00',
+            ];
 
-            if (!empty($temperatureHumidity->time_0500) && empty($temperatureHumidity->pic_0500) && ($isSuperAdmin || ($currentTime >= '05:00:00' && $currentTime < '05:30:59'))) {
-                $user = auth()->user();
-                $value = $user->hasRole('Security')
-                    ? $user->name
-                    : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                $temperatureHumidity->pic_0500 = $value;
-                // Also store the user ID for tracking purposes
-                $temperatureHumidity->pic_0500_id = $user->id;
-            }
+            foreach ($timeSlots as $slot => $windowStart) {
+                $timeField = "time_{$slot}";
+                $picField = "pic_{$slot}";
+                $picIdField = "pic_{$slot}_id";
 
-            if (!empty($temperatureHumidity->time_0800) && empty($temperatureHumidity->pic_0800) && ($isSuperAdmin || ($currentTime >= '08:00:00' && $currentTime < '08:30:59'))) {
-                $user = auth()->user();
-                $value = $user->hasRole('Security')
-                    ? $user->name
-                    : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                $temperatureHumidity->pic_0800 = $value;
-                // Also store the user ID for tracking purposes
-                $temperatureHumidity->pic_0800_id = $user->id;
-            }
+                if (empty($temperatureHumidity->{$timeField}) || ! empty($temperatureHumidity->{$picField})) {
+                    continue;
+                }
 
-            if (!empty($temperatureHumidity->time_1100) && empty($temperatureHumidity->pic_1100) && ($isSuperAdmin || ($currentTime >= '11:00:00' && $currentTime < '11:30:59'))) {
-                $user = auth()->user();
-                $value = $user->hasRole('Security')
-                    ? $user->name
-                    : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                $temperatureHumidity->pic_1100 = $value;
-                // Also store the user ID for tracking purposes
-                $temperatureHumidity->pic_1100_id = $user->id;
-            }
+                $windowEnd = substr($windowStart, 0, 2).':30:59';
 
-            if (!empty($temperatureHumidity->time_1400) && empty($temperatureHumidity->pic_1400) && ($isSuperAdmin || ($currentTime >= '14:00:00' && $currentTime < '14:30:59'))) {
-                $user = auth()->user();
-                $value = $user->hasRole('Security')
-                    ? $user->name
-                    : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                $temperatureHumidity->pic_1400 = $value;
-                // Also store the user ID for tracking purposes
-                $temperatureHumidity->pic_1400_id = $user->id;
-            }
+                if (! $isSuperAdmin && ($currentTime < $windowStart || $currentTime >= $windowEnd)) {
+                    continue;
+                }
 
-            if (!empty($temperatureHumidity->time_1700) && empty($temperatureHumidity->pic_1700) && ($isSuperAdmin || ($currentTime >= '17:00:00' && $currentTime < '17:30:59'))) {
-                $user = auth()->user();
-                $value = $user->hasRole('Security')
+                $temperatureHumidity->{$picField} = $isSecurity
                     ? $user->name
-                    : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                $temperatureHumidity->pic_1700 = $value;
-                // Also store the user ID for tracking purposes
-                $temperatureHumidity->pic_1700_id = $user->id;
-            }
-
-            if (!empty($temperatureHumidity->time_2000) && empty($temperatureHumidity->pic_2000) && ($isSuperAdmin || ($currentTime >= '20:00:00' && $currentTime < '20:30:59'))) {
-                $user = auth()->user();
-                $value = $user->hasRole('Security')
-                    ? $user->name
-                    : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                $temperatureHumidity->pic_2000 = $value;
-                // Also store the user ID for tracking purposes
-                $temperatureHumidity->pic_2000_id = $user->id;
-            }
-
-            if (!empty($temperatureHumidity->time_2300) && empty($temperatureHumidity->pic_2300) && ($isSuperAdmin || ($currentTime >= '23:00:00' && $currentTime < '23:30:59'))) {
-                $user = auth()->user();
-                $value = $user->hasRole('Security')
-                    ? $user->name
-                    : $user->initial . ' ' . strtoupper(now('Asia/Jakarta')->format('d M Y'));
-                $temperatureHumidity->pic_2300 = $value;
-                // Also store the user ID for tracking purposes
-                $temperatureHumidity->pic_2300_id = $user->id;
+                    : $user->initial.' '.$nowFormatted;
+                $temperatureHumidity->{$picIdField} = $user->id;
             }
         });
 
@@ -110,7 +62,7 @@ class TemperatureHumidity extends Model
                 'temp_2000', 'temp_2300', 'temp_0200', 'temp_0500',
                 'rh_0800', 'rh_1100', 'rh_1400', 'rh_1700',
                 'rh_2000', 'rh_2300', 'rh_0200', 'rh_0500',
-                'is_reviewed'
+                'is_reviewed',
             ];
 
             $hasRelevantChanges = false;
@@ -198,7 +150,6 @@ class TemperatureHumidity extends Model
         return $this->belongsTo(User::class, 'pic_2300');
     }
 
-
     /**
      * Format PIC signature based on user role
      * Handles both old signature strings and new user IDs
@@ -206,7 +157,7 @@ class TemperatureHumidity extends Model
     public function formatPicSignature($picField)
     {
         $picValue = $this->{$picField};
-        if (!$picValue) {
+        if (! $picValue) {
             return '-';
         }
 
@@ -214,7 +165,7 @@ class TemperatureHumidity extends Model
         if (is_numeric($picValue)) {
             // New format: user ID
             $user = User::find($picValue);
-            if (!$user) {
+            if (! $user) {
                 return '-';
             }
 
@@ -222,7 +173,7 @@ class TemperatureHumidity extends Model
             if ($user->hasRole('Security')) {
                 return $user->name;
             } else {
-                return $user->initial . ' ' . strtoupper($this->created_at->format('d M Y'));
+                return $user->initial.' '.strtoupper($this->created_at->format('d M Y'));
             }
         } else {
             // Old format: return existing signature string as-is
