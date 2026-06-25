@@ -213,7 +213,7 @@ $renderGroups =
                             <th class="text-center col-time" style="font-size: 11px">Time<br>(<i>Jam</i>)</th>
                             <th class="text-center col-temp" style="font-size: 11px">Temperature deviation<br>(<i>Penyimpangan
                                     suhu</i>)<br>(°C)</th>
-                            <th class="text-center col-length" style="font-size: 11px">Length of temperature
+                            <th class="text-center col-length" style="font-size: 10px">Length of temperature
                                 deviation<br>(<i>Lamanya penyimpangan suhu</i>)<br>(Menit)</th>
                             <th class="text-center col-reason" style="font-size: 11px">Reason of the deviations *<br>(<i>Alasan
                                     penyimpangan</i>) *</th>
