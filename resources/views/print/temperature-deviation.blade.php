@@ -211,7 +211,7 @@ $renderGroups =
                             <th class="text-center align-middle col-no">No</th>
                             <th class="text-center col-date" style="font-size: 11px">Date<br>(<i>Tanggal</i>)</th>
                             <th class="text-center col-time" style="font-size: 11px">Time<br>(<i>Jam</i>)</th>
-                            <th class="text-center col-temp" style="font-size: 11px">Temperature deviation<br>(<i>Penyimpangan
+                            <th class="text-center col-temp" style="font-size: 10px">Temperature deviation<br>(<i>Penyimpangan
                                     suhu</i>)<br>(°C)</th>
                             <th class="text-center col-length" style="font-size: 10px">Length of temperature
                                 deviation<br>(<i>Lamanya penyimpangan suhu</i>)<br>(Menit)</th>
