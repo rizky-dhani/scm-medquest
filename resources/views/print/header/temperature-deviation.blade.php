@@ -56,24 +56,23 @@
             </div>
         </div>
         <div class="row mb-2" id="detail">
-            <div class="col-7 pe-0 border border-black">
+            <div class="col-7 border border-black py-1">
                 <div class="row">
                     <div class="col-3">
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">Period (<i>Periode</i>)</p>
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">Location (<i>Lokasi</i>) / Serial No.</p>
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">Storage temperature standard <br> (<i>Standar suhu penyimpanan</i>)</p>
+                        <p class="mb-0" style="font-size: 16px;">Period (<i>Periode</i>)</p>
+                        <p class="mb-0" style="font-size: 16px;">Location (<i>Lokasi</i>) / Serial No.</p>
+                        <p class="mb-0" style="font-size: 16px;">Storage temperature standard <br> (<i>Standar suhu penyimpanan</i>)</p>
                     </div>
                     <div class="col-9">
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&ensp;</p>
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&ensp;</p>
-                        <p class="mb-0" style="font-size: 16px; padding-left: 1% !important;">:&ensp;</p>
+                        <p class="mb-0" style="font-size: 16px;">:&ensp;</p>
+                        <p class="mb-0" style="font-size: 16px;">:&ensp;</p>
+                        <p class="mb-0" style="font-size: 16px;">:&ensp;</p>
                     </div>
                 </div>
             </div>
-            <div class="col-5 pe-0 border border-black">
-                <p class="mb-0" style="font-size: 16px;">****) Signature and initial name (<i>Tanda tangan dan inisial nama</i>) </p>
-                <p class="mb-0" style="font-size: 16px;">*****) Signature initial name and date (<i>Tanda tangan, inisial nama dan tanggal</i>) </p>
-
+            <div class="col-5 border border-black py-1 ps-2">
+                <p class="mb-0" style="font-size: 16px;">****) Signature and initial name (<i>Tanda tangan dan inisial nama</i>)</p>
+                <p class="mb-0" style="font-size: 16px;">*****) Signature initial name and date (<i>Tanda tangan, inisial nama dan tanggal</i>)</p>
             </div>
         </div>
         <div class="row mb-2" id="detail">
