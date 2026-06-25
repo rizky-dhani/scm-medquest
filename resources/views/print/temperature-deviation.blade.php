@@ -163,11 +163,11 @@ $renderGroups =
                         </div>
                         <div class="col-6 border border-black py-1 px-0">
                             <div class="row h-100">
-                                <div class="col-8 border-end border-black d-flex align-items-center py-1 ps-1">
+                                <div class="col-6 border-end border-black d-flex align-items-center py-1 ps-1">
                                     <p class="mb-0" style="font-size: 11px;">**) Initial name and date (<i>Inisial nama dan tanggal</i>)</p>
                                 </div>
-                                <div class="col-4 d-flex align-items-center py-1">
-                                    <p class="fw-bolder text-center mb-0" style="font-size: 10px;">Specifically for Grifols Diagnostics products, immediately report to QA and Grifols Diagnostics principals if there is a temperature deviation <br><br>
+                                <div class="col-6 d-flex align-items-center py-1 px-1">
+                                    <p class="fw-bolder text-center mb-0" style="font-size: 9px;">Specifically for Grifols Diagnostics products, immediately report to QA and Grifols Diagnostics principals if there is a temperature deviation <br><br>
                                         (Khusus produk Grifols Diagnostics, segera laporkan ke QA dan prinsipal Grifols Diagnostics jika terjadi penyimpangan suhu)</p>
                                 </div>
                             </div>
