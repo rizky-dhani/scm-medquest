@@ -73,11 +73,11 @@
             font-weight: bold;
         }
         
-        .col-no { width: 35px; }
+        .col-no { width: 25px; }
         .col-date { width: 65px; }
         .col-time { width: 40px; }
-        .col-temp { width: 80px; }
-        .col-length { width: 80px; }
+        .col-temp { width: 85px; }
+        .col-length { width: 85px; }
         .col-reason { width: 150px; }
         .col-pic { width: 55px; }
         .col-risk { width: 150px; }
