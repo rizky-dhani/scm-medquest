@@ -44,7 +44,16 @@
 
         .header-container {
             border: 1px solid black;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            min-height: 60px;
+        }
+
+        .header-section {
+            page-break-inside: avoid;
+        }
+
+        .header-section .row.mb-2 {
+            margin-bottom: 12px !important;
         }
 
         .footer-section {
@@ -90,12 +99,12 @@ $renderGroups =
                 @php
         $firstDeviation = $roomDeviations->first();
                 @endphp
-                <div class="container-fluid mb-2">
+                <div class="container-fluid mb-2 header-section">
                     <div class="row header-container">
                         <div class="col-2 d-flex justify-content-center align-items-center px-0"
                             style="background-color: #0E0F97 !important;">
                             <img src="{{ asset('assets/images/LOGO-MEDQUEST-HD.png') }}" alt=""
-                                style="width: 100%;">
+                                style="width: 100%; height: auto; max-height: 60px; object-fit: contain;">
                         </div>
                         <div class="col-7 d-flex flex-column">
                             <div class="row align-items-center h-50 border-bottom border-start border-end border-black">
@@ -124,14 +133,14 @@ $renderGroups =
                         </div>
                     </div>
 
-                    <div class="row mb-1">
+                    <div class="row mb-2">
                         <div class="col-12 border border-black py-1">
                             <p class="mb-0 fw-bold text-center" style="font-size: 14px">Annexure of the Temperature and
                                 Humidity Monitoring Form (<i>Lampiran Formulir Pemantauan Suhu dan Kelembapan</i>)</p>
                         </div>
                     </div>
 
-                    <div class="row mb-1">
+                    <div class="row mb-2">
                         <div class="col-6 border border-black border-end-0 py-1">
                             <div class="row">
                                 <div class="col-5">
@@ -165,7 +174,7 @@ $renderGroups =
                         </div>
                     </div>
 
-                    <div class="row mb-1">
+                    <div class="row mb-2">
                         <div class="col-12 border border-black py-1">
                             <div class="row">
                                 <div class="col-3">
@@ -185,7 +194,7 @@ $renderGroups =
                         </div>
                     </div>
 
-                    <div class="row mb-1">
+                    <div class="row mb-2">
                         <div class="col-12 border border-black py-1 bg-light">
                             <p class="mb-0 fw-bold text-center text-uppercase" style="font-size: 14px">Jika Terjadi
                                 Penyimpangan Suhu Laporkan Segera ke Quality Assurance (QA)</p>

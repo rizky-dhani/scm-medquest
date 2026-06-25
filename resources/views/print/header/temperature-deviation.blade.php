@@ -5,12 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Header Template for Temperature Deviation Export PDF</title>
     <link rel="stylesheet" href="{{ asset('assets/bootstrap/css/bootstrap.min.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .header-section {
+            page-break-inside: avoid;
+        }
+        .header-section .row.mb-1 {
+            margin-bottom: 12px !important;
+        }
+    </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row mb-1 border border-black" id="header">
+    <div class="container-fluid header-section">
+        <div class="row mb-2 border border-black" id="header">
             <div class="col-2 d-flex justify-content-center align-items-center px-0" style="background-color: #0E0F97 !important;">
-                <img src="{{ asset('assets/images/LOGO-MEDQUEST-HD.png') }}" alt="" style="width: 100%;">
+                <img src="{{ asset('assets/images/LOGO-MEDQUEST-HD.png') }}" alt="" style="width: 100%; height: auto; max-height: 60px; object-fit: contain;">
             </div>
             <div class="col-7 d-flex flex-column border-black">
                 <div class="row align-items-center h-50 border-bottom border-start border-end border-black">
@@ -37,12 +50,12 @@
                 </div>
             </div>
         </div>
-        <div class="row mb-1" id="title">
+        <div class="row mb-2" id="title">
             <div class="col-12 border border-black">
                 <p class="mb-0 fw-bold ps-1 text-center" style="font-size: 16px">Annexure of the Temperature and Humidity Monitoring Form (<i>Lampiran Formulir Pemantauan Suhu dan Kelembapan</i>)</p>
             </div>
         </div>
-        <div class="row mb-1" id="detail">
+        <div class="row mb-2" id="detail">
             <div class="col-7 pe-0 border border-black">
                 <div class="row">
                     <div class="col-3">
@@ -63,7 +76,7 @@
 
             </div>
         </div>
-        <div class="row mb-1" id="detail">
+        <div class="row mb-2" id="detail">
             <div class="col-12 pe-0 border border-black">
                 <div class="row">
                     <div class="col-2" style="width: 14.2%">
@@ -76,7 +89,7 @@
                 </div>
             </div>
         </div>
-        <div class="row mb-1" id="title">
+        <div class="row mb-2" id="title">
             <div class="col-12 border border-black">
                 <p class="mb-0 fw-bold ps-1 text-center text-uppercase" style="font-size: 16px">Jika Terjadi Penyimpangan Suhu Laporkan Segera ke Quality Assurance (QA)</p>
             </div>
