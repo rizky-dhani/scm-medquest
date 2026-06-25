@@ -74,9 +74,9 @@
         }
         
         .col-no { width: 35px; }
-        .col-date { width: 85px; }
-        .col-time { width: 30px; }
-        .col-temp { width: 50px; }
+        .col-date { width: 65px; }
+        .col-time { width: 40px; }
+        .col-temp { width: 80px; }
         .col-length { width: 80px; }
         .col-reason { width: 150px; }
         .col-pic { width: 55px; }
