@@ -75,10 +75,15 @@
         
         .col-no { width: 35px; }
         .col-date { width: 85px; }
-        .col-time { width: 45px; }
-        .col-temp { width: 80px; }
+        .col-time { width: 30px; }
+        .col-temp { width: 50px; }
         .col-length { width: 80px; }
-        .col-pic { width: 65px; }
+        .col-reason { width: 150px; }
+        .col-pic { width: 55px; }
+        .col-risk { width: 150px; }
+        .col-analyzed { width: 60px; }
+        .col-reviewed { width: 60px; }
+        .col-acknowledged { width: 60px; }
     </style>
 </head>
 
@@ -202,23 +207,23 @@ $renderGroups =
                 <div class="container-fluid px-0">
                     <table class="table table-bordered">
                         <thead>
-                            <tr class="bg-light">
-                                <th class="text-center align-middle" style="width: 30px">No</th>
-                                <th class="text-center" style="font-size: 11px">Date<br>(<i>Tanggal</i>)</th>
-                                <th class="text-center" style="font-size: 11px">Time<br>(<i>Jam</i>)</th>
-                                <th class="text-center" style="font-size: 11px">Temperature deviation<br>(<i>Penyimpangan
-                                        suhu</i>)<br>(°C)</th>
-                                <th class="text-center" style="font-size: 11px">Length of temperature
-                                    deviation<br>(<i>Lamanya penyimpangan suhu</i>)<br>(Menit)</th>
-                                <th class="text-center" style="font-size: 11px">Reason of the deviations *<br>(<i>Alasan
-                                        penyimpangan</i>) *</th>
-                                <th class="text-center" style="font-size: 11px">PIC **<br>(<i>SCM</i>)</th>
-                                <th class="text-center" style="font-size: 11px">Risk Analysis of impact
-                                    deviation<br>(<i>Analisis risiko dari dampak penyimpangan</i>)</th>
-                                <th class="text-center" style="font-size: 11px">Analyzed by **<br>(<i>QA</i>)</th>
-                                <th class="text-center" style="font-size: 11px">Reviewed by ** (SCM Manager)</th>
-                                <th class="text-center" style="font-size: 11px">Acknowledged by ** (QA Manager)</th>
-                            </tr>
+                        <tr class="bg-light">
+                            <th class="text-center align-middle col-no">No</th>
+                            <th class="text-center col-date" style="font-size: 11px">Date<br>(<i>Tanggal</i>)</th>
+                            <th class="text-center col-time" style="font-size: 11px">Time<br>(<i>Jam</i>)</th>
+                            <th class="text-center col-temp" style="font-size: 11px">Temperature deviation<br>(<i>Penyimpangan
+                                    suhu</i>)<br>(°C)</th>
+                            <th class="text-center col-length" style="font-size: 11px">Length of temperature
+                                deviation<br>(<i>Lamanya penyimpangan suhu</i>)<br>(Menit)</th>
+                            <th class="text-center col-reason" style="font-size: 11px">Reason of the deviations *<br>(<i>Alasan
+                                    penyimpangan</i>) *</th>
+                            <th class="text-center col-pic" style="font-size: 11px">PIC **<br>(<i>SCM</i>)</th>
+                            <th class="text-center col-risk" style="font-size: 11px">Risk Analysis of impact
+                                deviation<br>(<i>Analisis risiko dari dampak penyimpangan</i>)</th>
+                            <th class="text-center col-analyzed" style="font-size: 11px">Analyzed by **<br>(<i>QA</i>)</th>
+                            <th class="text-center col-reviewed" style="font-size: 11px">Reviewed by ** (SCM Manager)</th>
+                            <th class="text-center col-acknowledged" style="font-size: 11px">Acknowledged by ** (QA Manager)</th>
+                        </tr>
                         </thead>
                         <tbody>
                             @foreach ($roomDeviations as $record)
@@ -230,11 +235,11 @@ $renderGroups =
                                     <td class="text-center">{{ $record->temperature_deviation ?? '-' }}°C</td>
                                     <td class="text-center">{{ $record->length_temperature_deviation ?? '-' }}</td>
                                     <td class="text-center">{{ $record->deviation_reason ?? '-' }}</td>
-                                    <td class="text-center">{{ $record->pic ?? '-' }}</td>
+                                    <td class="text-center" style="font-size: 10px">{{ $record->pic ?? '-' }}</td>
                                     <td class="text-center">{{ $record->risk_analysis ?? '-' }}</td>
-                                    <td class="text-center">{{ $record->analyzer_pic ?? '-' }}</td>
-                                    <td class="text-center">{{ $record->reviewed_by ?? '-' }}</td>
-                                    <td class="text-center">{{ $record->acknowledged_by ?? '-' }}</td>
+                                    <td class="text-center" style="font-size: 10px">{{ $record->analyzer_pic ?? '-' }}</td>
+                                    <td class="text-center" style="font-size: 10px">{{ $record->reviewed_by ?? '-' }}</td>
+                                    <td class="text-center" style="font-size: 10px">{{ $record->acknowledged_by ?? '-' }}</td>
                                 </tr>
                             @endforeach
     
@@ -251,11 +256,11 @@ $renderGroups =
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
+                                    <td style="font-size: 10px">&nbsp;</td>
                                     <td>&nbsp;</td>
-                                    <td>&nbsp;</td>
-                                    <td>&nbsp;</td>
-                                    <td>&nbsp;</td>
-                                    <td>&nbsp;</td>
+                                    <td style="font-size: 10px">&nbsp;</td>
+                                    <td style="font-size: 10px">&nbsp;</td>
+                                    <td style="font-size: 10px">&nbsp;</td>
                                 </tr>
                             @endfor
                         </tbody>                    
