@@ -70,7 +70,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-3 border border-black py-1 px-2">
+            <div class="col-3 border-top border-bottom border-black py-1 px-2">
                 <p class="mb-0" style="font-size: 16px;">**) Initial name and date (<i>Inisial nama dan tanggal</i>)</p>
             </div>
             <div class="col-3 border border-black border-start-0 py-1 px-1">
